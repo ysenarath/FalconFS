@@ -1,8 +1,12 @@
 package lk.uomcse.fs;
 
-import lk.uomcse.fs.models.BootstrapClient;
-import lk.uomcse.fs.models.RequestHandler;
-import lk.uomcse.fs.models.Node;
+import lk.uomcse.fs.messages.IRequest;
+import lk.uomcse.fs.messages.JoinRequest;
+import lk.uomcse.fs.messages.JoinResponse;
+import lk.uomcse.fs.model.BootstrapClient;
+import lk.uomcse.fs.entity.BootstrapServer;
+import lk.uomcse.fs.model.RequestHandler;
+import lk.uomcse.fs.entity.Node;
 import org.apache.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -22,20 +26,23 @@ public class FalconFS {
 
     private Set<Node> neighbours;
 
-    private BootstrapClient bc;
+    private BootstrapClient bootstrapClient;
 
     private RequestHandler handler;
 
     /**
      * Imports file system requirements
      *
-     * @param bc a bootstrap server
+     * @param name            name of this file server
+     * @param ip              designated ip of this node
+     * @param port            assigned port of this node
+     * @param bootstrapServer a bootstrap server entity
      */
-    private FalconFS(String name, String ip, int port, BootstrapClient bc) {
+    private FalconFS(String name, String ip, int port, BootstrapServer bootstrapServer) {
         this.name = name;
-        this.bc = bc;
         this.me = new Node(ip, port);
         this.handler = new RequestHandler(port);
+        this.bootstrapClient = new BootstrapClient(bootstrapServer, this.handler);
         this.neighbours = new HashSet<>();
     }
 
@@ -43,12 +50,15 @@ public class FalconFS {
      * Starts the Falcon file system
      */
     private void start() {
-        // 1. Start the listener
+        // 1. Start the listener - Blocking
         this.handler.start();
+        LOGGER.trace("Request handler started.");
         // 2. Connect to neighbours (bootstrap + join)
         this.bootstrap();
+        LOGGER.trace("Bootstrapping completed.");
         // 3. start querying
         // while random keyword in keywords query(keyword)
+
     }
 
     /**
@@ -57,16 +67,20 @@ public class FalconFS {
      * @param n a node to join
      */
     private void join(Node n) {
-
         neighbours.add(n);
-        throw new NotImplementedException();
+//        IRequest jr = new JoinRequest(n);
+//        handler.sendRequest(n.getIp(), n.getPort(), jr);
+//        String reply = handler.receiveResponse(JoinResponse.ID);
+//        JoinResponse rsp = JoinResponse.parse(reply);
+//        if (rsp.isSuccess())
+//            LOGGER.info("Successfully joined to node.");
     }
 
     /**
      * Connects with bootstrap server and joins to nodes provided
      */
     private void bootstrap() {
-        List<Node> nodes = bc.register(name, me);
+        List<Node> nodes = bootstrapClient.register(name, me);
         nodes.forEach(this::join);
         LOGGER.info(String.format("Joined to nodes: %s", nodes.toString()));
     }
@@ -87,11 +101,16 @@ public class FalconFS {
      * @param args No args yet
      */
     public static void main(String[] args) {
-        BootstrapClient bc = new BootstrapClient("localhost", 55555);
+        BootstrapServer bc = new BootstrapServer("localhost", 55555);
         FalconFS fs = new FalconFS("uom_cse", "localhost", 5555, bc);
-        FalconFS fs2 = new FalconFS("uom_cse2", "localhost", 5556, bc);
+        FalconFS fs2 = new FalconFS("uom_cse1", "localhost", 5556, bc);
+        FalconFS fs3 = new FalconFS("uom_cse2", "localhost", 5557, bc);
+        FalconFS fs4 = new FalconFS("uom_cse3", "localhost", 5558, bc);
+        FalconFS fs5 = new FalconFS("uom_cse4", "localhost", 5559, bc);
         fs.start();
         fs2.start();
-        fs.query("XXX");
+        fs3.start();
+        fs4.start();
+        fs5.start();
     }
 }

@@ -1,14 +1,15 @@
 package lk.uomcse.fs.messages;
 
-import lk.uomcse.fs.models.Node;
+import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.InvalidFormatException;
-import lk.uomcse.fs.utils.RequestFailedException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 // length REGOK no_nodes IP_1 port_1 IP_2 port_2
-public class RegisterResponse {
+public class RegisterResponse implements IResponse {
+    public static final String ID = "REGOK";
+
     private int nodeCount;
 
     private List<Node> nodes;

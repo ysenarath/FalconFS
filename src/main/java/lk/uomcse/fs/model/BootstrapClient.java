@@ -1,20 +1,26 @@
-package lk.uomcse.fs.models;
+package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.messages.RegisterRequest;
 import lk.uomcse.fs.messages.RegisterResponse;
 import lk.uomcse.fs.messages.UnregisterRequest;
 import lk.uomcse.fs.messages.UnregisterResponse;
-import lk.uomcse.fs.udp.UDPClient;
+import lk.uomcse.fs.entity.BootstrapServer;
+import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.RequestFailedException;
 import org.apache.log4j.Logger;
 
 import java.util.List;
 
-public class BootstrapClient extends UDPClient {
+public class BootstrapClient {
     private final static Logger LOGGER = Logger.getLogger(BootstrapClient.class.getName());
 
-    public BootstrapClient(String host, int port) {
-        super(host, port);
+    private final BootstrapServer server;
+
+    private RequestHandler handler;
+
+    public BootstrapClient(BootstrapServer bs, RequestHandler handler) {
+        this.server = bs;
+        this.handler = handler;
     }
 
     /**
@@ -26,11 +32,11 @@ public class BootstrapClient extends UDPClient {
      * @return List of nodes if the request is successful
      */
     public List<Node> register(String name, Node me) {
-        super.open();
         RegisterRequest msg = new RegisterRequest(name, me);
-        LOGGER.info(String.format("Requesting Bootstrap Server: %s", msg.toString()));
-        String reply = request(msg.toString()); // Method will wait for reply
-        LOGGER.info(String.format("Bootstrap Server replied: %s", reply));
+        LOGGER.info(String.format("Requesting bootstrap server: %s", msg.toString()));
+        this.handler.sendRequest(this.server.getHost(), this.server.getPort(), msg);
+        String reply = this.handler.receiveResponse(RegisterResponse.ID);
+        LOGGER.info(String.format("Bootstrap server replied: %s", reply));
         RegisterResponse rsp = RegisterResponse.parse(reply);
         if (rsp.isSuccess())
             // TODO: Select random 2 and return
@@ -59,10 +65,10 @@ public class BootstrapClient extends UDPClient {
     public boolean unregister(String name, Node me) {
         UnregisterRequest msg = new UnregisterRequest(name, me);
         LOGGER.info(String.format("Requesting Bootstrap Server: %s", msg.toString()));
-        String reply = request(msg.toString()); // Method will wait for reply
+        this.handler.sendRequest(this.server.getHost(), this.server.getPort(), msg); // Method will wait for reply
+        String reply = this.handler.receiveResponse(UnregisterResponse.ID);
         LOGGER.info(String.format("Bootstrap Server replied: %s", reply));
         UnregisterResponse rsp = UnregisterResponse.parse(reply);
-        super.close();
         return rsp.isSuccess();
     }
 }

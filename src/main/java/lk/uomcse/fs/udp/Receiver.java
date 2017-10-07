@@ -3,32 +3,32 @@ package lk.uomcse.fs.udp;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class UDPReceiver extends Thread {
-    private boolean running = true;
+public class Receiver extends Thread {
+    private boolean running;
 
     private DatagramSocket socket;
 
     private BlockingQueue<DatagramPacket> packets;
 
-    public UDPReceiver(int port) {
-        try {
-            socket = new DatagramSocket(port);
-        } catch (SocketException e) {
-            // e.printStackTrace();
-            // TODO: Create custom exception
-            throw new RuntimeException("Unable construct Datagram Socket.");
-        }
+    /**
+     * Creates the part of client that handles receives
+     *
+     * @param socket Datagram socket
+     */
+    public Receiver(DatagramSocket socket) {
+        this.packets = new LinkedBlockingQueue<>();
+        this.running = false;
+        this.socket = socket;
     }
 
     /**
      * Thread function
      */
     public void run() {
+        running = true;
         byte[] buf = new byte[256];
         while (running) {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -53,5 +53,9 @@ public class UDPReceiver extends Thread {
 
     public BlockingQueue<DatagramPacket> getPackets() {
         return packets;
+    }
+
+    public DatagramPacket receive() throws InterruptedException {
+        return packets.take();
     }
 }

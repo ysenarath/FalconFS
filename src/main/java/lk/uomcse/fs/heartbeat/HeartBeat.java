@@ -1,6 +1,6 @@
 package lk.uomcse.fs.heartbeat;
 
-import lk.uomcse.fs.models.Node;
+import lk.uomcse.fs.entity.Node;
 
 import java.io.IOException;
 import java.net.*;
@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Dulanjaya Tennekoon
  * @see java.net.DatagramPacket
- * @see lk.uomcse.fs.models.Node
+ * @see Node
  * @since Phase1
  * Todo   Exception Handling
  * Todo   Neighbor Removal Handling

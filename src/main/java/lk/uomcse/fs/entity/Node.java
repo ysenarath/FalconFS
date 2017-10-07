@@ -1,4 +1,4 @@
-package lk.uomcse.fs.models;
+package lk.uomcse.fs.entity;
 
 public class Node {
     private String ip;
