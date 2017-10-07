@@ -25,4 +25,9 @@ public class Node {
     public void setPort(int port) {
         this.port = port;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Node{ip='%s', port=%s}", ip, port);
+    }
 }

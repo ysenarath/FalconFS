@@ -26,7 +26,7 @@ public abstract class UDPClient {
     /**
      * Opens a socket to host
      *
-     * @return
+     * @return whether opening connection is success
      */
     public boolean open() {
         try {
@@ -49,7 +49,7 @@ public abstract class UDPClient {
     /**
      * Requests server for the msg content
      * <p>
-     * TODO: Handle for timeouts
+     * TODO: Handle timeouts
      *
      * @param msg a message to relay to the server
      * @return reply from the server
