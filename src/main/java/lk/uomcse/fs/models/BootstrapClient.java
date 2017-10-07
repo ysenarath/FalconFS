@@ -1,18 +1,18 @@
-package lk.uomcse.fs.handlers;
+package lk.uomcse.fs.models;
 
 import lk.uomcse.fs.models.Node;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Set;
 
-public class BSHandler {
+public class BootstrapClient {
     private String ip;
 
     private int port;
 
     private Node node;
 
-    public BSHandler(String ip, int port) {
+    public BootstrapClient(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }

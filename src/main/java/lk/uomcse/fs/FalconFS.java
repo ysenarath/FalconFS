@@ -1,6 +1,6 @@
 package lk.uomcse.fs;
 
-import lk.uomcse.fs.handlers.BSHandler;
+import lk.uomcse.fs.models.BootstrapClient;
 import lk.uomcse.fs.models.Node;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -17,14 +17,14 @@ public class FalconFS {
 
     private Set<Node> neighbours;
 
-    private BSHandler bs;
+    private BootstrapClient bs;
 
     /**
      * Imports file system requirements
      *
      * @param bs a bootstrap server
      */
-    private FalconFS(String ip, int port, BSHandler bs) {
+    private FalconFS(String ip, int port, BootstrapClient bs) {
         this.neighbours = new HashSet<>();
         this.bs = bs;
         this.me = new Node(ip, port);
@@ -61,7 +61,7 @@ public class FalconFS {
      * @param args No args
      */
     public static void main(String[] args) {
-        BSHandler bs = new BSHandler("", 0);
+        BootstrapClient bs = new BootstrapClient("", 0);
         FalconFS fs = new FalconFS("", 0, bs);
         fs.start();
     }
