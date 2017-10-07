@@ -8,14 +8,14 @@ import java.net.SocketException;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 
-public class UDPListener extends Thread {
+public class UDPReceiver extends Thread {
     private boolean running = true;
 
     private DatagramSocket socket;
 
     private BlockingQueue<DatagramPacket> packets;
 
-    public UDPListener(int port) {
+    public UDPReceiver(int port) {
         try {
             socket = new DatagramSocket(port);
         } catch (SocketException e) {
