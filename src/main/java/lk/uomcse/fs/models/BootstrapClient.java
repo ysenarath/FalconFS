@@ -6,9 +6,9 @@ import lk.uomcse.fs.messages.UnregisterRequest;
 import lk.uomcse.fs.messages.UnregisterResponse;
 import lk.uomcse.fs.udp.UDPClient;
 import lk.uomcse.fs.utils.RequestFailedException;
+import org.apache.log4j.Logger;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 public class BootstrapClient extends UDPClient {
     private final static Logger LOGGER = Logger.getLogger(BootstrapClient.class.getName());

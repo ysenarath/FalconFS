@@ -3,12 +3,12 @@ package lk.uomcse.fs;
 import lk.uomcse.fs.models.BootstrapClient;
 import lk.uomcse.fs.models.FileServer;
 import lk.uomcse.fs.models.Node;
+import org.apache.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  * Falcon File System
@@ -72,7 +72,6 @@ public class FalconFS {
         nodes.forEach(this::join);
         LOGGER.info(String.format("Joined to nodes: %s", nodes.toString()));
     }
-
 
     /**
      * Query and print results
