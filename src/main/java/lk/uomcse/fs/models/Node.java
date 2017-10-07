@@ -1,8 +1,6 @@
 package lk.uomcse.fs.models;
 
 public class Node {
-    private String name;
-
     private String ip;
 
     private int port;
