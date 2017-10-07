@@ -19,6 +19,7 @@ public class BootstrapClient extends UDPClient {
 
     /**
      * Registers the node bootstrap from server
+     * TODO: Update what happens when there is a timeout
      *
      * @param name name of the client
      * @param me   node represented by the name
@@ -32,6 +33,7 @@ public class BootstrapClient extends UDPClient {
         LOGGER.info(String.format("Bootstrap Server replied: %s", reply));
         RegisterResponse rsp = RegisterResponse.parse(reply);
         if (rsp.isSuccess())
+            // TODO: Select random 2 and return
             return rsp.getNodes();
         else
             switch (rsp.getNodeCount()) {
@@ -48,6 +50,7 @@ public class BootstrapClient extends UDPClient {
 
     /**
      * Unregisters the node bootstrap from server
+     * TODO: Update what happens when there is a timeout
      *
      * @param name name of the client
      * @param me   node represented by the name
