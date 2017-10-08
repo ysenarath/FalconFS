@@ -1,9 +1,5 @@
 package lk.uomcse.fs;
 
-import lk.uomcse.fs.messages.IMessage;
-import lk.uomcse.fs.messages.IRequest;
-import lk.uomcse.fs.messages.JoinRequest;
-import lk.uomcse.fs.messages.JoinResponse;
 import lk.uomcse.fs.model.BootstrapService;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.model.JoinService;
@@ -45,9 +41,9 @@ public class FalconFS {
     private FalconFS(String name, String ip, int port, BootstrapServer bootstrapServer) {
         this.name = name;
         this.me = new Node(ip, port);
+        this.neighbours = new HashSet<>();
         this.handler = new RequestHandler(port);
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
-        this.neighbours = new HashSet<>();
         this.joinService = new JoinService(handler, me, neighbours);
     }
 
@@ -66,13 +62,6 @@ public class FalconFS {
         LOGGER.trace("Listening to join messages.");
         // 4. start querying
         // while random keyword in keywords query(keyword)
-
-    }
-
-    private void join(Node n) {
-        boolean isSuccess = this.joinService.join(n);
-        if (isSuccess)
-            neighbours.add(n);
     }
 
     /**

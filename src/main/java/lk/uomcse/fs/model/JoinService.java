@@ -67,6 +67,8 @@ public class JoinService extends Thread {
         String reply = handler.receiveMessage(JoinResponse.ID);
         LOGGER.info(String.format("Replied to join request: %s", reply));
         JoinResponse rsp = JoinResponse.parse(reply);
+        if (rsp.isSuccess())
+            neighbours.add(n);
         return rsp.isSuccess();
     }
 
