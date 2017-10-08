@@ -53,7 +53,7 @@ public class FalconFS {
         this.handler = new RequestHandler(port);
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
         this.joinService = new JoinService(handler, me, neighbours);
-        this.queryService = new QueryService(handler, me, filenames);
+        this.queryService = new QueryService(handler, me, filenames, neighbours);
     }
 
     /**
@@ -71,6 +71,7 @@ public class FalconFS {
         LOGGER.trace("Listening to join messages.");
         // 4. start querying
         // while random keyword in keywords query(keyword)
+        this.queryService.start();
     }
 
     /**
