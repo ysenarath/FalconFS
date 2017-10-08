@@ -3,11 +3,13 @@ package lk.uomcse.fs;
 import lk.uomcse.fs.model.BootstrapService;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.model.JoinService;
+import lk.uomcse.fs.model.QueryService;
 import lk.uomcse.fs.model.RequestHandler;
 import lk.uomcse.fs.entity.Node;
 import org.apache.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +24,8 @@ public class FalconFS {
 
     private Node me;
 
+    private List<String> filenames;
+
     private Set<Node> neighbours;
 
     private RequestHandler handler;
@@ -29,6 +33,8 @@ public class FalconFS {
     private BootstrapService bootstrapService;
 
     private JoinService joinService;
+
+    private QueryService queryService;
 
     /**
      * Imports file system requirements
@@ -41,10 +47,13 @@ public class FalconFS {
     private FalconFS(String name, String ip, int port, BootstrapServer bootstrapServer) {
         this.name = name;
         this.me = new Node(ip, port);
+        // TODO: Support concurrent changes!!
         this.neighbours = new HashSet<>();
+        this.filenames = new ArrayList<>();
         this.handler = new RequestHandler(port);
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
         this.joinService = new JoinService(handler, me, neighbours);
+        this.queryService = new QueryService(handler, me, filenames);
     }
 
     /**

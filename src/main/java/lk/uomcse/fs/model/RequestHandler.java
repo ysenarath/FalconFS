@@ -67,7 +67,7 @@ public class RequestHandler extends Thread {
      */
     public void sendMessage(String ip, int port, IMessage request) {
         byte[] buf = request.toString().getBytes();
-        InetAddress address = null;
+        InetAddress address;
         try {
             address = InetAddress.getByName(ip);
         } catch (UnknownHostException e) {
