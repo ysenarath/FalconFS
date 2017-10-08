@@ -43,16 +43,8 @@ public class Receiver extends Thread {
         socket.close();
     }
 
-    public boolean isRunning() {
-        return running;
-    }
-
     public void setRunning(boolean running) {
         this.running = running;
-    }
-
-    public BlockingQueue<DatagramPacket> getPackets() {
-        return packets;
     }
 
     public DatagramPacket receive() throws InterruptedException {
