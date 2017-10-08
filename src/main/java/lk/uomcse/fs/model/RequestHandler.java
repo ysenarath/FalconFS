@@ -1,7 +1,6 @@
 package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.messages.IMessage;
-import lk.uomcse.fs.messages.IRequest;
 import lk.uomcse.fs.udp.Receiver;
 import lk.uomcse.fs.udp.Sender;
 import lk.uomcse.fs.utils.DatagramSocketUtils;
