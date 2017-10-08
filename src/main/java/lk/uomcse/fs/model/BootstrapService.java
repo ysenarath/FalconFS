@@ -11,14 +11,20 @@ import org.apache.log4j.Logger;
 
 import java.util.List;
 
-public class BootstrapClient {
-    private final static Logger LOGGER = Logger.getLogger(BootstrapClient.class.getName());
+public class BootstrapService {
+    private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
 
     private final BootstrapServer server;
 
     private RequestHandler handler;
 
-    public BootstrapClient(BootstrapServer bs, RequestHandler handler) {
+    /**
+     * Constructs bootstrap service providing register and unregister functions
+     *
+     * @param handler Request handler
+     * @param bs      Bootstrap server (details)
+     */
+    public BootstrapService(RequestHandler handler, BootstrapServer bs) {
         this.server = bs;
         this.handler = handler;
     }
@@ -34,8 +40,8 @@ public class BootstrapClient {
     public List<Node> register(String name, Node me) {
         RegisterRequest msg = new RegisterRequest(name, me);
         LOGGER.info(String.format("Requesting bootstrap server: %s", msg.toString()));
-        this.handler.sendRequest(this.server.getHost(), this.server.getPort(), msg);
-        String reply = this.handler.receiveResponse(RegisterResponse.ID);
+        this.handler.sendMessage(this.server.getHost(), this.server.getPort(), msg);
+        String reply = this.handler.receiveMessage(RegisterResponse.ID);
         LOGGER.info(String.format("Bootstrap server replied: %s", reply));
         RegisterResponse rsp = RegisterResponse.parse(reply);
         if (rsp.isSuccess())
@@ -65,8 +71,8 @@ public class BootstrapClient {
     public boolean unregister(String name, Node me) {
         UnregisterRequest msg = new UnregisterRequest(name, me);
         LOGGER.info(String.format("Requesting Bootstrap Server: %s", msg.toString()));
-        this.handler.sendRequest(this.server.getHost(), this.server.getPort(), msg); // Method will wait for reply
-        String reply = this.handler.receiveResponse(UnregisterResponse.ID);
+        this.handler.sendMessage(this.server.getHost(), this.server.getPort(), msg); // Method will wait for reply
+        String reply = this.handler.receiveMessage(UnregisterResponse.ID);
         LOGGER.info(String.format("Bootstrap Server replied: %s", reply));
         UnregisterResponse rsp = UnregisterResponse.parse(reply);
         return rsp.isSuccess();

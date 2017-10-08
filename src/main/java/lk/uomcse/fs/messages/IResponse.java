@@ -1,6 +1,6 @@
 package lk.uomcse.fs.messages;
 
-public interface IResponse {
+public interface IResponse extends IMessage {
     /**
      * Returns whether response is about successful request
      *

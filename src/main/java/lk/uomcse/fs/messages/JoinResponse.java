@@ -14,7 +14,7 @@ public class JoinResponse implements IResponse {
      *
      * @param success corresponding request success state
      */
-    private JoinResponse(boolean success) {
+    public JoinResponse(boolean success) {
         this.success = success;
     }
 
@@ -44,5 +44,22 @@ public class JoinResponse implements IResponse {
             throw new InvalidFormatException("Parsing failed due to not having correct type of message.");
         boolean success = response[2].equals("0");
         return new JoinResponse(success);
+    }
+
+    /**
+     * Returns string representation of the message according to standards provided
+     *
+     * @return string representation of this request
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(" JOINOK ");
+        if (success)
+            sb.append("0");
+        else
+            sb.append("9999");
+        String length = String.format("%04d", sb.length() + 4);
+        sb.insert(0, length);
+        return sb.toString();
     }
 }

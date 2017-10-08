@@ -1,10 +1,12 @@
 package lk.uomcse.fs;
 
+import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.messages.IRequest;
 import lk.uomcse.fs.messages.JoinRequest;
 import lk.uomcse.fs.messages.JoinResponse;
-import lk.uomcse.fs.model.BootstrapClient;
+import lk.uomcse.fs.model.BootstrapService;
 import lk.uomcse.fs.entity.BootstrapServer;
+import lk.uomcse.fs.model.JoinService;
 import lk.uomcse.fs.model.RequestHandler;
 import lk.uomcse.fs.entity.Node;
 import org.apache.log4j.Logger;
@@ -26,9 +28,11 @@ public class FalconFS {
 
     private Set<Node> neighbours;
 
-    private BootstrapClient bootstrapClient;
-
     private RequestHandler handler;
+
+    private BootstrapService bootstrapService;
+
+    private JoinService joinService;
 
     /**
      * Imports file system requirements
@@ -42,8 +46,9 @@ public class FalconFS {
         this.name = name;
         this.me = new Node(ip, port);
         this.handler = new RequestHandler(port);
-        this.bootstrapClient = new BootstrapClient(bootstrapServer, this.handler);
+        this.bootstrapService = new BootstrapService(handler, bootstrapServer);
         this.neighbours = new HashSet<>();
+        this.joinService = new JoinService(handler, me, neighbours);
     }
 
     /**
@@ -56,33 +61,27 @@ public class FalconFS {
         // 2. Connect to neighbours (bootstrap + join)
         this.bootstrap();
         LOGGER.trace("Bootstrapping completed.");
-        // 3. start querying
+        // 3. Start accepting nodes
+        this.joinService.start();
+        LOGGER.trace("Listening to join messages.");
+        // 4. start querying
         // while random keyword in keywords query(keyword)
 
     }
 
-    /**
-     * Joins to provided node and add it as a neighbour
-     *
-     * @param n a node to join
-     */
     private void join(Node n) {
-        neighbours.add(n);
-//        IRequest jr = new JoinRequest(n);
-//        handler.sendRequest(n.getIp(), n.getPort(), jr);
-//        String reply = handler.receiveResponse(JoinResponse.ID);
-//        JoinResponse rsp = JoinResponse.parse(reply);
-//        if (rsp.isSuccess())
-//            LOGGER.info("Successfully joined to node.");
+        boolean isSuccess = this.joinService.join(n);
+        if (isSuccess)
+            neighbours.add(n);
     }
 
     /**
      * Connects with bootstrap server and joins to nodes provided
      */
     private void bootstrap() {
-        List<Node> nodes = bootstrapClient.register(name, me);
-        nodes.forEach(this::join);
-        LOGGER.info(String.format("Joined to nodes: %s", nodes.toString()));
+        List<Node> nodes = bootstrapService.register(name, me);
+        nodes.forEach(joinService::join);
+        LOGGER.info(String.format("Joined to nodes: %s by bootstrapping ", nodes.toString()));
     }
 
     /**

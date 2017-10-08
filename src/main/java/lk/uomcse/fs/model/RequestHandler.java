@@ -1,5 +1,6 @@
 package lk.uomcse.fs.model;
 
+import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.messages.IRequest;
 import lk.uomcse.fs.udp.Receiver;
 import lk.uomcse.fs.udp.Sender;
@@ -64,7 +65,7 @@ public class RequestHandler extends Thread {
      * @param port    port of the requested node
      * @param request request
      */
-    public void sendRequest(String ip, int port, IRequest request) {
+    public void sendMessage(String ip, int port, IMessage request) {
         byte[] buf = request.toString().getBytes();
         InetAddress address = null;
         try {
@@ -83,7 +84,7 @@ public class RequestHandler extends Thread {
      * @param id reply id (see protocol specs)
      * @return reply as String
      */
-    public String receiveResponse(String id) {
+    public String receiveMessage(String id) {
         handle.putIfAbsent(id, new LinkedBlockingQueue<>());
         BlockingQueue<DatagramPacket> packets = handle.get(id);
         DatagramPacket packet;
