@@ -9,10 +9,7 @@ import lk.uomcse.fs.entity.Node;
 import org.apache.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Falcon File System
@@ -99,16 +96,23 @@ public class FalconFS {
      * @param args No args yet
      */
     public static void main(String[] args) {
-        BootstrapServer bc = new BootstrapServer("localhost", 55555);
-        FalconFS fs = new FalconFS("uom_cse", "localhost", 5555, bc);
-        FalconFS fs2 = new FalconFS("uom_cse1", "localhost", 5556, bc);
-        FalconFS fs3 = new FalconFS("uom_cse2", "localhost", 5557, bc);
-        FalconFS fs4 = new FalconFS("uom_cse3", "localhost", 5558, bc);
-        FalconFS fs5 = new FalconFS("uom_cse4", "localhost", 5559, bc);
-        fs.start();
-        fs2.start();
-        fs3.start();
-        fs4.start();
-        fs5.start();
+        Scanner sc = new Scanner(System.in);
+        BootstrapServer bc = null;
+        label:
+        while (true) {
+            String[] cmdArgs = sc.next().split(" ");
+            switch (cmdArgs[0]) {
+                case "bs":
+                    bc = new BootstrapServer(cmdArgs[1], Integer.parseInt(cmdArgs[2]));
+                    break;
+                case "fs":
+                    if (bc == null) System.out.println("Please connect to bootstrap server first.");
+                    FalconFS fs = new FalconFS(cmdArgs[1], cmdArgs[2], Integer.parseInt(cmdArgs[3]), bc);
+                    fs.start();
+                    break;
+                case "exit":
+                    break label;
+            }
+        }
     }
 }
