@@ -65,11 +65,11 @@ public class JoinService extends Thread {
      */
     public boolean join(Node n) {
         IRequest jr = new JoinRequest(current);
-        LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getIp(), n.getPort(), jr.toString()));
-        handler.sendMessage(n.getIp(), n.getPort(), jr);
-        LOGGER.debug("Waiting for receive message.");
         String reply = null;
-        for (int i = 0; i < this.joinRetries; i++)
+        for (int i = 0; i < this.joinRetries; i++) {
+            LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getIp(), n.getPort(), jr.toString()));
+            handler.sendMessage(n.getIp(), n.getPort(), jr);
+            LOGGER.debug("Waiting for receive message.");
             try {
                 reply = handler.receiveMessage(JoinResponse.ID, 5);
                 break;
@@ -81,6 +81,7 @@ public class JoinService extends Thread {
                 } else
                     LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [RETRYING]", n.toString()));
             }
+        }
         LOGGER.info(String.format("Replied to join request: %s", reply));
         JoinResponse rsp = JoinResponse.parse(reply);
         if (rsp.isSuccess())
