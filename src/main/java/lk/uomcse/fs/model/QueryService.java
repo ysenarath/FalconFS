@@ -56,7 +56,7 @@ public class QueryService {
         while (running) {
             String reply = this.handler.receiveMessage(SearchResponse.ID);
             SearchResponse response = SearchResponse.parse(reply);
-            LOGGER.debug(String.format("Response received %s", response.toString()));
+            LOGGER.info(String.format("Response received %s", response.toString()));
         }
     }
 
@@ -67,12 +67,12 @@ public class QueryService {
         running = true;
         while (running) {
             String reply = this.handler.receiveMessage(SearchRequest.ID);
-            LOGGER.debug(String.format("Request received %s", reply));
+            LOGGER.info(String.format("Request received %s", reply));
             SearchRequest request = SearchRequest.parse(reply);
             List<String> matched = new ArrayList<>();
             SearchResponse response = new SearchResponse(0, this.current, request.getHops() + 1, matched);
             this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response);
-            LOGGER.debug(String.format("Response sent %s", response.toString()));
+            LOGGER.info(String.format("Response sent %s", response.toString()));
         }
     }
 
@@ -84,7 +84,7 @@ public class QueryService {
      */
     public List<Node> search(String query) {
         SearchRequest request = new SearchRequest(this.current, query, 0);
-        LOGGER.debug(String.format("Sending query to neighbours %s", request.toString()));
+        LOGGER.info(String.format("Sending query to neighbours %s", request.toString()));
         neighbours.forEach(node -> this.handler.sendMessage(node.getIp(), node.getPort(), request));
         return null;
     }
