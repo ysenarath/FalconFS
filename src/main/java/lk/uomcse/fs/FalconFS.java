@@ -83,7 +83,7 @@ public class FalconFS {
     private void bootstrap() {
         List<Node> nodes = bootstrapService.register(name, me);
         nodes.forEach(joinService::join);
-        LOGGER.info(String.format("Joined to nodes: %s by bootstrapping ", nodes.toString()));
+        LOGGER.info(String.format("Joined to neighbours: %s", neighbours.toString()));
     }
 
     /**

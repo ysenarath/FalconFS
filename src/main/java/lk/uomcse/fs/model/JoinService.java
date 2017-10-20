@@ -21,6 +21,8 @@ public class JoinService extends Thread {
 
     private final Set<Node> neighbours;
 
+    private int joinRetries;
+
     /**
      * Allocates Join service object.
      *
@@ -32,6 +34,7 @@ public class JoinService extends Thread {
         this.handler = handler;
         this.current = current;
         this.neighbours = neighbours;
+        this.joinRetries = 3;
     }
 
     /**
@@ -66,12 +69,17 @@ public class JoinService extends Thread {
         handler.sendMessage(n.getIp(), n.getPort(), jr);
         LOGGER.debug("Waiting for receive message.");
         String reply = null;
-        try {
-            reply = handler.receiveMessage(JoinResponse.ID, 20);
-        } catch (TimeoutException e) {
-            LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s", n.toString()));
-            return false;
-        }
+        for (int i = 0; i < this.joinRetries; i++)
+            try {
+                reply = handler.receiveMessage(JoinResponse.ID, 5);
+                break;
+            } catch (TimeoutException e) {
+                if (i == this.joinRetries - 1) {
+                    LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [CANCEL_JOIN]", n.toString()));
+                    return false;
+                } else
+                    LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [RETRYING]", n.toString()));
+            }
         LOGGER.info(String.format("Replied to join request: %s", reply));
         JoinResponse rsp = JoinResponse.parse(reply);
         if (rsp.isSuccess())
