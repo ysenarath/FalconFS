@@ -9,6 +9,11 @@ import lk.uomcse.fs.entity.Node;
 import org.apache.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -94,26 +99,23 @@ public class FalconFS {
      * Main Method
      *
      * @param args No args yet
-     *             TODO: Change main to get server and client parameters from config file
      */
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        BootstrapServer bc = null;
-        label:
-        while (true) {
-            String cmd = sc.next();
-            switch (cmd) {
-                case "bs":
-                    bc = new BootstrapServer(sc.next(), sc.nextInt());
-                    break;
-                case "fs":
-                    if (bc == null) System.out.println("Please create the bootstrap server first.");
-                    FalconFS fs = new FalconFS(sc.next(), sc.next(), sc.nextInt(), bc);
-                    fs.start();
-                    break;
-                case "exit":
-                    break label;
+        Properties prop = new Properties();
+        InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
+        if (inputStream != null) {
+            try {
+                prop.load(inputStream);
+            } catch (IOException e) {
+                System.err.println("Property file 'config.properties' could not be loaded");
+                return;
             }
+        } else {
+            System.err.println("Property file 'config.properties' not found in the classpath");
+            return;
         }
+        BootstrapServer bc = new BootstrapServer(prop.getProperty("bs.ip"), Integer.parseInt(prop.getProperty("bs.port")));
+        FalconFS fs = new FalconFS(prop.getProperty("fs.name"), prop.getProperty("fs.ip"), Integer.parseInt(prop.getProperty("fs.port")), bc);
+        fs.start();
     }
 }
