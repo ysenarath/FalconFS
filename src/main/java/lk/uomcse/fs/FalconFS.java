@@ -87,27 +87,28 @@ public class FalconFS {
      * @param keyword a word/ series of continuous words in filename to query in the network
      */
     private void query(String keyword) {
-        throw new NotImplementedException();
+        queryService.search(keyword);
     }
 
     /**
      * Main Method
      *
      * @param args No args yet
+     *             TODO: Change main to get server and client parameters from config file
      */
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         BootstrapServer bc = null;
         label:
         while (true) {
-            String[] cmdArgs = sc.next().split(" ");
-            switch (cmdArgs[0]) {
+            String cmd = sc.next();
+            switch (cmd) {
                 case "bs":
-                    bc = new BootstrapServer(cmdArgs[1], Integer.parseInt(cmdArgs[2]));
+                    bc = new BootstrapServer(sc.next(), sc.nextInt());
                     break;
                 case "fs":
-                    if (bc == null) System.out.println("Please connect to bootstrap server first.");
-                    FalconFS fs = new FalconFS(cmdArgs[1], cmdArgs[2], Integer.parseInt(cmdArgs[3]), bc);
+                    if (bc == null) System.out.println("Please create the bootstrap server first.");
+                    FalconFS fs = new FalconFS(sc.next(), sc.next(), sc.nextInt(), bc);
                     fs.start();
                     break;
                 case "exit":
