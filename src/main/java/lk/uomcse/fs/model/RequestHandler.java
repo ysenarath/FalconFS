@@ -10,7 +10,7 @@ import java.net.*;
 import java.util.concurrent.*;
 
 public class RequestHandler extends Thread {
-    private final static Logger LOGGER = Logger.getLogger(JoinService.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(RequestHandler.class.getName());
 
     private boolean running;
 
