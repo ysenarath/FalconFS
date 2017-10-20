@@ -67,10 +67,12 @@ public class QueryService {
         running = true;
         while (running) {
             String reply = this.handler.receiveMessage(SearchRequest.ID);
+            LOGGER.debug(String.format("Request received %s", reply));
             SearchRequest request = SearchRequest.parse(reply);
             List<String> matched = new ArrayList<>();
             SearchResponse response = new SearchResponse(0, this.current, request.getHops() + 1, matched);
             this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response);
+            LOGGER.debug(String.format("Response sent %s", response.toString()));
         }
     }
 
