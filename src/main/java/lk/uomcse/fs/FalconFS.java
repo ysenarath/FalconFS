@@ -74,6 +74,7 @@ public class FalconFS {
         // 4. start querying
         // while random keyword in keywords query(keyword)
         this.queryService.start();
+        LOGGER.trace("Listening to query messages.");
     }
 
     /**
@@ -117,5 +118,7 @@ public class FalconFS {
         BootstrapServer bc = new BootstrapServer(prop.getProperty("bs.ip"), Integer.parseInt(prop.getProperty("bs.port")));
         FalconFS fs = new FalconFS(prop.getProperty("fs.name"), prop.getProperty("fs.ip"), Integer.parseInt(prop.getProperty("fs.port")), bc);
         fs.start();
+
+        fs.query("hello");
     }
 }

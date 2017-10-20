@@ -8,6 +8,7 @@ import lk.uomcse.fs.messages.JoinResponse;
 import org.apache.log4j.Logger;
 
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 public class JoinService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(JoinService.class.getName());
@@ -64,7 +65,13 @@ public class JoinService extends Thread {
         LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getIp(), n.getPort(), jr.toString()));
         handler.sendMessage(n.getIp(), n.getPort(), jr);
         LOGGER.debug("Waiting for receive message.");
-        String reply = handler.receiveMessage(JoinResponse.ID);
+        String reply = null;
+        try {
+            reply = handler.receiveMessage(JoinResponse.ID, 20);
+        } catch (TimeoutException e) {
+            LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s", n.toString()));
+            return false;
+        }
         LOGGER.info(String.format("Replied to join request: %s", reply));
         JoinResponse rsp = JoinResponse.parse(reply);
         if (rsp.isSuccess())
