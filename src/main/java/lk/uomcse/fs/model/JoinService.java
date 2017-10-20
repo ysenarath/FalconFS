@@ -76,6 +76,7 @@ public class JoinService extends Thread {
             } catch (TimeoutException e) {
                 if (i == this.joinRetries - 1) {
                     LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [CANCEL_JOIN]", n.toString()));
+                    LOGGER.info(String.format("Join request failed after attempting %d times", this.joinRetries));
                     return false;
                 } else
                     LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [RETRYING]", n.toString()));
