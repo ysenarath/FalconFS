@@ -5,9 +5,13 @@ public class Node {
 
     private int port;
 
+    //health of the node. should be in between 0 and 100
+    private int health;
+
     public Node(String ip, int port) {
         this.ip = ip;
         this.port = port;
+        this.health = 100;
     }
 
     public String getIp() {
@@ -24,6 +28,20 @@ public class Node {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        if (health > 100) {
+            this.health = 100;
+        } else if (health < 0) {
+            this.health = 0;
+        } else {
+            this.health = health;
+        }
     }
 
     @Override
