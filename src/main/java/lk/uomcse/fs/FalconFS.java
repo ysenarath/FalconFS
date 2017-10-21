@@ -9,10 +9,12 @@ import lk.uomcse.fs.entity.Node;
 import org.apache.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.*;
 
 /**
  * Falcon File System
@@ -72,6 +74,7 @@ public class FalconFS {
         // 4. start querying
         // while random keyword in keywords query(keyword)
         this.queryService.start();
+        LOGGER.trace("Listening to query messages.");
     }
 
     /**
@@ -80,7 +83,7 @@ public class FalconFS {
     private void bootstrap() {
         List<Node> nodes = bootstrapService.register(name, me);
         nodes.forEach(joinService::join);
-        LOGGER.info(String.format("Joined to nodes: %s by bootstrapping ", nodes.toString()));
+        LOGGER.trace(String.format("Joined to neighbours: %s", neighbours.toString()));
     }
 
     /**
@@ -90,7 +93,7 @@ public class FalconFS {
      * @param keyword a word/ series of continuous words in filename to query in the network
      */
     private void query(String keyword) {
-        throw new NotImplementedException();
+        queryService.search(keyword);
     }
 
     /**
@@ -99,16 +102,23 @@ public class FalconFS {
      * @param args No args yet
      */
     public static void main(String[] args) {
-        BootstrapServer bc = new BootstrapServer("localhost", 55555);
-        FalconFS fs = new FalconFS("uom_cse", "localhost", 5555, bc);
-        FalconFS fs2 = new FalconFS("uom_cse1", "localhost", 5556, bc);
-        FalconFS fs3 = new FalconFS("uom_cse2", "localhost", 5557, bc);
-        FalconFS fs4 = new FalconFS("uom_cse3", "localhost", 5558, bc);
-        FalconFS fs5 = new FalconFS("uom_cse4", "localhost", 5559, bc);
+        Properties prop = new Properties();
+        InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
+        if (inputStream != null) {
+            try {
+                prop.load(inputStream);
+            } catch (IOException e) {
+                System.err.println("Property file 'config.properties' could not be loaded");
+                return;
+            }
+        } else {
+            System.err.println("Property file 'config.properties' not found in the classpath");
+            return;
+        }
+        BootstrapServer bc = new BootstrapServer(prop.getProperty("bs.ip"), Integer.parseInt(prop.getProperty("bs.port")));
+        FalconFS fs = new FalconFS(prop.getProperty("fs.name"), prop.getProperty("fs.ip"), Integer.parseInt(prop.getProperty("fs.port")), bc);
         fs.start();
-        fs2.start();
-        fs3.start();
-        fs4.start();
-        fs5.start();
+
+        fs.query("hello");
     }
 }

@@ -4,11 +4,14 @@ import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.udp.Receiver;
 import lk.uomcse.fs.udp.Sender;
 import lk.uomcse.fs.utils.DatagramSocketUtils;
+import org.apache.log4j.Logger;
 
 import java.net.*;
 import java.util.concurrent.*;
 
 public class RequestHandler extends Thread {
+    private final static Logger LOGGER = Logger.getLogger(RequestHandler.class.getName());
+
     private boolean running;
 
     private final Receiver receiver;
@@ -40,7 +43,9 @@ public class RequestHandler extends Thread {
         while (running) {
             try {
                 DatagramPacket packet = receiver.receive();
-                String[] data = new String(packet.getData(), 0, packet.getLength()).split(" ");
+                String receivedStr = new String(packet.getData(), 0, packet.getLength());
+                LOGGER.debug(String.format("Received packet: %s", receivedStr));
+                String[] data = receivedStr.split(" ");
                 String id;
                 // message should be at least contain 2 space separated strings
                 if (data.length >= 2) {
@@ -88,8 +93,33 @@ public class RequestHandler extends Thread {
         BlockingQueue<DatagramPacket> packets = handle.get(id);
         DatagramPacket packet;
         try {
-            // TODO: add a timeout
+            LOGGER.debug(String.format("Waiting for message with ID: %s", id));
             packet = packets.take();
+            LOGGER.debug(String.format("Message with ID obtained: %s", id));
+        } catch (InterruptedException e) {
+            // TODO: change following exception
+            throw new RuntimeException("Interrupted from getting a reply.");
+        }
+        return new String(packet.getData(), 0, packet.getLength());
+    }
+
+    /**
+     * Gets reply for reply ID if exists or waits until there is a reply
+     *
+     * @param id reply id (see protocol specs)
+     * @return reply as String
+     */
+    public String receiveMessage(String id, int timeout) throws TimeoutException {
+        handle.putIfAbsent(id, new LinkedBlockingQueue<>());
+        BlockingQueue<DatagramPacket> packets = handle.get(id);
+        DatagramPacket packet;
+        try {
+            LOGGER.debug(String.format("Waiting for message with ID: %s", id));
+            packet = packets.poll(timeout, TimeUnit.SECONDS);
+            if (packet == null) {
+                throw new TimeoutException("Packed with given id not received.");
+            }
+            LOGGER.debug(String.format("Message with ID obtained: %s", id));
         } catch (InterruptedException e) {
             // TODO: change following exception
             throw new RuntimeException("Interrupted from getting a reply.");

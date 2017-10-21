@@ -94,4 +94,23 @@ public class SearchResponse implements IResponse {
         List<String> filenames = Arrays.asList(response).subList(6, response.length);
         return new SearchResponse(n, new Node(ip, port), hops, filenames);
     }
+
+    /**
+     * To string method
+     *
+     * @return a string representation
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(" ");
+        sb.append(ID).append(" ")
+                .append(this.fileCount).append(" ")
+                .append(node.getIp()).append(" ")
+                .append(node.getPort()).append(" ")
+                .append(this.hops).append(" ")
+                .append(String.join(" ", this.filenames)).append(" ");
+        String length = String.format("%04d", sb.length() + 4);
+        sb.insert(0, length);
+        return sb.toString();
+    }
 }

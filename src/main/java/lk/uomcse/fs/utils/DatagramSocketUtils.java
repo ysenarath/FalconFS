@@ -13,15 +13,19 @@ public class DatagramSocketUtils {
 
     private static final ConcurrentMap<Integer, DatagramSocket> sockets = new ConcurrentHashMap<>();
 
-    public static DatagramSocket getSocket(int port) {
-        try {
-            DatagramSocket socket = new DatagramSocket(port);
+    public static synchronized DatagramSocket getSocket(int port) {
+        if (!sockets.containsKey(port)) {
+            DatagramSocket socket = null;
+            try {
+                socket = new DatagramSocket(port);
+            } catch (SocketException e) {
+                // TODO: Create custom exception
+                throw new RuntimeException("There is an error creating or accessing a Socket.", e);
+            }
             LOGGER.debug(String.format("Socket with port %s created.", socket.getLocalPort()));
-            sockets.putIfAbsent(port, socket);
-            return sockets.get(port);
-        } catch (SocketException e) {
-            // TODO: Create custom exception
-            throw new RuntimeException("There is an error creating or accessing a Socket.", e);
+            sockets.put(port, socket);
         }
+        return sockets.get(port);
     }
 }
+

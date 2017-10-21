@@ -49,10 +49,9 @@ public class BootstrapService {
             return rsp.getNodes();
         else
             switch (rsp.getNodeCount()) {
-                case (9998): {
+                case (9998):
                     this.unregister(name, me);
                     return this.register(name, me);
-                }
                 default:
                     break;
             }

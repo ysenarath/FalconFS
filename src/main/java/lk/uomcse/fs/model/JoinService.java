@@ -8,6 +8,7 @@ import lk.uomcse.fs.messages.JoinResponse;
 import org.apache.log4j.Logger;
 
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 public class JoinService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(JoinService.class.getName());
@@ -20,6 +21,8 @@ public class JoinService extends Thread {
 
     private final Set<Node> neighbours;
 
+    private int joinRetries;
+
     /**
      * Allocates Join service object.
      *
@@ -31,6 +34,7 @@ public class JoinService extends Thread {
         this.handler = handler;
         this.current = current;
         this.neighbours = neighbours;
+        this.joinRetries = 3;
     }
 
     /**
@@ -61,10 +65,23 @@ public class JoinService extends Thread {
      */
     public boolean join(Node n) {
         IRequest jr = new JoinRequest(current);
-        LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getIp(), n.getPort(), jr.toString()));
-        handler.sendMessage(n.getIp(), n.getPort(), jr);
-        LOGGER.debug("Waiting for receive message.");
-        String reply = handler.receiveMessage(JoinResponse.ID);
+        String reply = null;
+        for (int i = 0; i < this.joinRetries; i++) {
+            LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getIp(), n.getPort(), jr.toString()));
+            handler.sendMessage(n.getIp(), n.getPort(), jr);
+            LOGGER.debug("Waiting for receive message.");
+            try {
+                reply = handler.receiveMessage(JoinResponse.ID, 5);
+                break;
+            } catch (TimeoutException e) {
+                if (i == this.joinRetries - 1) {
+                    LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [CANCEL_JOIN]", n.toString()));
+                    LOGGER.info(String.format("Join request failed after attempting %d times", this.joinRetries));
+                    return false;
+                } else
+                    LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [RETRYING]", n.toString()));
+            }
+        }
         LOGGER.info(String.format("Replied to join request: %s", reply));
         JoinResponse rsp = JoinResponse.parse(reply);
         if (rsp.isSuccess())
