@@ -7,6 +7,7 @@ import lk.uomcse.fs.messages.JoinRequest;
 import lk.uomcse.fs.messages.JoinResponse;
 import org.apache.log4j.Logger;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -19,7 +20,7 @@ public class JoinService extends Thread {
 
     private final Node current;
 
-    private final Set<Node> neighbours;
+    private final List<Node> neighbours;
 
     private int joinRetries;
 
@@ -30,7 +31,7 @@ public class JoinService extends Thread {
      * @param current    Current node running this join service
      * @param neighbours reference to neighbours
      */
-    public JoinService(RequestHandler handler, Node current, Set<Node> neighbours) {
+    public JoinService(RequestHandler handler, Node current, List<Node> neighbours) {
         this.handler = handler;
         this.current = current;
         this.neighbours = neighbours;
@@ -52,7 +53,9 @@ public class JoinService extends Thread {
             LOGGER.info(String.format("Replying to join request: %s", reply.toString()));
             // Request handling section
             this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), reply);
-            neighbours.add(request.getNode());
+            Node n = request.getNode();
+            if (!neighbours.contains(n))
+                neighbours.add(n);
             LOGGER.info(String.format("Node(%s:%d) is joined to nodes: %s", current.getIp(), current.getPort(), neighbours.toString()));
         }
     }
@@ -84,7 +87,7 @@ public class JoinService extends Thread {
         }
         LOGGER.info(String.format("Replied to join request: %s", reply));
         JoinResponse rsp = JoinResponse.parse(reply);
-        if (rsp.isSuccess())
+        if (rsp.isSuccess() && !neighbours.contains(n))
             neighbours.add(n);
         return rsp.isSuccess();
     }

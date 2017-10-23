@@ -28,7 +28,7 @@ public class FalconFS {
 
     private List<String> filenames;
 
-    private Set<Node> neighbours;
+    private List<Node> neighbours;
 
     private RequestHandler handler;
 
@@ -50,7 +50,7 @@ public class FalconFS {
         this.name = name;
         this.me = new Node(ip, port);
         // TODO: Support concurrent changes!!
-        this.neighbours = new HashSet<>();
+        this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
         this.handler = new RequestHandler(port);
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
