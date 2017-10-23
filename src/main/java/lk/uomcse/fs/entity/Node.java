@@ -11,6 +11,11 @@ public class Node implements Comparator<Node>, Comparable<Node> {
     //health of the node. should be in between 0 and 100
     private Integer health;
 
+    /**
+     * BeatCount of a node.
+     */
+    private int beatCount;
+
     public Node(String ip, int port) {
         this.ip = ip;
         this.port = port;
@@ -47,6 +52,24 @@ public class Node implements Comparator<Node>, Comparable<Node> {
         } else {
             this.health = health;
         }
+    }
+
+    /**
+     * Returns the beat count and clears {@code beatCount}
+     *
+     * @return {@code beatCount}
+     */
+    public synchronized int getBeatCount() {
+        int tem = beatCount;
+        beatCount = 0;
+        return tem;
+    }
+
+    /**
+     * Increments the {@code beatCount} by 1
+     */
+    public synchronized void setBeatCount() {
+        beatCount ++;
     }
 
     @Override
