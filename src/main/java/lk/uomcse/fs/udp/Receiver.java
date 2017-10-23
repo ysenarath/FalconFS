@@ -1,5 +1,7 @@
 package lk.uomcse.fs.udp;
 
+import lk.uomcse.fs.entity.Packet;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,7 +13,7 @@ public class Receiver extends Thread {
 
     private DatagramSocket socket;
 
-    private BlockingQueue<DatagramPacket> packets;
+    private BlockingQueue<Packet> packets;
 
     /**
      * Creates the part of client that handles receives
@@ -38,7 +40,7 @@ public class Receiver extends Thread {
                 // e.printStackTrace();
                 // TODO: Handle this
             }
-            packets.add(packet);
+            packets.add(new Packet(packet));
         }
         socket.close();
     }
@@ -47,7 +49,7 @@ public class Receiver extends Thread {
         this.running = running;
     }
 
-    public DatagramPacket receive() throws InterruptedException {
+    public Packet receive() throws InterruptedException {
         return packets.take();
     }
 }

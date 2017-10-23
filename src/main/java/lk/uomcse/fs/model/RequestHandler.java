@@ -1,5 +1,6 @@
 package lk.uomcse.fs.model;
 
+import lk.uomcse.fs.entity.Packet;
 import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.udp.Receiver;
 import lk.uomcse.fs.udp.Sender;
@@ -18,7 +19,7 @@ public class RequestHandler extends Thread {
 
     private final Sender sender;
 
-    private final ConcurrentMap<String, BlockingQueue<DatagramPacket>> handle;
+    private final ConcurrentMap<String, BlockingQueue<Packet>> handle;
 
     /**
      * Constructor {{{{@link lk.uomcse.fs.messages.RegisterResponse}}}}
@@ -42,8 +43,8 @@ public class RequestHandler extends Thread {
         sender.start();
         while (running) {
             try {
-                DatagramPacket packet = receiver.receive();
-                String receivedStr = new String(packet.getData(), 0, packet.getLength());
+                Packet packet = receiver.receive();
+                String receivedStr = packet.getMessage();
                 LOGGER.debug(String.format("Received packet: %s", receivedStr));
                 String[] data = receivedStr.split(" ");
                 String id;
@@ -51,7 +52,7 @@ public class RequestHandler extends Thread {
                 if (data.length >= 2) {
                     id = data[1];
                     handle.putIfAbsent(id, new LinkedBlockingQueue<>());
-                    BlockingQueue<DatagramPacket> packets = handle.get(id);
+                    BlockingQueue<Packet> packets = handle.get(id);
                     packets.add(packet);
                 } // else ignore the message
             } catch (InterruptedException e) {
@@ -89,8 +90,8 @@ public class RequestHandler extends Thread {
      * @return reply as String
      */
     public String receiveMessage(String id) {
-        DatagramPacket packet = receivePacket(id);
-        return new String(packet.getData(), 0, packet.getLength());
+        Packet packet = receivePacket(id);
+        return packet.getMessage();
     }
 
     /**
@@ -101,8 +102,8 @@ public class RequestHandler extends Thread {
      */
     public String receiveMessage(String id, int timeout) throws TimeoutException {
         handle.putIfAbsent(id, new LinkedBlockingQueue<>());
-        BlockingQueue<DatagramPacket> packets = handle.get(id);
-        DatagramPacket packet;
+        BlockingQueue<Packet> packets = handle.get(id);
+        Packet packet;
         try {
             LOGGER.debug(String.format("Waiting for message with ID: %s", id));
             packet = packets.poll(timeout, TimeUnit.SECONDS);
@@ -114,7 +115,7 @@ public class RequestHandler extends Thread {
             // TODO: change following exception
             throw new RuntimeException("Interrupted from getting a reply.");
         }
-        return new String(packet.getData(), 0, packet.getLength());
+        return packet.getMessage();
     }
 
     /**
@@ -123,10 +124,10 @@ public class RequestHandler extends Thread {
      * @param id reply id (see protocol specs)
      * @return reply as packet
      */
-    public DatagramPacket receivePacket(String id) {
+    public Packet receivePacket(String id) {
         handle.putIfAbsent(id, new LinkedBlockingQueue<>());
-        BlockingQueue<DatagramPacket> packets = handle.get(id);
-        DatagramPacket packet;
+        BlockingQueue<Packet> packets = handle.get(id);
+        Packet packet;
         try {
             LOGGER.debug(String.format("Waiting for message with ID: %s", id));
             packet = packets.take();
@@ -137,5 +138,4 @@ public class RequestHandler extends Thread {
         }
         return packet;
     }
-
 }

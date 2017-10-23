@@ -1,10 +1,7 @@
 package lk.uomcse.fs;
 
-import lk.uomcse.fs.model.BootstrapService;
+import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.entity.BootstrapServer;
-import lk.uomcse.fs.model.JoinService;
-import lk.uomcse.fs.model.QueryService;
-import lk.uomcse.fs.model.RequestHandler;
 import lk.uomcse.fs.entity.Node;
 import org.apache.log4j.Logger;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -38,6 +35,10 @@ public class FalconFS {
 
     private QueryService queryService;
 
+    private HeartbeatService heartbeatService;
+
+    private HealthMonitorService healthMonitorService;
+
     /**
      * Imports file system requirements
      *
@@ -56,6 +57,8 @@ public class FalconFS {
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
         this.joinService = new JoinService(handler, me, neighbours);
         this.queryService = new QueryService(handler, me, filenames, neighbours);
+//        this.heartbeatService = new HeartbeatService(handler, neighbours);
+
     }
 
     /**
