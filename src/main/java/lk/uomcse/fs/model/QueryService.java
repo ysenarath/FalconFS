@@ -21,7 +21,7 @@ public class QueryService {
 
     private final List<String> filenames;
 
-    private final Set<Node> neighbours;
+    private final List<Node> neighbours;
 
     private final Thread handleRepliesThread;
 
@@ -30,7 +30,7 @@ public class QueryService {
     private boolean running;
 
 
-    public QueryService(RequestHandler handler, Node current, List<String> filenames, Set<Node> neighbours) {
+    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours) {
         this.handler = handler;
         this.current = current;
         this.filenames = filenames;
@@ -89,7 +89,7 @@ public class QueryService {
         if (filenames.size() > 0) return filenames;
         if (hops < TTL) {
             List<Node> owners = searchCache(query);
-            Set<Node> bestNodes = bestNodes(owners, neighbours);
+            List<Node> bestNodes = bestNodes(owners, neighbours);
             SearchRequest request = new SearchRequest(this.current, query, hops + 1);
             LOGGER.info(String.format("Sending query to neighbours %s", request.toString()));
             bestNodes.forEach(node -> this.handler.sendMessage(node.getIp(), node.getPort(), request));
@@ -104,7 +104,7 @@ public class QueryService {
      * @param neighbours
      * @return
      */
-    private Set<Node> bestNodes(List<Node> owners, Set<Node> neighbours) {
+    private List<Node> bestNodes(List<Node> owners, List<Node> neighbours) {
         return neighbours;
     }
 
