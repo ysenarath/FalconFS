@@ -51,6 +51,7 @@ public class CacheService {
      * @return if registering node to the cache was successful
      */
     public boolean update(Node node, List<String> fileNames) {
+        // TODO remove old keywords when new update comes about the existing nodes
         try {
             for (String fileName : fileNames) {
                 fileName = fileName.toLowerCase();
@@ -83,6 +84,7 @@ public class CacheService {
      * @return List of nodes containing file or null if no such nodes in cache tabel
      */
     public List<Node> search(String fileName) {
+        // TODO in multi keyword filename, what if part of the keywords are expired from cache
         List<Node> fileNodes = new ArrayList<>();
         fileName = fileName.toLowerCase();
         // TODO do we need mutual exclusion here
@@ -94,12 +96,7 @@ public class CacheService {
             if (fileNodes.isEmpty()) {
                 fileNodes.addAll(keyWordNodes);
             } else {
-                for (Node node :
-                        fileNodes) {
-                    if (!keyWordNodes.contains(node)) {
-                        fileNodes.remove(node);
-                    }
-                }
+                fileNodes.removeIf(node -> !keyWordNodes.contains(node));
             }
 
             if (fileNodes.isEmpty()) {

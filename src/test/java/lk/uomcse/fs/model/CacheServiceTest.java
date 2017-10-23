@@ -4,9 +4,9 @@ import lk.uomcse.fs.entity.Node;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Queue;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -31,8 +31,6 @@ public class CacheServiceTest {
     @Test
     public void update() throws Exception {
         cacheService.update(new Node(ipAddresses[0], ports[0]), Arrays.asList(fileNames[0]));
-
-        Queue<Node> nodes = cacheService.getCacheTable().get("windows");
 
         List<String> keyWords = new ArrayList<>();
         for (String fileName : fileNames[0]) {
@@ -59,6 +57,25 @@ public class CacheServiceTest {
     @Test
     public void search() throws Exception {
 
+        cacheService.update(new Node(ipAddresses[0], ports[0]), Arrays.asList(fileNames[0]));
+        cacheService.update(new Node(ipAddresses[1], ports[1]), Arrays.asList(fileNames[1]));
+        cacheService.update(new Node(ipAddresses[2], ports[1]), Arrays.asList(fileNames[3]));
+
+        List<Node> results1 = cacheService.search("Windows");
+        List<Node> results2 = cacheService.search("Windows 8");
+
+        List<Node> expected1 = Arrays.asList(
+                new Node(ipAddresses[0], ports[0]),
+                new Node(ipAddresses[1], ports[1]),
+                new Node(ipAddresses[2], ports[1]));
+
+        List<Node> expected2 = Arrays.asList(
+                new Node(ipAddresses[0], ports[0]),
+                new Node(ipAddresses[1], ports[1]));
+
+
+        assertArrayEquals(results1.toArray(),expected1.toArray());
+        assertArrayEquals(results2.toArray(),expected2.toArray());
     }
 
 
