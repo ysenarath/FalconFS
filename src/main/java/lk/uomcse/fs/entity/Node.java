@@ -1,13 +1,22 @@
 package lk.uomcse.fs.entity;
 
-public class Node {
+import java.util.Comparator;
+import java.util.Random;
+
+public class Node implements Comparator<Node>, Comparable<Node> {
     private String ip;
 
     private int port;
 
+    //health of the node. should be in between 0 and 100
+    private Integer health;
+
     public Node(String ip, int port) {
         this.ip = ip;
         this.port = port;
+        Random rand = new Random();
+
+        this.health = rand.nextInt(100) + 1;
     }
 
     public String getIp() {
@@ -24,6 +33,20 @@ public class Node {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        if (health > 100) {
+            this.health = 100;
+        } else if (health < 0) {
+            this.health = 0;
+        } else {
+            this.health = health;
+        }
     }
 
     @Override
@@ -47,5 +70,15 @@ public class Node {
         int result = ip != null ? ip.hashCode() : 0;
         result = 31 * result + port;
         return result;
+    }
+
+    @Override
+    public int compare(Node o1, Node o2) {
+        return o1.health - o2.health;
+    }
+
+    @Override
+    public int compareTo(Node o) {
+        return (o.health).compareTo(this.health);
     }
 }

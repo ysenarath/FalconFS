@@ -93,7 +93,7 @@ public class FalconFS {
      * @param keyword a word/ series of continuous words in filename to query in the network
      */
     private void query(String keyword) {
-        queryService.search(keyword);
+        queryService.search(keyword, 0 );
     }
 
     /**
