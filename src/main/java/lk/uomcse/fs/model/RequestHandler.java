@@ -89,17 +89,7 @@ public class RequestHandler extends Thread {
      * @return reply as String
      */
     public String receiveMessage(String id) {
-        handle.putIfAbsent(id, new LinkedBlockingQueue<>());
-        BlockingQueue<DatagramPacket> packets = handle.get(id);
-        DatagramPacket packet;
-        try {
-            LOGGER.debug(String.format("Waiting for message with ID: %s", id));
-            packet = packets.take();
-            LOGGER.debug(String.format("Message with ID obtained: %s", id));
-        } catch (InterruptedException e) {
-            // TODO: change following exception
-            throw new RuntimeException("Interrupted from getting a reply.");
-        }
+        DatagramPacket packet = receivePacket(id);
         return new String(packet.getData(), 0, packet.getLength());
     }
 
@@ -126,4 +116,26 @@ public class RequestHandler extends Thread {
         }
         return new String(packet.getData(), 0, packet.getLength());
     }
+
+    /**
+     * Gets reply for reply ID if exists or waits until there is a reply
+     *
+     * @param id reply id (see protocol specs)
+     * @return reply as packet
+     */
+    public DatagramPacket receivePacket(String id) {
+        handle.putIfAbsent(id, new LinkedBlockingQueue<>());
+        BlockingQueue<DatagramPacket> packets = handle.get(id);
+        DatagramPacket packet;
+        try {
+            LOGGER.debug(String.format("Waiting for message with ID: %s", id));
+            packet = packets.take();
+            LOGGER.debug(String.format("Message with ID obtained: %s", id));
+        } catch (InterruptedException e) {
+            // TODO: change following exception
+            throw new RuntimeException("Interrupted from getting a reply.");
+        }
+        return packet;
+    }
+
 }
