@@ -39,6 +39,8 @@ public class FalconFS {
 
     private HealthMonitorService healthMonitorService;
 
+    private PulseReceiverService pulseReceiverService;
+
     /**
      * Imports file system requirements
      *
@@ -57,7 +59,17 @@ public class FalconFS {
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
         this.joinService = new JoinService(handler, me, neighbours);
         this.queryService = new QueryService(handler, me, filenames, neighbours);
-//        this.heartbeatService = new HeartbeatService(handler, neighbours);
+        this.heartbeatService = new HeartbeatService(handler, neighbours);
+        this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
+        this.healthMonitorService = new HealthMonitorService(neighbours);
+
+        Thread heartbeatServiceThread = new Thread(heartbeatService);
+        Thread pulseReceiverServiceThread = new Thread(pulseReceiverService);
+        Thread healthMonitorServiceThread = new Thread(healthMonitorService);
+
+        heartbeatServiceThread.start();
+        pulseReceiverServiceThread.start();
+        healthMonitorServiceThread.start();
 
     }
 
