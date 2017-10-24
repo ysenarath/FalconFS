@@ -1,9 +1,11 @@
 package lk.uomcse.fs.model;
 
+import com.google.common.collect.Queues;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.SearchRequest;
 import lk.uomcse.fs.messages.SearchResponse;
 import org.apache.log4j.Logger;
+import com.google.common.collect.EvictingQueue;
 
 import java.util.*;
 
@@ -15,6 +17,14 @@ public class QueryService {
 
     private static final int TTL = 5;
 
+    private static final int qIdStoreLength = 50;
+
+    private static final int MAX_NODES = 5;
+
+    private static final int MIN_REQ_HEALTH = 50;
+
+    private final CacheService cacheService;
+
     private final RequestHandler handler;
 
     private final Node current;
@@ -23,6 +33,8 @@ public class QueryService {
 
     private final List<Node> neighbours;
 
+    private final Queue<String> idStore;
+
     private final Thread handleRepliesThread;
 
     private final Thread handleQueriesThread;
@@ -30,14 +42,17 @@ public class QueryService {
     private boolean running;
 
 
-    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours) {
+    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours, CacheService cacheService) {
         this.handler = handler;
         this.current = current;
         this.filenames = filenames;
         this.neighbours = neighbours;
+        this.cacheService = cacheService;
         this.running = false;
         this.handleRepliesThread = new Thread(this::runHandleReplies);
         this.handleQueriesThread = new Thread(this::runHandleQueries);
+
+        this.idStore = Queues.synchronizedQueue(EvictingQueue.create(qIdStoreLength));
     }
 
     /**
@@ -88,8 +103,7 @@ public class QueryService {
         List<String> filenames = searchFiles(query);
         if (filenames.size() > 0) return filenames;
         if (hops < TTL) {
-            List<Node> owners = searchCache(query);
-            List<Node> bestNodes = bestNodes(owners, neighbours);
+            List<Node> bestNodes = selectBestNodes(query);
             SearchRequest request = new SearchRequest(this.current, query, hops + 1);
             LOGGER.info(String.format("Sending query to neighbours %s", request.toString()));
             bestNodes.forEach(node -> this.handler.sendMessage(node.getIp(), node.getPort(), request));
@@ -98,24 +112,28 @@ public class QueryService {
     }
 
     /**
-     * For selecting best nodes
+     * Select best nodes from the cached nodes and the neighbours
      *
-     * @param owners
-     * @param neighbours
+     * @param fileName
      * @return
      */
-    private List<Node> bestNodes(List<Node> owners, List<Node> neighbours) {
-        return neighbours;
-    }
+    private List<Node> selectBestNodes(String fileName) {
+        List<Node> bestNodes = cacheService.search(fileName);
 
-    /**
-     * For searching cache
-     *
-     * @param query
-     * @return
-     */
-    private List<Node> searchCache(String query) {
-        return new ArrayList<>();
+        int nodeGap = MAX_NODES - bestNodes.size();
+        int fromNeighbours = nodeGap > 0 ? nodeGap + 2 : 2;
+
+        synchronized (neighbours) {
+            Collections.sort(neighbours);
+
+            Iterator<Node> neighbourIterator = neighbours.iterator();
+            while (neighbourIterator.hasNext() && fromNeighbours > 0) {
+                bestNodes.add(neighbourIterator.next());
+                fromNeighbours--;
+            }
+        }
+
+        return bestNodes;
     }
 
     /**
@@ -133,5 +151,15 @@ public class QueryService {
             }
         }
         return found;
+    }
+
+    /**
+     * Check if the given query is already resolved
+     *
+     * @param queryId
+     * @return true if the query is new otherwise return false
+     */
+    private boolean checkNewQuery(String queryId) {
+        return !idStore.contains(queryId);
     }
 }
