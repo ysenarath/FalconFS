@@ -134,4 +134,13 @@ public class QueryService {
         }
         return found;
     }
+
+    /**
+     * Sets running status
+     *
+     * @param running state
+     */
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 }
