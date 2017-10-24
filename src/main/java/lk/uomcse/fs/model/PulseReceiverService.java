@@ -8,22 +8,45 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
+ * The class {@code PulseReceiverService} updates the received time
+ * of pulses from respective neighbors.
+ *
  * @author Dulanjaya
- * @since 10/23/2017
+ * @see Node
+ * @see RequestHandler
+ * @since Phase1
  */
-public class PulseReceiverService implements Runnable{
+public class PulseReceiverService implements Runnable {
+    /**
+     * List of {@code neighbors}.
+     */
     private List<Node> neighbors;
 
+    /**
+     * Message Request Handler.
+     */
     private RequestHandler requestHandler;
 
+
+    /**
+     * Represents whether the service is up or down.
+     */
     private boolean isActive = true;
 
+    /**
+     * Constructor of {@code PulseReceiverService}.
+     *
+     * @param requestHandler RequestHandler of the self-node.
+     * @param neighbors      List of neighbors of the self-node.
+     */
     public PulseReceiverService(RequestHandler requestHandler, List<Node> neighbors) {
         this.neighbors = neighbors;
         this.requestHandler = requestHandler;
     }
 
-
+    /**
+     * Receives Pulses in a separate thread.
+     */
     @Override
     public void run() {
         while (isActive) {
@@ -31,15 +54,27 @@ public class PulseReceiverService implements Runnable{
         }
     }
 
+    /**
+     * Receives pulses from each neighbor and update the respective node.
+     */
     private void receivePulses() {
         Packet packet = this.requestHandler.receivePacket(HeartbeatPulse.ID);
         for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
             final Node neighbor = iterator.next();
             if (neighbor.equals(packet.getReceiverNode())) {
-
+                neighbor.addPulseResponse(packet.getReceivedTime());
                 iterator.set(neighbor);
             }
 
         }
+    }
+
+    /**
+     * Makes the {@code PulseReceiverService} up or down.
+     *
+     * @param isActive true to up, false to down.
+     */
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
     }
 }

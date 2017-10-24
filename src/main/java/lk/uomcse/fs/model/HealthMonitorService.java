@@ -14,7 +14,15 @@ import java.util.ListIterator;
  * @since Phase1
  */
 public class HealthMonitorService implements Runnable {
+
+    /**
+     * Neighbors are the neighbor-nodes of the self-node.
+     */
     private List<Node> neighbors;
+
+    /**
+     * Activation of the {@code HealthMonitorService}
+     */
     private boolean pulseMeasuring = true;
 
 
@@ -33,24 +41,31 @@ public class HealthMonitorService implements Runnable {
     private void measureHealth() {
         for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
             final Node neighbor = iterator.next();
-            neighbor.setHealth((int) (neighbor.getHealth() / 3));
+            neighbor.setHealth(neighbor.getPulseCount() * 10 / 5);
             iterator.set(neighbor);
         }
     }
 
-
+    /**
+     * Starts the Monitor Thread
+     */
     @Override
     public void run() {
         while (pulseMeasuring) {
             measureHealth();
             try {
-                Thread.sleep(3000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    /**
+     * Makes the {@code HealthMonitorService} up or down.
+     *
+     * @param activate true if up, false to down.
+     */
     public void setPulseMeasuring(boolean activate) {
         this.pulseMeasuring = activate;
     }

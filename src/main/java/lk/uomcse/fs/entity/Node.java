@@ -1,5 +1,6 @@
 package lk.uomcse.fs.entity;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
 
@@ -14,7 +15,7 @@ public class Node implements Comparator<Node>, Comparable<Node> {
     /**
      * BeatCount of a node.
      */
-    private int beatCount;
+    private ArrayList<Long> pulseResponses;
 
     public Node(String ip, int port) {
         this.ip = ip;
@@ -22,6 +23,7 @@ public class Node implements Comparator<Node>, Comparable<Node> {
         Random rand = new Random();
 
         this.health = rand.nextInt(100) + 1;
+        this.pulseResponses = new ArrayList<Long>();
     }
 
     public String getIp() {
@@ -55,21 +57,30 @@ public class Node implements Comparator<Node>, Comparable<Node> {
     }
 
     /**
-     * Returns the beat count and clears {@code beatCount}
+     * Returns the pulse count and clears the out of frame {@code pulseResponses}
      *
-     * @return {@code beatCount}
+     * @return {@code count}
      */
-    public synchronized int getBeatCount() {
-        int tem = beatCount;
-        beatCount = 0;
-        return tem;
+    public synchronized int getPulseCount() {
+        long currentTime = System.currentTimeMillis() - 5000;
+        int size = pulseResponses.size();
+        int count = 0;
+        for(int i = size - 1; i >= 0 ; i--) {
+            if(pulseResponses.get(i) > currentTime) {
+                count++;
+            }
+        }
+        if(count != size) {
+            pulseResponses = (ArrayList<Long>) pulseResponses.subList(count, size);
+        }
+        return count;
     }
 
     /**
-     * Increments the {@code beatCount} by 1
+     * Updates the {@code pulseResponses}
      */
-    public synchronized void setBeatCount() {
-        beatCount ++;
+    public synchronized void addPulseResponse(long time) {
+        pulseResponses.add(time);
     }
 
     @Override
