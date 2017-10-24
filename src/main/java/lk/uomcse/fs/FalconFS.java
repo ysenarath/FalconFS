@@ -16,6 +16,10 @@ import java.util.*;
 public class FalconFS {
     private final static Logger LOGGER = Logger.getLogger(FalconFS.class.getName());
 
+    private static final int MAX_INDEX_SIZE = 100;
+
+    private static final int MAX_NODE_QUEUE_LENTH = 10;
+
     private String name;
 
     private Node me;
@@ -31,6 +35,8 @@ public class FalconFS {
     private JoinService joinService;
 
     private QueryService queryService;
+
+    private CacheService cacheService;
 
     private HeartbeatService heartbeatService;
 
@@ -58,10 +64,12 @@ public class FalconFS {
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
         this.handler = new RequestHandler(port);
+        //cache of nodes
+        this.cacheService = new CacheService(MAX_INDEX_SIZE, MAX_NODE_QUEUE_LENTH);
         // Services
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
         this.joinService = new JoinService(handler, me, neighbours);
-        this.queryService = new QueryService(handler, me, filenames, neighbours);
+        this.queryService = new QueryService(handler, me, filenames, neighbours, cacheService);
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
