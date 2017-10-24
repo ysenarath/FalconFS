@@ -3,6 +3,7 @@ package lk.uomcse.fs.model;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.entity.Packet;
 import lk.uomcse.fs.messages.HeartbeatPulse;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.ListIterator;
@@ -17,6 +18,9 @@ import java.util.ListIterator;
  * @since Phase1
  */
 public class PulseReceiverService implements Runnable {
+    private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
+
+
     /**
      * List of {@code neighbors}.
      */
@@ -61,7 +65,7 @@ public class PulseReceiverService implements Runnable {
         Packet packet = this.requestHandler.receivePacket(HeartbeatPulse.ID);
         for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
             final Node neighbor = iterator.next();
-            if (neighbor.equals(packet.getReceiverNode())) {
+            if (neighbor.getIp().equals(packet.getReceiverNode().getIp())) {
                 neighbor.addPulseResponse(packet.getReceivedTime());
                 iterator.set(neighbor);
             }
