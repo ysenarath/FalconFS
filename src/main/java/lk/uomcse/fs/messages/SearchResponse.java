@@ -85,7 +85,7 @@ public class SearchResponse implements IResponse {
         if (response.length < 6)
             throw new InvalidFormatException("Parsing failed due to not having enough content to match the format.");
         if (!response[1].equals(ID))
-            throw new InvalidFormatException("Parsing failed due to not having correct type of message.");
+            throw new InvalidFormatException(String.format("Parsing failed due to not having message id: %s. (Received message ID: %s)", ID, response[1]));
         int n = Integer.parseInt(response[2]);
         String ip = response[3];
         int port = Integer.parseInt(response[4]);

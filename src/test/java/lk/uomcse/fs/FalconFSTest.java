@@ -33,7 +33,7 @@ public class FalconFSTest {
         boolean s1 = fs.start();
         boolean s2 = fs1.start();
         fs.getFilenames().add("sunshine");
-        fs.getFilenames().add("windows 10");
+        fs.getFilenames().add("windows_10");
         fs1.query("windows");
     }
 }
