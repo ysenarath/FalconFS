@@ -33,7 +33,7 @@ public class QueryService {
 
     private final List<Node> neighbours;
 
-    private final Queue<String> idStore;
+    private final Queue<String> queryIdStore;
 
     private final Thread handleRepliesThread;
 
@@ -52,7 +52,7 @@ public class QueryService {
         this.handleRepliesThread = new Thread(this::runHandleReplies);
         this.handleQueriesThread = new Thread(this::runHandleQueries);
 
-        this.idStore = Queues.synchronizedQueue(EvictingQueue.create(qIdStoreLength));
+        this.queryIdStore = Queues.synchronizedQueue(EvictingQueue.create(qIdStoreLength));
     }
 
     /**
@@ -84,6 +84,12 @@ public class QueryService {
             String requestStr = this.handler.receiveMessage(SearchRequest.ID);
             LOGGER.info(String.format("Request received %s", requestStr));
             SearchRequest request = SearchRequest.parse(requestStr);
+            synchronized (queryIdStore) {
+                if (isNewQuery(request.getQueryId())) { //check for already served queries
+                    continue;
+                }
+                queryIdStore.add(request.getQueryId());
+            }
             List<String> matched = search(request.getFilename(), request.getHops());
             if (matched.size() > 0) {
                 SearchResponse response = new SearchResponse(0, this.current, request.getHops() + 1, matched);
@@ -125,12 +131,8 @@ public class QueryService {
 
         synchronized (neighbours) {
             Collections.sort(neighbours);
-
-            Iterator<Node> neighbourIterator = neighbours.iterator();
-            while (neighbourIterator.hasNext() && fromNeighbours > 0) {
-                bestNodes.add(neighbourIterator.next());
-                fromNeighbours--;
-            }
+            bestNodes.addAll(neighbours.subList(0, fromNeighbours > neighbours.size() ? neighbours.size() :
+                    fromNeighbours));
         }
 
         return bestNodes;
@@ -168,7 +170,7 @@ public class QueryService {
      * @param queryId
      * @return true if the query is new otherwise return false
      */
-    private boolean checkNewQuery(String queryId) {
-        return !idStore.contains(queryId);
+    private boolean isNewQuery(String queryId) {
+        return !queryIdStore.contains(queryId);
     }
 }
