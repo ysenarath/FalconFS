@@ -3,14 +3,11 @@ package lk.uomcse.fs;
 import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.utils.RequestFailedException;
 import org.apache.log4j.Logger;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -55,7 +52,7 @@ public class FalconFS {
      * @param port            assigned port of this node
      * @param bootstrapServer a bootstrap server entity
      */
-    private FalconFS(String name, String ip, int port, BootstrapServer bootstrapServer) {
+    public FalconFS(String name, String ip, int port, BootstrapServer bootstrapServer) {
         this.name = name;
         this.me = new Node(ip, port);
         this.neighbours = new ArrayList<>();
@@ -79,34 +76,54 @@ public class FalconFS {
     /**
      * Starts the Falcon file system
      */
-    private void start() {
+    public boolean start() {
         // 1. Start the listener - Blocking
         this.handler.start();
         LOGGER.trace("Request handler started.");
         // 2. Connect to neighbours (bootstrap + join)
-        this.bootstrap();
-        LOGGER.trace("Bootstrapping completed.");
-        // 3. Start heartbeat service
-        heartbeatServiceThread.start();
-        pulseReceiverServiceThread.start();
-        healthMonitorServiceThread.start();
-        LOGGER.trace("Heartbeat service started.");
-        // 4. Start accepting nodes
-        this.joinService.start();
-        LOGGER.trace("Listening to join messages.");
-        // 5. start querying
-        // while random keyword in keywords query(keyword)
-        this.queryService.start();
-        LOGGER.trace("Listening to query messages.");
+        boolean bootstrapState = this.bootstrap();
+        if (bootstrapState) {
+            LOGGER.trace("Bootstrapping completed.");
+            // 3. Start heartbeat service
+            heartbeatServiceThread.start();
+            pulseReceiverServiceThread.start();
+            healthMonitorServiceThread.start();
+            LOGGER.trace("Heartbeat service started.");
+            // 4. Start accepting nodes
+            this.joinService.start();
+            LOGGER.trace("Listening to join messages.");
+            // 5. start querying
+            // while random keyword in keywords query(keyword)
+            this.queryService.start();
+            LOGGER.trace("Listening to query messages.");
+        } else {
+            LOGGER.trace("Bootstrap failed. Stopping started services.");
+            this.handler.setRunning(false);
+            LOGGER.trace("Stopped all started services.");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean stop() {
+        this.queryService.setRunning(false);
+        this.joinService.setRunning(false);
+        this.handler.setRunning(false);
+        return true;
     }
 
     /**
      * Connects with bootstrap server and joins to nodes provided
      */
-    private void bootstrap() {
-        List<Node> nodes = bootstrapService.register(name, me);
-        nodes.forEach(joinService::join);
-        LOGGER.trace(String.format("Joined to neighbours: %s", neighbours.toString()));
+    private boolean bootstrap() {
+        try {
+            List<Node> nodes = bootstrapService.register(name, me);
+            nodes.forEach(joinService::join);
+            LOGGER.trace(String.format("Joined to neighbours: %s", neighbours.toString()));
+        } catch (RequestFailedException ex) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -115,8 +132,18 @@ public class FalconFS {
      *
      * @param keyword a word/ series of continuous words in filename to query in the network
      */
-    private void query(String keyword) {
+    public void query(String keyword) {
         queryService.search(keyword, 0);
+    }
+
+
+    /**
+     * Gets list of file names
+     *
+     * @return list of filenames contained in this node
+     */
+    public List<String> getFilenames() {
+        return filenames;
     }
 
     /**
@@ -141,7 +168,5 @@ public class FalconFS {
         BootstrapServer bc = new BootstrapServer(prop.getProperty("bs.ip"), Integer.parseInt(prop.getProperty("bs.port")));
         FalconFS fs = new FalconFS(prop.getProperty("fs.name"), prop.getProperty("fs.ip"), Integer.parseInt(prop.getProperty("fs.port")), bc);
         fs.start();
-
-        fs.query("hello");
     }
 }

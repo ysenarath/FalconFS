@@ -31,7 +31,7 @@ public class Receiver extends Thread {
      */
     public void run() {
         running = true;
-        byte[] buf = new byte[256];
+        byte[] buf = new byte[65536];
         while (running) {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             try {

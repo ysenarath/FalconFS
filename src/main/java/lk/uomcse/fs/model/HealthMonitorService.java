@@ -58,7 +58,7 @@ public class HealthMonitorService implements Runnable {
         while (pulseMeasuring) {
             measureHealth();
             try {
-                Thread.sleep(5000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

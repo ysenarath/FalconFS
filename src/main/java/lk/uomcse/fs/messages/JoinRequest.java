@@ -34,7 +34,7 @@ public class JoinRequest implements IRequest {
         if (response.length != 4)
             throw new InvalidFormatException("Parsing failed due to not having correct word length.");
         if (!response[1].equals(ID))
-            throw new InvalidFormatException("Parsing failed due to not having correct type of message.");
+            throw new InvalidFormatException(String.format("Parsing failed due to not having message id: %s. (Received message ID: %s)", ID, response[1]));
         String ip = response[2];
         int port = Integer.parseInt(response[3]);
         return new JoinRequest(new Node(ip, port));
