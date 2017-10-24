@@ -29,7 +29,6 @@ public class QueryService {
 
     private boolean running;
 
-
     public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours) {
         this.handler = handler;
         this.current = current;
@@ -66,9 +65,9 @@ public class QueryService {
     private void runHandleQueries() {
         running = true;
         while (running) {
-            String reply = this.handler.receiveMessage(SearchRequest.ID);
-            LOGGER.info(String.format("Request received %s", reply));
-            SearchRequest request = SearchRequest.parse(reply);
+            String requestStr = this.handler.receiveMessage(SearchRequest.ID);
+            LOGGER.info(String.format("Request received %s", requestStr));
+            SearchRequest request = SearchRequest.parse(requestStr);
             List<String> matched = search(request.getFilename(), request.getHops());
             if (matched.size() > 0) {
                 SearchResponse response = new SearchResponse(0, this.current, request.getHops() + 1, matched);
