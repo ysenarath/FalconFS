@@ -9,42 +9,40 @@ import java.util.*;
  */
 public class NodeSelector {
 
-    private static final int  MAX_NODES = 5;
+    private static final int MAX_NODES = 5;
 
     private static final int MIN_REQ_HEALTH = 50;
 
-    private final Set<Node> neighbours;
+    private final List<Node> neighbours;
 
     private final CacheService cacheService;
 
-    public NodeSelector(Set<Node> neighbours,CacheService cacheService){
+    public NodeSelector(List<Node> neighbours, CacheService cacheService) {
         this.neighbours = neighbours;
         this.cacheService = cacheService;
     }
 
     /**
      * Select best nodes from the cached nodes and the neighbours
+     *
      * @param fileName
      * @return
      */
-    public List<Node> selectBestNodes(String fileName){
+    public List<Node> selectBestNodes(String fileName) {
 
         List<Node> bestNodes = cacheService.search(fileName);
 
         int nodeGap = MAX_NODES - bestNodes.size();
-        int fromNeighbours =  nodeGap > 0 ? nodeGap + 2 : 2;
+        int fromNeighbours = nodeGap > 0 ? nodeGap + 2 : 2;
 
-        List<Node> neighbourList;
-        synchronized(neighbours) {
-            neighbourList = new ArrayList<>(neighbours);
-        }
+        synchronized (neighbours) {
+            Collections.sort(neighbours);
 
-        Collections.sort(neighbourList);
-
-        Iterator<Node> neighbourIterator = neighbourList.iterator();
-        while (neighbourIterator.hasNext() && fromNeighbours > 0){
-            bestNodes.add(neighbourIterator.next());
-            fromNeighbours--;
+            Iterator<Node> neighbourIterator = neighbours.iterator();
+            while (neighbourIterator.hasNext() && fromNeighbours > 0) {
+                bestNodes.add(neighbourIterator.next());
+                fromNeighbours--;
+            }
         }
 
         return bestNodes;
