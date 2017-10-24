@@ -1,6 +1,8 @@
 package lk.uomcse.fs.model;
 
+import lk.uomcse.fs.FalconFS;
 import lk.uomcse.fs.entity.Node;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.ListIterator;
@@ -14,6 +16,7 @@ import java.util.ListIterator;
  * @since Phase1
  */
 public class HealthMonitorService implements Runnable {
+    private final static Logger LOGGER = Logger.getLogger(HealthMonitorService.class.getName());
 
     /**
      * Neighbors are the neighbor-nodes of the self-node.
@@ -42,6 +45,7 @@ public class HealthMonitorService implements Runnable {
         for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
             final Node neighbor = iterator.next();
             neighbor.setHealth(neighbor.getPulseCount() * 10 / 5);
+            LOGGER.debug(String.format("Neighbour %s health updated %d", neighbor.toString(), neighbor.getHealth()));
             iterator.set(neighbor);
         }
     }

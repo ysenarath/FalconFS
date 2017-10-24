@@ -41,6 +41,12 @@ public class FalconFS {
 
     private PulseReceiverService pulseReceiverService;
 
+    private Thread heartbeatServiceThread;
+
+    private Thread pulseReceiverServiceThread;
+
+    private Thread healthMonitorServiceThread;
+
     /**
      * Imports file system requirements
      *
@@ -52,25 +58,22 @@ public class FalconFS {
     private FalconFS(String name, String ip, int port, BootstrapServer bootstrapServer) {
         this.name = name;
         this.me = new Node(ip, port);
-        // TODO: Support concurrent changes!!
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
         this.handler = new RequestHandler(port);
+        // Services
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
         this.joinService = new JoinService(handler, me, neighbours);
         this.queryService = new QueryService(handler, me, filenames, neighbours);
+        // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
         this.healthMonitorService = new HealthMonitorService(neighbours);
-
-        Thread heartbeatServiceThread = new Thread(heartbeatService);
-        Thread pulseReceiverServiceThread = new Thread(pulseReceiverService);
-        Thread healthMonitorServiceThread = new Thread(healthMonitorService);
-
-        heartbeatServiceThread.start();
-        pulseReceiverServiceThread.start();
-        healthMonitorServiceThread.start();
-
+        // Heartbeat service threads {
+        this.heartbeatServiceThread = new Thread(heartbeatService);
+        this.pulseReceiverServiceThread = new Thread(pulseReceiverService);
+        this.healthMonitorServiceThread = new Thread(healthMonitorService);
+        // }
     }
 
     /**
@@ -83,10 +86,15 @@ public class FalconFS {
         // 2. Connect to neighbours (bootstrap + join)
         this.bootstrap();
         LOGGER.trace("Bootstrapping completed.");
-        // 3. Start accepting nodes
+        // 3. Start heartbeat service
+        heartbeatServiceThread.start();
+        pulseReceiverServiceThread.start();
+        healthMonitorServiceThread.start();
+        LOGGER.trace("Heartbeat service started.");
+        // 4. Start accepting nodes
         this.joinService.start();
         LOGGER.trace("Listening to join messages.");
-        // 4. start querying
+        // 5. start querying
         // while random keyword in keywords query(keyword)
         this.queryService.start();
         LOGGER.trace("Listening to query messages.");
@@ -108,7 +116,7 @@ public class FalconFS {
      * @param keyword a word/ series of continuous words in filename to query in the network
      */
     private void query(String keyword) {
-        queryService.search(keyword, 0 );
+        queryService.search(keyword, 0);
     }
 
     /**
