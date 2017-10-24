@@ -13,6 +13,8 @@ public class SearchRequest implements IRequest {
 
     private int hops;
 
+    private String queryId;
+
     public SearchRequest(Node node, String filename, int hops) {
         this.node = node;
         this.filename = filename;
@@ -45,6 +47,12 @@ public class SearchRequest implements IRequest {
     public int getHops() {
         return hops;
     }
+
+    /**
+     * Query Id. All queries must have unique query id.
+     * @return
+     */
+    public String getQueryId() {return queryId;}
 
     /**
      * Parses search search request
