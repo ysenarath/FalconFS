@@ -108,7 +108,7 @@ public class SearchResponse implements IResponse {
                 .append(node.getIp()).append(" ")
                 .append(node.getPort()).append(" ")
                 .append(this.hops).append(" ")
-                .append(String.join(" ", this.filenames)).append(" ");
+                .append(String.join(" ", this.filenames));
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();

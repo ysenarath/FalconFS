@@ -50,9 +50,12 @@ public class SearchRequest implements IRequest {
 
     /**
      * Query Id. All queries must have unique query id.
+     *
      * @return
      */
-    public String getQueryId() {return queryId;}
+    public String getQueryId() {
+        return queryId;
+    }
 
     /**
      * Parses search search request
@@ -87,7 +90,7 @@ public class SearchRequest implements IRequest {
                 .append(node.getIp()).append(" ")
                 .append(node.getPort()).append(" ")
                 .append(this.filename).append(" ")
-                .append(this.hops).append(" ");
+                .append(this.hops);
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();
