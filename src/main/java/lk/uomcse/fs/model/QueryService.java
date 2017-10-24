@@ -131,12 +131,8 @@ public class QueryService {
 
         synchronized (neighbours) {
             Collections.sort(neighbours);
-
-            Iterator<Node> neighbourIterator = neighbours.iterator();
-            while (neighbourIterator.hasNext() && fromNeighbours > 0) {
-                bestNodes.add(neighbourIterator.next());
-                fromNeighbours--;
-            }
+            bestNodes.addAll(neighbours.subList(0, fromNeighbours > neighbours.size() ? neighbours.size() :
+                    fromNeighbours));
         }
 
         return bestNodes;
