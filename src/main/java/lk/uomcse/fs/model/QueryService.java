@@ -36,7 +36,7 @@ public class QueryService {
 
     private final Node current;
 
-    private final List<String> filenames;
+    private final List<String> filenames; //split file names which are lowercased
 
     private final List<Node> neighbours;
 
@@ -211,11 +211,22 @@ public class QueryService {
      */
     private List<String> searchFiles(String query) {
         List<String> found = new ArrayList<>();
+
+        boolean isMatch;
+        String[] fNameArry;
         for (String filename : filenames) {
-            // TODO: Update following to match specifications
-            if (filename.toLowerCase().contains(query.toLowerCase())) {
-                found.add(filename);
+            fNameArry = filename.split(" +");
+            isMatch = true;
+            for (String keyword : query.split(" +")){
+                if(!Arrays.asList(fNameArry).contains(keyword)){
+                    isMatch = false;
+                    break;
+                }
             }
+            if (isMatch){
+                found.add(filename.replace(' ', '_'));
+            }
+
         }
         return found;
     }
