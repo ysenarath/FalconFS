@@ -114,7 +114,8 @@ public class QueryService {
         results.clear();
         currentQuery = query;
         currentQueryID += 1;
-        List<String> matches = searchUtils(query, 0, null);
+        SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), current, query, 0);
+        List<String> matches = searchUtils(request, null);
         if (matches.size() > 0)
             this.updateResults(current, matches);
     }
@@ -133,7 +134,7 @@ public class QueryService {
             if (!isNewQuery(request)) {
                 continue;
             }
-            List<String> matches = searchUtils(request.getFilename(), request.getHops(), packet.getReceiverNode());
+            List<String> matches = searchUtils(request, packet.getReceiverNode());
             if (matches.size() > 0) {
                 SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.current, request.getHops() + 1, matches);
                 this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response);
@@ -145,21 +146,21 @@ public class QueryService {
     /**
      * Initialize a search query
      *
-     * @param query keywords to look for
      * @return list of filenames
      */
-    private List<String> searchUtils(String query, int hops, Node ignore) {
+    private List<String> searchUtils(SearchRequest request, Node ignore) {
+        String query = request.getFilename();
         List<String> matches = searchFiles(query);
         if (matches.size() > 0) {
             return matches;
         }
-        if (hops < TTL) {
+        if (request.getHops() < TTL) {
             List<Node> bestNodes = selectBestNodes(query);
             // TODO: Do this in selectBestNodes section
             // Ignore nodes indicated by ignore args
             if (ignore != null)
                 bestNodes.remove(ignore);
-            SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), this.current, query, hops + 1);
+            request.incrementHops();
             LOGGER.info(String.format("Sending query to neighbours %s", request.toString()));
             bestNodes.forEach(node -> this.handler.sendMessage(node.getIp(), node.getPort(), request));
         }

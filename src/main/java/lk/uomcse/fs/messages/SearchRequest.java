@@ -67,6 +67,13 @@ public class SearchRequest implements IRequest {
     }
 
     /**
+     * Increments number of hops for this request
+     */
+    public void incrementHops() {
+        this.hops += 1;
+    }
+
+    /**
      * Parses search search request
      *
      * @param reply reply in string
