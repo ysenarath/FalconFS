@@ -24,7 +24,7 @@ public class QueryService {
 
     private static final int ID_STORE_QUERY_LENGTH = 50;
 
-    private static final int ID_STORE_INDEX_SIZE = 50;
+    private static final int ID_STORE_INDEX_SIZE = 10;
 
     private static final int MAX_NODES = 5;
 
@@ -129,12 +129,9 @@ public class QueryService {
             String requestStr = packet.getMessage();
             LOGGER.info(String.format("Request received %s", requestStr));
             SearchRequest request = SearchRequest.parse(requestStr);
-            // TODO: Fix
-            synchronized (queryIdStore) {
-                //check for already served queries
-                if (!isNewQuery(request)) {
-                    continue;
-                }
+            //check for already served queries
+            if (!isNewQuery(request)) {
+                continue;
             }
             List<String> matches = searchUtils(request.getFilename(), request.getHops(), packet.getReceiverNode());
             if (matches.size() > 0) {
