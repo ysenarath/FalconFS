@@ -224,7 +224,7 @@ public class QueryService {
                 }
             }
             if (isMatch){
-                found.add(filename);
+                found.add(filename.replace(' ', '_'));
             }
 
         }
