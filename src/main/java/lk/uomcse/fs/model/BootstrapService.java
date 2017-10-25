@@ -34,7 +34,6 @@ public class BootstrapService {
 
     /**
      * Registers the node bootstrap from server
-     * TODO: Update what happens when there is a timeout
      *
      * @param name name of the client
      * @param me node represented by the name
@@ -99,11 +98,11 @@ public class BootstrapService {
 
 
         String reply;
-        boolean try_again = true;
+        boolean tryAgain = true;
         int count = 0;
 
         //try again for three times to unregister
-        while (try_again && count < 4) {
+        while (tryAgain && count < 4) {
             try {
 
                 // Method will wait for reply
@@ -111,8 +110,9 @@ public class BootstrapService {
                 reply = this.handler.receiveMessage(UnregisterResponse.ID, 5);
                 LOGGER.info(String.format("Bootstrap Server replied: %s", reply));
                 UnregisterResponse rsp = UnregisterResponse.parse(reply);
-                try_again = false;
+                tryAgain = false;
                 return rsp.isSuccess();
+
             } catch (TimeoutException e) {
                 count += 1;
                 System.err.println("Failed the " + count + " attempt to unregister");

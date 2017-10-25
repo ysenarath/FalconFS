@@ -1,9 +1,13 @@
 package lk.uomcse.fs.error;
 
+import org.apache.log4j.Logger;
+
 /**
  * Created by anuradha on 10/24/17.
  */
 public class BsFullError extends Error {
+
+    private final static Logger LOGGER = Logger.getLogger(AlreadyRegisteredError.class.getName());
 
     private BsFullError(Builder builder){
         this.ErrorCode = builder.errorCode;
@@ -12,7 +16,8 @@ public class BsFullError extends Error {
 
     @Override
     public void handleError() {
-        System.out.println(getErrorMessage());
+
+        LOGGER.error(getErrorMessage());
     }
 
     public int getErrorCode(){

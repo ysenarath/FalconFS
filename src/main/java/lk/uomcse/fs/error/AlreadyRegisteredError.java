@@ -1,9 +1,14 @@
 package lk.uomcse.fs.error;
 
+import lk.uomcse.fs.model.BootstrapService;
+import org.apache.log4j.Logger;
+
 /**
  * Created by anuradha on 10/24/17.
  */
 public class AlreadyRegisteredError extends Error {
+
+    private final static Logger LOGGER = Logger.getLogger(AlreadyRegisteredError.class.getName());
 
     private AlreadyRegisteredError(Builder builder){
         this.ErrorCode = builder.errorCode;
@@ -12,7 +17,8 @@ public class AlreadyRegisteredError extends Error {
 
     @Override
     public void handleError() {
-        System.out.println(getErrorMessage());
+
+        LOGGER.error(getErrorMessage());
     }
 
     public int getErrorCode(){
