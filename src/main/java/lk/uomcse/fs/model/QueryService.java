@@ -161,10 +161,14 @@ public class QueryService {
             if (ignore != null)
                 bestNodes.remove(ignore);
             request.incrementHops();
-            LOGGER.info(String.format("Sending query to neighbours %s", request.toString()));
-            bestNodes.forEach(node -> this.handler.sendMessage(node.getIp(), node.getPort(), request));
+            bestNodes.forEach(node -> sendMessageWithLogs(node, request));
         }
         return matches;
+    }
+
+    private void sendMessageWithLogs(Node node, SearchRequest request) {
+        this.handler.sendMessage(node.getIp(), node.getPort(), request);
+        LOGGER.info(String.format("Sending query %s to neighbour %s ", request.toString(), node.toString()));
     }
 
     /**
