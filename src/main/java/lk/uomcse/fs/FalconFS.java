@@ -81,7 +81,7 @@ public class FalconFS {
         this.healthMonitorServiceThread = new Thread(healthMonitorService);
         // }
 
-        FrameView ui = new FrameView((ArrayList<Node>) neighbours, queryService);
+        FrameView ui = new FrameView((ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
     }
 
     /**

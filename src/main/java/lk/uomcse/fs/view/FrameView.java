@@ -16,24 +16,35 @@ import java.util.ArrayList;
 public class FrameView {
     private ArrayList<Node> neighbors;
     private QueryService queryService;
+    private ArrayList<String> filenames;
 
     private JFrame frmMain;
     private JPanel pnlMain;
 
     private JPanel pnlNeighbors;
     private JTable tblNeighbors;
-    private JScrollPane scrollPane;
+    private JScrollPane scrollNeighbor;
+    private JLabel lblNeighbors;
 
     private JPanel pnlSearch;
     private JTextField txtSearch;
     private JButton btnSearch;
     private JLabel lblSearch;
     private JButton btnClear;
-    private JPanel pnlResults;
 
-    public FrameView(ArrayList<Node> neighbors, QueryService queryService) {
+    private JPanel pnlResults;
+    private JScrollPane scrollResults;
+
+    private JPanel pnlFileNames;
+    private JLabel lblFilenames;
+    private JTable tblFilenames;
+    private JButton btnAddFilename;
+    private JScrollPane scrollFilename;
+
+    public FrameView(ArrayList<Node> neighbors, QueryService queryService, ArrayList<String> filenames) {
         this.neighbors = neighbors;
         this.queryService = queryService;
+        this.filenames = filenames;
         initComponents();
         setMainPanel();
     }
@@ -50,19 +61,26 @@ public class FrameView {
         pnlResults = new JPanel();
         txtSearch = new JTextField("");
         btnSearch = new JButton("Search");
-        btnSearch.addActionListener(e -> System.out.println(queryService.search(txtSearch.getText(), 10)));
+        btnSearch.addActionListener(e -> queryService.search(txtSearch.getText()));
         btnClear = new JButton("Clear");
         btnClear.addActionListener(e -> txtSearch.setText(""));
         lblSearch = new JLabel("Search Query");
 
 
         pnlNeighbors = new JPanel();
+        lblNeighbors = new JLabel("Neighbor Nodes:");
         final NeighborTableModel tblmdlNeighbor = new NeighborTableModel(neighbors);
         tblNeighbors = new JTable(tblmdlNeighbor);
-        scrollPane = new JScrollPane(tblNeighbors);
+        scrollNeighbor = new JScrollPane(tblNeighbors);
+
+        final ResultTableModel tblmdlResult = new ResultTableModel(queryService);
+        JTable tblResults = new JTable(tblmdlResult);
+        scrollResults = new JScrollPane(tblResults);
+
         new Thread(() -> {
             while (true) {
                 tblmdlNeighbor.fireTableDataChanged();
+                tblmdlResult.fireTableDataChanged();
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -71,22 +89,38 @@ public class FrameView {
             }
 
         }).start();
+
+        pnlFileNames = new JPanel();
+        lblFilenames = new JLabel("Filenames: ");
+        btnAddFilename = new JButton("Add");
+        final FilenameModel filenameModel = new FilenameModel(filenames);
+        tblFilenames = new JTable(filenameModel);
+        scrollFilename = new JScrollPane(tblFilenames);
+
+        btnAddFilename.addActionListener(e -> {
+            String filename = JOptionPane.showInputDialog("Enter the filename");
+            if(!filenames.contains(filename)) {
+                filenames.add(filename);
+                filenameModel.fireTableDataChanged();
+            }
+
+        });
     }
 
     private void setMainPanel() {
         frmMain.setSize(1000, 600);
         GridBagConstraints gbc = new GridBagConstraints();
 
-        pnlMain.setLayout(new GridBagLayout());
+        pnlMain.setLayout(new GridLayout(1,1));
         frmMain.setContentPane(pnlMain);
 
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.weightx = 1;
-        gbc.weighty = 9;
         gbc.fill = GridBagConstraints.BOTH;
-        gbc.ipady = 100;
         gbc.gridx = 0;
         gbc.gridy = 1;
         setSearchPanel();
+        setResultPanel();
         pnlMain.add(pnlSearch, gbc);
 
         setNeighborsPanel();
@@ -104,10 +138,8 @@ public class FrameView {
     }
 
     private void setSearchPanel() {
-        pnlSearch.setBackground(Color.DARK_GRAY);
-
-        GridBagLayout layout = new GridBagLayout();
-        pnlSearch.setLayout(layout);
+        pnlSearch.setLayout(new GridBagLayout());
+        pnlSearch.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -138,24 +170,82 @@ public class FrameView {
         gbc.gridy = 1;
         pnlSearch.add(btnClear, gbc);
 
-        pnlResults.setBackground(Color.cyan);
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = 6;
         gbc.gridy = 2;
         gbc.gridx = 0;
         gbc.weighty = 20;
         pnlSearch.add(pnlResults, gbc);
+
+        setFilenamePanel();
+        gbc.gridy = 3;
+        gbc.gridx = 0;
+        gbc.weighty = 5;
+        pnlSearch.add(pnlFileNames, gbc);
     }
 
     private void setNeighborsPanel() {
-        pnlNeighbors.setBackground(Color.GREEN);
+//        pnlNeighbors.setBackground(Color.GREEN);
+        pnlNeighbors.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
         pnlNeighbors.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        pnlNeighbors.add(lblNeighbors, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         gbc.fill = GridBagConstraints.BOTH;
-        pnlNeighbors.add(scrollPane, gbc);
+        pnlNeighbors.add(scrollNeighbor, gbc);
+    }
+
+    private void setResultPanel() {
+        pnlResults.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.weightx = 1;
+        gbc.weighty= 1;
+        JLabel lblResults = new JLabel("Search Results");
+        pnlResults.add(lblResults, gbc);
+
+        gbc.gridy = 1;
+        gbc.gridx = 0;
+        gbc.weightx = 1;
+        gbc.weighty= 30;
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlResults.add(scrollResults, gbc);
+    }
+
+    private void setFilenamePanel() {
+        pnlFileNames.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+//        gbc.insets = new Insets(0,5,5,5);
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        gbc.gridy = 0;
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.BOTH;
+        pnlFileNames.add(lblFilenames, gbc);
+
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 18;
+        gbc.weighty = 10;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        pnlFileNames.add(scrollFilename, gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 2;
+        pnlFileNames.add(btnAddFilename, gbc);
+
+
     }
 }
