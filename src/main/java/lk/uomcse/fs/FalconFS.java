@@ -7,6 +7,8 @@ import lk.uomcse.fs.utils.RequestFailedException;
 import lk.uomcse.fs.view.FrameView;
 import org.apache.log4j.Logger;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -191,9 +193,11 @@ public class FalconFS {
      *
      * @param args No args yet
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         Properties prop = new Properties();
-        InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
+//        InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
+        InputStream inputStream = new FileInputStream("./config.properties");
+
         if (inputStream != null) {
             try {
                 prop.load(inputStream);
