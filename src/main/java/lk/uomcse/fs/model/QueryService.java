@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import com.google.common.collect.EvictingQueue;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Initiates search requests and listens for replies
@@ -39,8 +40,9 @@ public class QueryService {
 
     private final Thread handleQueriesThread;
 
-    private boolean running;
+    private final ConcurrentHashMap<Node, List<String>> results;
 
+    private boolean running;
 
     public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours, CacheService cacheService) {
         this.handler = handler;
@@ -49,6 +51,7 @@ public class QueryService {
         this.neighbours = neighbours;
         this.cacheService = cacheService;
         this.running = false;
+        this.results = new ConcurrentHashMap<>();
         this.handleRepliesThread = new Thread(this::runHandleReplies);
         this.handleQueriesThread = new Thread(this::runHandleQueries);
 
@@ -71,6 +74,7 @@ public class QueryService {
         while (running) {
             String reply = this.handler.receiveMessage(SearchResponse.ID);
             SearchResponse response = SearchResponse.parse(reply);
+            this.updateResults(response.getNode(), response.getFilenames());
             LOGGER.info(String.format("Response received %s", response.toString()));
         }
     }
@@ -106,8 +110,12 @@ public class QueryService {
      * @return
      */
     public List<String> search(String query, int hops) {
+        results.clear();
         List<String> filenames = searchFiles(query);
-        if (filenames.size() > 0) return filenames;
+        if (filenames.size() > 0) {
+            this.updateResults(current, filenames);
+            return filenames;
+        }
         if (hops < TTL) {
             List<Node> bestNodes = selectBestNodes(query);
             SearchRequest request = new SearchRequest(this.current, query, hops + 1);
@@ -117,22 +125,38 @@ public class QueryService {
         return filenames;
     }
 
+    private void updateResults(Node node, List<String> filenames) {
+        synchronized (results) {
+            if (!results.containsKey(node))
+                results.put(node, filenames);
+        }
+        cacheService.update(node, filenames);
+    }
+
+    /**
+     *  
+     *
+     * @return
+     */
+    public Map<Node, List<String>> getSearchResults() {
+        return results;
+    }
+
     /**
      * Select best nodes from the cached nodes and the neighbours
      *
-     * @param fileName
-     * @return
+     * @param filename a name of a file
+     * @return a list of nodes possibly containing the file
      */
-    private List<Node> selectBestNodes(String fileName) {
-        List<Node> bestNodes = cacheService.search(fileName);
+    private List<Node> selectBestNodes(String filename) {
+        List<Node> bestNodes = cacheService.search(filename);
 
         int nodeGap = MAX_NODES - bestNodes.size();
         int fromNeighbours = nodeGap > 0 ? nodeGap + 2 : 2;
 
         synchronized (neighbours) {
             Collections.sort(neighbours);
-            bestNodes.addAll(neighbours.subList(0, fromNeighbours > neighbours.size() ? neighbours.size() :
-                    fromNeighbours));
+            bestNodes.addAll(neighbours.subList(0, fromNeighbours > neighbours.size() ? neighbours.size() : fromNeighbours));
         }
 
         return bestNodes;
