@@ -2,6 +2,7 @@ package lk.uomcse.fs.model;
 
 import com.google.common.collect.Queues;
 import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.entity.Packet;
 import lk.uomcse.fs.messages.SearchRequest;
 import lk.uomcse.fs.messages.SearchResponse;
 import org.apache.log4j.Logger;
@@ -44,6 +45,8 @@ public class QueryService {
 
     private String currentQuery;
 
+    private int currentQueryID;
+
     private boolean running;
 
     /**
@@ -83,11 +86,29 @@ public class QueryService {
     private void runHandleReplies() {
         running = true;
         while (running) {
-            String reply = this.handler.receiveMessage(SearchResponse.ID);
-            SearchResponse response = SearchResponse.parse(reply);
-            this.updateResults(response.getNode(), response.getFilenames());
-            LOGGER.info(String.format("Response received %s", response.toString()));
+            String responseStr = this.handler.receiveMessage(SearchResponse.ID);
+            SearchResponse response = SearchResponse.parse(responseStr);
+            if (Integer.parseInt(response.getQueryID()) == currentQueryID) {
+                this.updateResults(response.getNode(), response.getFilenames());
+                LOGGER.info(String.format("Response received matching current query: %s", response.toString()));
+            } else {
+                LOGGER.info(String.format("Response received matching old query: %s", response.toString()));
+            }
         }
+    }
+
+    /**
+     * Sets current search query
+     *
+     * @param query query
+     */
+    public void search(String query) {
+        results.clear();
+        currentQuery = query;
+        currentQueryID += 1;
+        List<String> matches = searchUtils(query, 0, null);
+        if (matches.size() > 0)
+            this.updateResults(current, matches);
     }
 
     /**
@@ -96,9 +117,11 @@ public class QueryService {
     private void runHandleQueries() {
         running = true;
         while (running) {
-            String requestStr = this.handler.receiveMessage(SearchRequest.ID);
+            Packet packet = this.handler.receivePacket(SearchRequest.ID);
+            String requestStr = packet.getMessage();
             LOGGER.info(String.format("Request received %s", requestStr));
             SearchRequest request = SearchRequest.parse(requestStr);
+            // TODO: Fix
             synchronized (queryIdStore) {
                 //check for already served queries
                 if (isNewQuery(request.getQueryId())) {
@@ -106,9 +129,9 @@ public class QueryService {
                 }
                 queryIdStore.add(request.getQueryId());
             }
-            List<String> matched = search(request.getFilename(), request.getHops());
-            if (matched.size() > 0) {
-                SearchResponse response = new SearchResponse(0, this.current, request.getHops() + 1, matched);
+            List<String> matches = searchUtils(request.getFilename(), request.getHops(), packet.getReceiverNode());
+            if (matches.size() > 0) {
+                SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.current, request.getHops() + 1, matches);
                 this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response);
                 LOGGER.info(String.format("Response sent %s", response.toString()));
             }
@@ -119,23 +142,24 @@ public class QueryService {
      * Initialize a search query
      *
      * @param query keywords to look for
-     * @return
+     * @return list of filenames
      */
-    public List<String> search(String query, int hops) {
-        results.clear();
-        currentQuery = query;
-        List<String> filenames = searchFiles(query);
-        if (filenames.size() > 0) {
-            this.updateResults(current, filenames);
-            return filenames;
+    private List<String> searchUtils(String query, int hops, Node ignore) {
+        List<String> matches = searchFiles(query);
+        if (matches.size() > 0) {
+            return matches;
         }
         if (hops < TTL) {
             List<Node> bestNodes = selectBestNodes(query);
-            SearchRequest request = new SearchRequest(this.current, query, hops + 1);
+            // TODO: Do this in selectBestNodes section
+            // Ignore nodes indicated by ignore args
+            if (ignore != null)
+                bestNodes.remove(ignore);
+            SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), this.current, query, hops + 1);
             LOGGER.info(String.format("Sending query to neighbours %s", request.toString()));
             bestNodes.forEach(node -> this.handler.sendMessage(node.getIp(), node.getPort(), request));
         }
-        return filenames;
+        return matches;
     }
 
     /**
@@ -150,25 +174,6 @@ public class QueryService {
                 results.put(node, filenames);
         }
         cacheService.update(node, filenames);
-    }
-
-
-    /**
-     * Returns current query
-     *
-     * @return current query in progress
-     */
-    public String getCurrentQuery() {
-        return currentQuery;
-    }
-
-    /**
-     * returns map containing search results
-     *
-     * @return map of nodes with respective files files
-     */
-    public Map<Node, List<String>> getSearchResults() {
-        return results;
     }
 
     /**
@@ -206,6 +211,24 @@ public class QueryService {
             }
         }
         return found;
+    }
+
+    /**
+     * Returns current query
+     *
+     * @return current query in progress
+     */
+    public String getCurrentQuery() {
+        return currentQuery;
+    }
+
+    /**
+     * returns map containing search results
+     *
+     * @return map of nodes with respective files files
+     */
+    public Map<Node, List<String>> getSearchResults() {
+        return results;
     }
 
     /**

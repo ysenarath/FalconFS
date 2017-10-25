@@ -15,6 +15,14 @@ public class SearchRequest implements IRequest {
 
     private int hops;
 
+    /**
+     * Cstr of SearchRequest
+     *
+     * @param queryId  id of the query
+     * @param node     a node
+     * @param filename filename to search for
+     * @param hops     current number of hops
+     */
     public SearchRequest(String queryId, Node node, String filename, int hops) {
         this.queryId = queryId;
         this.node = node;
