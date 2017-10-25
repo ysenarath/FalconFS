@@ -81,7 +81,36 @@ public class FalconFS {
         this.healthMonitorServiceThread = new Thread(healthMonitorService);
         // }
 
+        Properties props = loadDataFromConfig();
+        try {
+            String fileData = props.getProperty("files");
+            List<String> allFiles = Arrays.asList(fileData.trim().toLowerCase().split(","));
+            Collections.shuffle(allFiles);
+            Random random = new Random();
+            int randomIndex = random.nextInt()%3 + 1;
+            filenames = new ArrayList<>(allFiles.subList(0, randomIndex));
+        } catch (NullPointerException e) {
+            LOGGER.error("Unable to load default file names from Config File");
+        }
+
         FrameView ui = new FrameView(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
+    }
+
+    private Properties loadDataFromConfig() {
+        Properties prop = new Properties();
+        InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
+        if (inputStream != null) {
+            try {
+                prop.load(inputStream);
+            } catch (IOException e) {
+                System.err.println("Property file 'config.properties' could not be loaded");
+                return null;
+            }
+        } else {
+            System.err.println("Property file 'config.properties' not found in the classpath");
+            return null;
+        }
+        return prop;
     }
 
     /**
