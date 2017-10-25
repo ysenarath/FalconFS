@@ -31,4 +31,9 @@ public class FilenameModel extends DefaultTableModel{
     public Object getValueAt(int row, int column) {
         return filenames.get(row);
     }
+
+    @Override
+    public String getColumnName(int column) {
+        return "File Names";
+    }
 }

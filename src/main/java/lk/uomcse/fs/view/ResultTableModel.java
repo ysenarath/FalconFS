@@ -55,4 +55,14 @@ public class ResultTableModel extends DefaultTableModel {
                 return null;
         }
     }
+
+    @Override
+    public String getColumnName(int column) {
+        switch (column) {
+            case 0: return "IP";
+            case 1: return "Port";
+            case 2: return "File Names";
+            default: return null;
+        }
+    }
 }

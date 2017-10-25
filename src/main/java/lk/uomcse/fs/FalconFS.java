@@ -87,7 +87,7 @@ public class FalconFS {
             List<String> allFiles = Arrays.asList(fileData.trim().toLowerCase().split(","));
             Collections.shuffle(allFiles);
             Random random = new Random();
-            int randomIndex = random.nextInt()%3 + 1;
+            int randomIndex = random.nextInt() % 2 + 4;
             filenames = new ArrayList<>(allFiles.subList(0, randomIndex));
         } catch (NullPointerException e) {
             LOGGER.error("Unable to load default file names from Config File");
