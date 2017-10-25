@@ -4,6 +4,7 @@ import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.RequestFailedException;
+import lk.uomcse.fs.view.FrameView;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -79,6 +80,8 @@ public class FalconFS {
         this.pulseReceiverServiceThread = new Thread(pulseReceiverService);
         this.healthMonitorServiceThread = new Thread(healthMonitorService);
         // }
+
+        FrameView ui = new FrameView((ArrayList<Node>) neighbours, queryService);
     }
 
     /**
