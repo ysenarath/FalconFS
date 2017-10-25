@@ -70,7 +70,7 @@ public class PulseReceiverService implements Runnable {
             for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
                 final Node neighbor = iterator.next();
                 InetAddress addressNeighbor = InetAddress.getByName(neighbor.getIp());
-                if (addressNeighbor.equals(packetAddress)) {
+                if (addressNeighbor.equals(packetAddress) && neighbor.getPort() == packet.getReceiverNode().getPort()) {
                     neighbor.addPulseResponse(packet.getReceivedTime());
                     iterator.set(neighbor);
                 }

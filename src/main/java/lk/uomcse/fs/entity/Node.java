@@ -47,8 +47,8 @@ public class Node implements Comparator<Node>, Comparable<Node> {
     }
 
     public void setHealth(int health) {
-        if (health > 100) {
-            this.health = 100;
+        if (health > 10) {
+            this.health = 10;
         } else if (health < 0) {
             this.health = 0;
         } else {
