@@ -1,5 +1,6 @@
 package lk.uomcse.fs.model;
 
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Queues;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.entity.Packet;
@@ -8,8 +9,10 @@ import lk.uomcse.fs.messages.SearchResponse;
 import org.apache.log4j.Logger;
 import com.google.common.collect.EvictingQueue;
 
+import java.net.IDN;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Initiates search requests and listens for replies
@@ -19,7 +22,9 @@ public class QueryService {
 
     private static final int TTL = 5;
 
-    private static final int qIdStoreLength = 50;
+    private static final int ID_STORE_QUERY_LENGTH = 50;
+
+    private static final int ID_STORE_INDEX_SIZE = 50;
 
     private static final int MAX_NODES = 5;
 
@@ -35,7 +40,7 @@ public class QueryService {
 
     private final List<Node> neighbours;
 
-    private final Queue<String> queryIdStore;
+    private final ConcurrentMap<String, Queue<String>> queryIdStore;
 
     private final Thread handleRepliesThread;
 
@@ -69,7 +74,10 @@ public class QueryService {
         this.handleRepliesThread = new Thread(this::runHandleReplies);
         this.handleQueriesThread = new Thread(this::runHandleQueries);
 
-        this.queryIdStore = Queues.synchronizedQueue(EvictingQueue.create(qIdStoreLength));
+        this.queryIdStore = CacheBuilder.newBuilder()
+                .maximumSize(ID_STORE_INDEX_SIZE)
+                .<String, Queue<String>>build().asMap();
+//                Queues.synchronizedQueue(EvictingQueue.create(qIdStoreLength));
     }
 
     /**
@@ -124,10 +132,9 @@ public class QueryService {
             // TODO: Fix
             synchronized (queryIdStore) {
                 //check for already served queries
-                if (isNewQuery(request.getQueryId())) {
+                if (!isNewQuery(request)) {
                     continue;
                 }
-                queryIdStore.add(request.getQueryId());
             }
             List<String> matches = searchUtils(request.getFilename(), request.getHops(), packet.getReceiverNode());
             if (matches.size() > 0) {
@@ -246,10 +253,22 @@ public class QueryService {
     /**
      * Check if the given query is already resolved
      *
-     * @param queryId a query id
+     * @param request a Search request
      * @return true if the query is new otherwise return false
      */
-    private boolean isNewQuery(String queryId) {
-        return !queryIdStore.contains(queryId);
+    private synchronized boolean isNewQuery(SearchRequest request) {
+        String nodeName = request.getNode().toString();
+        String queryId = request.getQueryId();
+
+        Queue<String> idList = queryIdStore.get(nodeName);
+        if (idList == null) {
+            idList = Queues.synchronizedQueue(EvictingQueue.create(ID_STORE_QUERY_LENGTH));
+            queryIdStore.putIfAbsent(nodeName, idList);
+        } else if (idList.contains(queryId)) {
+            return false;
+        }
+
+        idList.add(queryId);
+        return true;
     }
 }
