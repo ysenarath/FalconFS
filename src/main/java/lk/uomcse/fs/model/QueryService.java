@@ -211,19 +211,19 @@ public class QueryService {
      */
     private List<String> searchFiles(String query) {
         List<String> found = new ArrayList<>();
-
         boolean isMatch;
         String[] fNameArry;
         for (String filename : filenames) {
             fNameArry = filename.split(" +");
             isMatch = true;
-            for (String keyword : query.split(" +")){
-                if(!Arrays.asList(fNameArry).contains(keyword)){
+            for (String keyword : query.split(" +")) {
+                if (!Arrays.asList(fNameArry).contains(keyword)) {
                     isMatch = false;
                     break;
                 }
             }
-            if (isMatch){
+            LOGGER.debug(String.format("Found file with name %s for query %s", filename, query));
+            if (isMatch) {
                 found.add(filename.replace(' ', '_'));
             }
 
