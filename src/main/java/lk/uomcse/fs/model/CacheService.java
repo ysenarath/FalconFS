@@ -91,13 +91,14 @@ public class CacheService {
         for (String keyWord :
                 fileName.trim().split(" +")) {
 
-            Queue<Node> keyWordNodes = cacheTable.get(keyWord);
+            Queue<Node> keyWordNodes = cacheTable.getOrDefault(keyWord, null);
 
-            if (fileNodes.isEmpty()) {
-                fileNodes.addAll(keyWordNodes);
-            } else {
-                fileNodes.removeIf(node -> !keyWordNodes.contains(node));
-            }
+            if (keyWordNodes != null)
+                if (fileNodes.isEmpty()) {
+                    fileNodes.addAll(keyWordNodes);
+                } else {
+                    fileNodes.removeIf(node -> !keyWordNodes.contains(node));
+                }
 
             if (fileNodes.isEmpty()) {
                 return null;

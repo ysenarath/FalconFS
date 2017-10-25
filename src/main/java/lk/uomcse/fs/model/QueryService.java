@@ -185,6 +185,9 @@ public class QueryService {
     private List<Node> selectBestNodes(String filename) {
         List<Node> bestNodes = cacheService.search(filename);
 
+        if (bestNodes == null)
+            bestNodes = new ArrayList<>();
+
         int nodeGap = MAX_NODES - bestNodes.size();
         int fromNeighbours = nodeGap > 0 ? nodeGap + 2 : 2;
 
