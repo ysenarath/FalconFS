@@ -5,6 +5,8 @@ import lk.uomcse.fs.entity.Packet;
 import lk.uomcse.fs.messages.HeartbeatPulse;
 import org.apache.log4j.Logger;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -63,13 +65,18 @@ public class PulseReceiverService implements Runnable {
      */
     private void receivePulses() {
         Packet packet = this.requestHandler.receivePacket(HeartbeatPulse.ID);
-        for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
-            final Node neighbor = iterator.next();
-            if (neighbor.getIp().equals(packet.getReceiverNode().getIp())) {
-                neighbor.addPulseResponse(packet.getReceivedTime());
-                iterator.set(neighbor);
+        try {
+            InetAddress packetAddress = InetAddress.getByName(packet.getReceiverNode().getIp());
+            for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
+                final Node neighbor = iterator.next();
+                InetAddress addressNeighbor = InetAddress.getByName(neighbor.getIp());
+                if (addressNeighbor.equals(packetAddress)) {
+                    neighbor.addPulseResponse(packet.getReceivedTime());
+                    iterator.set(neighbor);
+                }
             }
-
+        } catch (UnknownHostException e) {
+            LOGGER.error(e);
         }
     }
 

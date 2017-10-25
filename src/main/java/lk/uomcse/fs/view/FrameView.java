@@ -17,6 +17,7 @@ public class FrameView {
     private ArrayList<Node> neighbors;
     private QueryService queryService;
     private ArrayList<String> filenames;
+    private Node me;
 
     private JFrame frmMain;
     private JPanel pnlMain;
@@ -41,7 +42,8 @@ public class FrameView {
     private JButton btnAddFilename;
     private JScrollPane scrollFilename;
 
-    public FrameView(ArrayList<Node> neighbors, QueryService queryService, ArrayList<String> filenames) {
+    public FrameView(Node me, ArrayList<Node> neighbors, QueryService queryService, ArrayList<String> filenames) {
+        this.me = me;
         this.neighbors = neighbors;
         this.queryService = queryService;
         this.filenames = filenames;
@@ -53,7 +55,7 @@ public class FrameView {
      * Initialize UI components
      */
     private void initComponents() {
-        frmMain = new JFrame("FalconFS");
+        frmMain = new JFrame("FalconFS - " + me.getIp() + ":" + Integer.toString(me.getPort()));
 
         pnlMain = new JPanel();
 
@@ -100,7 +102,7 @@ public class FrameView {
         btnAddFilename.addActionListener(e -> {
             String filename = JOptionPane.showInputDialog("Enter the filename");
             if(!filenames.contains(filename)) {
-                filenames.add(filename);
+                filenames.add(filename.trim().toLowerCase());
                 filenameModel.fireTableDataChanged();
             }
 
