@@ -3,9 +3,11 @@ package lk.uomcse.fs.messages;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.InvalidFormatException;
 
-// length SER IP port file_name hops
+// length SER qid IP port file_name hops
 public class SearchRequest implements IRequest {
     public static final String ID = "SER";
+
+    private String queryId;
 
     private Node node;
 
@@ -13,9 +15,8 @@ public class SearchRequest implements IRequest {
 
     private int hops;
 
-    private String queryId;
-
-    public SearchRequest(Node node, String filename, int hops) {
+    public SearchRequest(String queryId, Node node, String filename, int hops) {
+        this.queryId = queryId;
         this.node = node;
         this.filename = filename;
         this.hops = hops;
@@ -67,15 +68,16 @@ public class SearchRequest implements IRequest {
         if (reply == null)
             throw new NullPointerException();
         String[] response = reply.split(" ");
-        if (response.length < 6)
+        if (response.length < 7)
             throw new InvalidFormatException("Parsing failed due to not having enough content to match the format.");
         if (!response[1].equals(ID))
-            throw new InvalidFormatException("Parsing failed due to not having correct type of message.");
-        String ip = response[2];
-        int port = Integer.parseInt(response[3]);
-        String filename = response[4];
-        int hops = Integer.parseInt(response[5]);
-        return new SearchRequest(new Node(ip, port), filename, hops);
+            throw new InvalidFormatException(String.format("Parsing failed due to not having message id: %s. (Received message ID: %s)", ID, response[1]));
+        String qid = response[2];
+        String ip = response[3];
+        int port = Integer.parseInt(response[4]);
+        String filename = response[5];
+        int hops = Integer.parseInt(response[6]);
+        return new SearchRequest(qid, new Node(ip, port), filename, hops);
     }
 
     /**
@@ -87,6 +89,7 @@ public class SearchRequest implements IRequest {
     public String toString() {
         StringBuilder sb = new StringBuilder(" ");
         sb.append(ID).append(" ")
+                .append(this.queryId).append(" ")
                 .append(node.getIp()).append(" ")
                 .append(node.getPort()).append(" ")
                 .append(this.filename).append(" ")

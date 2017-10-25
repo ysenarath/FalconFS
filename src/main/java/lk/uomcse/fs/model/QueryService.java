@@ -42,8 +42,19 @@ public class QueryService {
 
     private final ConcurrentHashMap<Node, List<String>> results;
 
+    private String currentQuery;
+
     private boolean running;
 
+    /**
+     * Query service
+     *
+     * @param handler      a request handler
+     * @param current      current node (me)
+     * @param filenames    reference to list of filenames in this node
+     * @param neighbours   reference to list of neighbours
+     * @param cacheService cacheService to select best nodes
+     */
     public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours, CacheService cacheService) {
         this.handler = handler;
         this.current = current;
@@ -89,7 +100,8 @@ public class QueryService {
             LOGGER.info(String.format("Request received %s", requestStr));
             SearchRequest request = SearchRequest.parse(requestStr);
             synchronized (queryIdStore) {
-                if (isNewQuery(request.getQueryId())) { //check for already served queries
+                //check for already served queries
+                if (isNewQuery(request.getQueryId())) {
                     continue;
                 }
                 queryIdStore.add(request.getQueryId());
@@ -111,6 +123,7 @@ public class QueryService {
      */
     public List<String> search(String query, int hops) {
         results.clear();
+        currentQuery = query;
         List<String> filenames = searchFiles(query);
         if (filenames.size() > 0) {
             this.updateResults(current, filenames);
@@ -125,6 +138,12 @@ public class QueryService {
         return filenames;
     }
 
+    /**
+     * Update results when queries are search and results are found
+     *
+     * @param node      Node containing the files
+     * @param filenames filenames matching the query
+     */
     private void updateResults(Node node, List<String> filenames) {
         synchronized (results) {
             if (!results.containsKey(node))
@@ -133,10 +152,20 @@ public class QueryService {
         cacheService.update(node, filenames);
     }
 
+
     /**
-     *  
+     * Returns current query
      *
-     * @return
+     * @return current query in progress
+     */
+    public String getCurrentQuery() {
+        return currentQuery;
+    }
+
+    /**
+     * returns map containing search results
+     *
+     * @return map of nodes with respective files files
      */
     public Map<Node, List<String>> getSearchResults() {
         return results;
@@ -165,14 +194,14 @@ public class QueryService {
     /**
      * For searching files in this node
      *
-     * @param query
-     * @return
+     * @param query a query to search files over
+     * @return list of filenames matching (containing) query
      */
     private List<String> searchFiles(String query) {
         List<String> found = new ArrayList<>();
         for (String filename : filenames) {
             // TODO: Update following to match specifications
-            if (filename.contains(query)) {
+            if (filename.toLowerCase().contains(query.toLowerCase())) {
                 found.add(filename);
             }
         }
@@ -191,7 +220,7 @@ public class QueryService {
     /**
      * Check if the given query is already resolved
      *
-     * @param queryId
+     * @param queryId a query id
      * @return true if the query is new otherwise return false
      */
     private boolean isNewQuery(String queryId) {
