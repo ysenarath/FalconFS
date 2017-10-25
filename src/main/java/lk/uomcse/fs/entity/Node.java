@@ -71,7 +71,7 @@ public class Node implements Comparator<Node>, Comparable<Node> {
             }
         }
         if(count != size) {
-            pulseResponses = (ArrayList<Long>) pulseResponses.subList(count, size);
+            pulseResponses = new ArrayList<Long>(pulseResponses.subList(count, size));
         }
         return count;
     }

@@ -76,6 +76,7 @@ public class HeartbeatService implements Runnable {
     private void sendPulses() {
         try {
             for (Node neighbor : neighbors) {
+                LOGGER.info("Sending Heartbeat Message:" + neighbor.getIp());
                 this.requestHandler.sendMessage(neighbor.getIp(), neighbor.getPort(), this.pulse);
             }
             Thread.sleep(SLEEP_TIME);

@@ -3,7 +3,10 @@ package lk.uomcse.fs.model;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.entity.Packet;
 import lk.uomcse.fs.messages.HeartbeatPulse;
+import org.apache.log4j.Logger;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -17,6 +20,9 @@ import java.util.ListIterator;
  * @since Phase1
  */
 public class PulseReceiverService implements Runnable {
+    private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
+
+
     /**
      * List of {@code neighbors}.
      */
@@ -59,13 +65,18 @@ public class PulseReceiverService implements Runnable {
      */
     private void receivePulses() {
         Packet packet = this.requestHandler.receivePacket(HeartbeatPulse.ID);
-        for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
-            final Node neighbor = iterator.next();
-            if (neighbor.equals(packet.getReceiverNode())) {
-                neighbor.addPulseResponse(packet.getReceivedTime());
-                iterator.set(neighbor);
+        try {
+            InetAddress packetAddress = InetAddress.getByName(packet.getReceiverNode().getIp());
+            for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
+                final Node neighbor = iterator.next();
+                InetAddress addressNeighbor = InetAddress.getByName(neighbor.getIp());
+                if (addressNeighbor.equals(packetAddress)) {
+                    neighbor.addPulseResponse(packet.getReceivedTime());
+                    iterator.set(neighbor);
+                }
             }
-
+        } catch (UnknownHostException e) {
+            LOGGER.error(e);
         }
     }
 

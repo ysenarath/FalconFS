@@ -138,4 +138,13 @@ public class RequestHandler extends Thread {
         }
         return packet;
     }
+
+    /**
+     * Set running status
+     *
+     * @param running state
+     */
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 }

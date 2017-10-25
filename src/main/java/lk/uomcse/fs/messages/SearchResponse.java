@@ -6,9 +6,11 @@ import lk.uomcse.fs.utils.InvalidFormatException;
 import java.util.Arrays;
 import java.util.List;
 
-// length SEROK no_files IP port hops filename1 filename2 ... ...
+// length SEROK qid no_files IP port hops filename1 filename2 ... ...
 public class SearchResponse implements IResponse {
     public static final String ID = "SEROK";
+
+    private String queryID;
 
     private int fileCount;
 
@@ -26,7 +28,8 @@ public class SearchResponse implements IResponse {
      * @param hops      Hops required to find the file(s).
      * @param filenames Actual names of the files.
      */
-    public SearchResponse(int fileCount, Node node, int hops, List<String> filenames) {
+    public SearchResponse(String queryID, int fileCount, Node node, int hops, List<String> filenames) {
+        this.queryID = queryID;
         this.fileCount = fileCount;
         this.node = node;
         this.hops = hops;
@@ -73,6 +76,15 @@ public class SearchResponse implements IResponse {
     }
 
     /**
+     * Gets query ID
+     *
+     * @return query id
+     */
+    public String getQueryID() {
+        return queryID;
+    }
+
+    /**
      * Parses search response message
      *
      * @param reply reply in string
@@ -85,14 +97,15 @@ public class SearchResponse implements IResponse {
         if (response.length < 6)
             throw new InvalidFormatException("Parsing failed due to not having enough content to match the format.");
         if (!response[1].equals(ID))
-            throw new InvalidFormatException("Parsing failed due to not having correct type of message.");
-        int n = Integer.parseInt(response[2]);
-        String ip = response[3];
-        int port = Integer.parseInt(response[4]);
-        int hops = Integer.parseInt(response[5]);
+            throw new InvalidFormatException(String.format("Parsing failed due to not having message id: %s. (Received message ID: %s)", ID, response[1]));
+        String qid = response[2];
+        int n = Integer.parseInt(response[3]);
+        String ip = response[4];
+        int port = Integer.parseInt(response[5]);
+        int hops = Integer.parseInt(response[6]);
         // TODO: Handle Errors
         List<String> filenames = Arrays.asList(response).subList(6, response.length);
-        return new SearchResponse(n, new Node(ip, port), hops, filenames);
+        return new SearchResponse(qid, n, new Node(ip, port), hops, filenames);
     }
 
     /**
@@ -104,11 +117,12 @@ public class SearchResponse implements IResponse {
     public String toString() {
         StringBuilder sb = new StringBuilder(" ");
         sb.append(ID).append(" ")
+                .append(this.queryID).append(" ")
                 .append(this.fileCount).append(" ")
                 .append(node.getIp()).append(" ")
                 .append(node.getPort()).append(" ")
                 .append(this.hops).append(" ")
-                .append(String.join(" ", this.filenames)).append(" ");
+                .append(String.join(" ", this.filenames));
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();
