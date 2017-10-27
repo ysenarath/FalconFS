@@ -195,9 +195,18 @@ public class FalconFS {
      */
     public static void main(String[] args) throws FileNotFoundException {
         Properties prop = new Properties();
-//        InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
-        InputStream inputStream = new FileInputStream("./config.properties");
-
+        InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
+        if (inputStream == null)
+            try {
+                String configPath = "./config.properties";
+                if (args.length >= 1) {
+                    configPath = args[0];
+                    System.out.println(String.format("Taking '%s' as path to configurations.", configPath));
+                }
+                inputStream = new FileInputStream(configPath);
+            } catch (FileNotFoundException ex) {
+                inputStream = null;
+            }
         if (inputStream != null) {
             try {
                 prop.load(inputStream);
@@ -206,7 +215,7 @@ public class FalconFS {
                 return;
             }
         } else {
-            System.err.println("Property file 'config.properties' not found in the classpath");
+            System.err.println("Please provide path to configurations after the name of application.");
             return;
         }
         BootstrapServer bc = new BootstrapServer(prop.getProperty("bs.ip"), Integer.parseInt(prop.getProperty("bs.port")));
