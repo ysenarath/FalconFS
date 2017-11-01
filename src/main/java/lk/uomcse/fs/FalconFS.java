@@ -47,12 +47,6 @@ public class FalconFS {
 
     private PulseReceiverService pulseReceiverService;
 
-    private Thread heartbeatServiceThread;
-
-    private Thread pulseReceiverServiceThread;
-
-    private Thread healthMonitorServiceThread;
-
     /**
      * Imports file system requirements
      *
@@ -77,25 +71,18 @@ public class FalconFS {
         this.heartbeatService = new HeartbeatService(handler, neighbours);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
         this.healthMonitorService = new HealthMonitorService(neighbours);
-        // Heartbeat service threads {
-        this.heartbeatServiceThread = new Thread(heartbeatService);
-        this.pulseReceiverServiceThread = new Thread(pulseReceiverService);
-        this.healthMonitorServiceThread = new Thread(healthMonitorService);
         // }
-
         Properties props = loadDataFromConfig();
-        try {
+        if (props == null) {
+            LOGGER.error("Unable to load default file names from Config File");
+        } else {
             String fileData = props.getProperty("files");
             List<String> allFiles = Arrays.asList(fileData.trim().toLowerCase().split(","));
             Collections.shuffle(allFiles);
             Random random = new Random();
             int randomIndex = random.nextInt() % 2 + 4;
             filenames.addAll(allFiles.subList(0, randomIndex));
-        } catch (NullPointerException e) {
-            LOGGER.error("Unable to load default file names from Config File");
         }
-
-        FrameView ui = new FrameView(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
     }
 
     private Properties loadDataFromConfig() {
@@ -127,9 +114,9 @@ public class FalconFS {
         if (bootstrapState) {
             LOGGER.trace("Bootstrapping completed.");
             // 3. Start heartbeat service
-            heartbeatServiceThread.start();
-            pulseReceiverServiceThread.start();
-            healthMonitorServiceThread.start();
+            heartbeatService.start();
+            pulseReceiverService.start();
+            healthMonitorService.start();
             LOGGER.trace("Heartbeat service started.");
             // 4. Start accepting nodes
             this.joinService.start();
@@ -144,6 +131,7 @@ public class FalconFS {
             LOGGER.trace("Stopped all started services.");
             return false;
         }
+        FrameView ui = new FrameView(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
         return true;
     }
 

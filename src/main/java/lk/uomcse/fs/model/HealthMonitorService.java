@@ -15,7 +15,7 @@ import java.util.ListIterator;
  * @author Dulanjaya Tennekoon
  * @since Phase1
  */
-public class HealthMonitorService implements Runnable {
+public class HealthMonitorService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(HealthMonitorService.class.getName());
 
     /**

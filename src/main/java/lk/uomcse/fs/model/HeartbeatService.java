@@ -16,7 +16,7 @@ import java.util.List;
  * @see RequestHandler
  * @since Phase1
  */
-public class HeartbeatService implements Runnable {
+public class HeartbeatService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
 
     /**

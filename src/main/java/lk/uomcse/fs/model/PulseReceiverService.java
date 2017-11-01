@@ -19,7 +19,7 @@ import java.util.ListIterator;
  * @see RequestHandler
  * @since Phase1
  */
-public class PulseReceiverService implements Runnable {
+public class PulseReceiverService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
 
 
