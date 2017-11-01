@@ -3,6 +3,8 @@ package lk.uomcse.fs;
 import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.utils.ListUtils;
+import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.utils.exceptions.RequestFailedException;
 import lk.uomcse.fs.view.FrameView;
 import org.apache.log4j.Logger;
@@ -72,40 +74,12 @@ public class FalconFS {
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
         this.healthMonitorService = new HealthMonitorService(neighbours);
         // }
-        Properties props = loadDataFromConfig();
-        if (props == null) {
-            LOGGER.error("Unable to load default file names from Config File");
-        } else {
-            String fileData = props.getProperty("files");
-            List<String> allFiles = Arrays.asList(fileData.trim().toLowerCase().split(","));
-            Collections.shuffle(allFiles);
-            Random random = new Random();
-            int randomIndex = random.nextInt() % 2 + 4;
-            filenames.addAll(allFiles.subList(0, randomIndex));
-        }
-    }
-
-    private Properties loadDataFromConfig() {
-        Properties prop = new Properties();
-        InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
-        if (inputStream != null) {
-            try {
-                prop.load(inputStream);
-            } catch (IOException e) {
-                System.err.println("Property file 'config.properties' could not be loaded");
-                return null;
-            }
-        } else {
-            System.err.println("Property file 'config.properties' not found in the classpath");
-            return null;
-        }
-        return prop;
     }
 
     /**
      * Starts the Falcon file system
      */
-    public boolean start() {
+    public void start() {
         // 1. Start the listener - Blocking
         this.handler.start();
         LOGGER.trace("Request handler started.");
@@ -129,10 +103,9 @@ public class FalconFS {
             LOGGER.trace("Bootstrap failed. Stopping started services.");
             this.handler.setRunning(false);
             LOGGER.trace("Stopped all started services.");
-            return false;
+            return;
         }
         FrameView ui = new FrameView(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
-        return true;
     }
 
     public boolean stop() {
@@ -150,7 +123,7 @@ public class FalconFS {
             List<Node> nodes = bootstrapService.register(name, me);
             nodes.forEach(joinService::join);
             LOGGER.trace(String.format("Joined to neighbours: %s", neighbours.toString()));
-        } catch (RequestFailedException ex) {
+        } catch (RequestFailedException | BootstrapException ex) {
             return false;
         }
         return true;
@@ -158,7 +131,7 @@ public class FalconFS {
 
     /**
      * Query and print results
-     * ONLY FOR DEBUGGING: have to implement a way to output files received
+     * CLI only function
      *
      * @param keyword a word/ series of continuous words in filename to query in the network
      */
@@ -182,7 +155,7 @@ public class FalconFS {
      * @param args No args yet
      */
     public static void main(String[] args) throws FileNotFoundException {
-        Properties prop = new Properties();
+        Properties props = new Properties();
         InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
         if (inputStream == null)
             try {
@@ -197,7 +170,7 @@ public class FalconFS {
             }
         if (inputStream != null) {
             try {
-                prop.load(inputStream);
+                props.load(inputStream);
             } catch (IOException e) {
                 System.err.println("Property file 'config.properties' could not be loaded");
                 return;
@@ -206,8 +179,11 @@ public class FalconFS {
             System.err.println("Please provide path to configurations after the name of application.");
             return;
         }
-        BootstrapServer bc = new BootstrapServer(prop.getProperty("bs.ip"), Integer.parseInt(prop.getProperty("bs.port")));
-        FalconFS fs = new FalconFS(prop.getProperty("fs.name"), prop.getProperty("fs.ip"), Integer.parseInt(prop.getProperty("fs.port")), bc);
+        BootstrapServer bc = new BootstrapServer(props.getProperty("bs.ip"), Integer.parseInt(props.getProperty("bs.port")));
+        FalconFS fs = new FalconFS(props.getProperty("fs.name"), props.getProperty("fs.ip"), Integer.parseInt(props.getProperty("fs.port")), bc);
+        String filesStr = props.getProperty("files");
+        List<String> files = Arrays.asList(filesStr.trim().toLowerCase().split(","));
+        fs.getFilenames().addAll(ListUtils.randomSubList(files, 4, 2));
         fs.start();
     }
 }
