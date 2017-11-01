@@ -1,14 +1,15 @@
 package lk.uomcse.fs.model;
 
-import lk.uomcse.fs.error.BsFullError;
-import lk.uomcse.fs.error.ErrorInCommand;
+import lk.uomcse.fs.utils.error.BsFullError;
+import lk.uomcse.fs.utils.error.ErrorInCommand;
 import lk.uomcse.fs.messages.RegisterRequest;
 import lk.uomcse.fs.messages.RegisterResponse;
 import lk.uomcse.fs.messages.UnregisterRequest;
 import lk.uomcse.fs.messages.UnregisterResponse;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.utils.RequestFailedException;
+import lk.uomcse.fs.utils.exceptions.BootstrapException;
+import lk.uomcse.fs.utils.exceptions.RequestFailedException;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class BootstrapService {
      * @param me   node represented by the name
      * @return List of nodes if the request is successful
      */
-    public List<Node> register(String name, Node me) {
+    public List<Node> register(String name, Node me) throws BootstrapException {
         RegisterRequest msg = new RegisterRequest(name, me);
         LOGGER.info(String.format("Requesting bootstrap server: %s", msg.toString()));
         String reply = null;
@@ -58,7 +59,7 @@ public class BootstrapService {
                     retries++;
                 } else {
                     LOGGER.error("Failed the attempt to register. Unable to recieve message from bootstrap.");
-                    return new ArrayList<>();
+                    throw new BootstrapException("Failed the attempt to register. Unable to recieve message from bootstrap.");
                 }
             }
         LOGGER.info(String.format("Bootstrap server replied: %s", reply));
@@ -102,19 +103,15 @@ public class BootstrapService {
      * @param me   node represented by the name
      * @return whether the response is success
      */
-    public boolean unregister(String name, Node me) {
+    public boolean unregister(String name, Node me) throws BootstrapException {
         UnregisterRequest msg = new UnregisterRequest(name, me);
         LOGGER.info(String.format("Requesting Bootstrap Server: %s", msg.toString()));
-
-
         String reply;
         boolean tryAgain = true;
         int count = 0;
-
         //try again for three times to unregister
         while (tryAgain && count < 4) {
             try {
-
                 // Method will wait for reply
                 this.handler.sendMessage(this.server.getHost(), this.server.getPort(), msg);
                 reply = this.handler.receiveMessage(UnregisterResponse.ID, 5);
@@ -127,7 +124,6 @@ public class BootstrapService {
                 LOGGER.error("Failed the " + count + " attempt to unregister");
             }
         }
-
         return false;
 
     }

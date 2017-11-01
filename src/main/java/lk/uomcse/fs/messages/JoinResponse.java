@@ -1,6 +1,6 @@
 package lk.uomcse.fs.messages;
 
-import lk.uomcse.fs.utils.InvalidFormatException;
+import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length JOINOK value
 public class JoinResponse implements IResponse {

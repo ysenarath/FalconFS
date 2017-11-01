@@ -1,4 +1,4 @@
-package lk.uomcse.fs.error;
+package lk.uomcse.fs.utils.error;
 
 import lk.uomcse.fs.messages.IResponse;
 

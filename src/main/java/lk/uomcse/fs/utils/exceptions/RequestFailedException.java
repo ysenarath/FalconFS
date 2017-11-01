@@ -1,4 +1,4 @@
-package lk.uomcse.fs.utils;
+package lk.uomcse.fs.utils.exceptions;
 
 public class RequestFailedException extends RuntimeException {
     private int id;

@@ -1,7 +1,7 @@
 package lk.uomcse.fs.messages;
 
 import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.utils.InvalidFormatException;
+import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 import java.util.Arrays;
 import java.util.List;

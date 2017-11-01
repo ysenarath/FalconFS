@@ -1,16 +1,15 @@
-package lk.uomcse.fs.error;
+package lk.uomcse.fs.utils.error;
 
-import lk.uomcse.fs.model.BootstrapService;
 import org.apache.log4j.Logger;
 
 /**
  * Created by anuradha on 10/24/17.
  */
-public class AlreadyRegisteredError extends Error {
+public class BsFullError extends Error {
 
     private final static Logger LOGGER = Logger.getLogger(AlreadyRegisteredError.class.getName());
 
-    private AlreadyRegisteredError(Builder builder){
+    private BsFullError(Builder builder){
         this.ErrorCode = builder.errorCode;
         this.ErrorMessage = builder.error;
     }
@@ -44,8 +43,8 @@ public class AlreadyRegisteredError extends Error {
             return this;
         }
 
-        public AlreadyRegisteredError build(){
-            return new AlreadyRegisteredError(this);
+        public BsFullError build(){
+            return new BsFullError(this);
         }
     }
 }

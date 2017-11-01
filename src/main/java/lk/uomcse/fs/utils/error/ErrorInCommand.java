@@ -1,23 +1,23 @@
-package lk.uomcse.fs.error;
+package lk.uomcse.fs.utils.error;
 
 import org.apache.log4j.Logger;
 
 /**
  * Created by anuradha on 10/24/17.
  */
-public class BsFullError extends Error {
+public class ErrorInCommand extends Error {
 
     private final static Logger LOGGER = Logger.getLogger(AlreadyRegisteredError.class.getName());
 
-    private BsFullError(Builder builder){
+    private ErrorInCommand(Builder builder){
         this.ErrorCode = builder.errorCode;
         this.ErrorMessage = builder.error;
     }
 
     @Override
     public void handleError() {
-
-        LOGGER.error(getErrorMessage());
+        LOGGER.error(getErrorMessage() +
+                           "---------- Please check your command ;( ------------");
     }
 
     public int getErrorCode(){
@@ -43,8 +43,8 @@ public class BsFullError extends Error {
             return this;
         }
 
-        public BsFullError build(){
-            return new BsFullError(this);
+        public ErrorInCommand build(){
+            return new ErrorInCommand(this);
         }
     }
 }

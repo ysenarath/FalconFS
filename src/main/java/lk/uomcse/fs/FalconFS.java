@@ -3,7 +3,7 @@ package lk.uomcse.fs;
 import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.utils.RequestFailedException;
+import lk.uomcse.fs.utils.exceptions.RequestFailedException;
 import lk.uomcse.fs.view.FrameView;
 import org.apache.log4j.Logger;
 
@@ -21,7 +21,7 @@ public class FalconFS {
 
     private static final int MAX_INDEX_SIZE = 100;
 
-    private static final int MAX_NODE_QUEUE_LENTH = 10;
+    private static final int MAX_NODE_QUEUE_LENGTH = 10;
 
     private String name;
 
@@ -62,7 +62,7 @@ public class FalconFS {
         this.filenames = new ArrayList<>();
         this.handler = new RequestHandler(port);
         //cache of nodes
-        this.cacheService = new CacheService(MAX_INDEX_SIZE, MAX_NODE_QUEUE_LENTH);
+        this.cacheService = new CacheService(MAX_INDEX_SIZE, MAX_NODE_QUEUE_LENGTH);
         // Services
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
         this.joinService = new JoinService(handler, me, neighbours);
