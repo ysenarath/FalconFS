@@ -6,6 +6,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Sender extends Thread {
+    private static final int MAX_RETRIES = 3;
+
     private boolean running;
 
     private DatagramSocket socket;
@@ -29,18 +31,24 @@ public class Sender extends Thread {
     @Override
     public void run() {
         this.running = true;
+        int retries;
         while (running) {
+            DatagramPacket packet;
             try {
-                DatagramPacket packet = this.packets.take();
-                this.socket.send(packet);
+                packet = this.packets.take();
             } catch (InterruptedException e) {
-                // --retry
-            } catch (IOException e) {
-                // TODO: Handle correctly
-                throw new RuntimeException("Problem in sending the packets.");
+                continue;
+            }
+            retries = 0;
+            while (retries < MAX_RETRIES) {
+                try {
+                    this.socket.send(packet);
+                    break;
+                } catch (IOException e) {
+                    retries++;
+                }
             }
         }
-        socket.close();
     }
 
     public void send(DatagramPacket packet) {
@@ -49,5 +57,6 @@ public class Sender extends Thread {
 
     public void setRunning(boolean running) {
         this.running = running;
+        this.interrupt();
     }
 }

@@ -1,5 +1,6 @@
 package lk.uomcse.fs.model;
 
+import lk.uomcse.fs.utils.TextFormatUtils;
 import lk.uomcse.fs.utils.error.BsFullError;
 import lk.uomcse.fs.utils.error.ErrorInCommand;
 import lk.uomcse.fs.messages.RegisterRequest;
@@ -49,15 +50,15 @@ public class BootstrapService {
         while (true)
             try {
                 this.handler.sendMessage(this.server.getHost(), this.server.getPort(), msg);
-                reply = this.handler.receiveMessage(RegisterResponse.ID, 500);
+                reply = this.handler.receiveMessage(RegisterResponse.ID, 5);
                 break;
             } catch (TimeoutException e) {
                 if (retries < MAX_RETRIES) {
-                    LOGGER.error("Failed the " + retries + 1 + " attempt to unregister");
+                    LOGGER.debug("Failed the " + TextFormatUtils.toRankedText(retries + 1) + " attempt to register");
                     retries++;
                 } else {
-                    LOGGER.error("Failed the attempt to register. Unable to recieve message from bootstrap.");
-                    throw new BootstrapException("Failed the attempt to register. Unable to recieve message from bootstrap.");
+                    LOGGER.error("Failed the attempt to register. Unable to receive message from bootstrap.");
+                    throw new BootstrapException("Failed the attempt to register. Unable to receive message from bootstrap.");
                 }
             }
         LOGGER.info(String.format("Bootstrap server replied: %s", reply));
@@ -88,7 +89,7 @@ public class BootstrapService {
                             .build();
                     break;
                 default:
-                    throw new UnknownError("Unknown error code recieved from bootstrap server.");
+                    throw new UnknownError("Unknown error code received from bootstrap server.");
             }
         }
         throw new BootstrapException(err.getMessage());

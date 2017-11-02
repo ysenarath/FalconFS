@@ -39,20 +39,29 @@ public class Receiver extends Thread {
                 socket.receive(packet);
                 Packet p = new Packet(packet);
                 packets.offer(p);
-            } catch (IOException e) {
-                // e.printStackTrace();
-                // TODO: Handle this
+            } catch (IOException ignored) {
+                // -- Retry
             }
         }
-        socket.close();
     }
 
+    /**
+     * Takes packets received from the queue
+     *
+     * @return received message
+     * @throws InterruptedException Whether receive was interrupted
+     */
+    public Packet receive() throws InterruptedException {
+        return packets.take();
+    }
+
+    /**
+     * Sets run status and interrupt current activities
+     *
+     * @param running value
+     */
     public void setRunning(boolean running) {
         this.running = running;
-    }
-
-    public Packet receive() throws InterruptedException {
-        Packet p = packets.take();
-        return p;
+        this.interrupt();
     }
 }
