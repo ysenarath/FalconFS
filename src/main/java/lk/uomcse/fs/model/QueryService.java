@@ -91,6 +91,7 @@ public class QueryService {
      * Starts handle replies thread and handle queries thread
      */
     public void start() {
+        running = true;
         this.handleQueriesThread.start();
         this.handleRepliesThread.start();
     }
@@ -99,7 +100,6 @@ public class QueryService {
      * Thread to handle replies
      */
     private void runHandleReplies() {
-        running = true;
         while (running) {
             String responseStr = this.handler.receiveMessage(SearchResponse.ID);
             SearchResponse response = SearchResponse.parse(responseStr);
@@ -131,7 +131,6 @@ public class QueryService {
      * Thread to handle queries
      */
     private void runHandleQueries() {
-        running = true;
         while (running) {
             Packet packet = this.handler.receivePacket(SearchRequest.ID);
             String requestStr = packet.getMessage();
@@ -168,14 +167,12 @@ public class QueryService {
             if (ignore != null)
                 bestNodes.remove(ignore);
             request.incrementHops();
-            bestNodes.forEach(node -> sendMessageWithLogs(node, request));
+            bestNodes.forEach(node -> {
+                this.handler.sendMessage(node.getIp(), node.getPort(), request);
+                LOGGER.info(String.format("Sending query %s to neighbour %s ", request.toString(), node.toString()));
+            });
         }
         return matches;
-    }
-
-    private void sendMessageWithLogs(Node node, SearchRequest request) {
-        this.handler.sendMessage(node.getIp(), node.getPort(), request);
-        LOGGER.info(String.format("Sending query %s to neighbour %s ", request.toString(), node.toString()));
     }
 
     /**
@@ -262,15 +259,6 @@ public class QueryService {
     }
 
     /**
-     * Sets running status
-     *
-     * @param running state
-     */
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
-    /**
      * Check if the given query is already resolved
      *
      * @param request a Search request
@@ -288,5 +276,16 @@ public class QueryService {
         }
         idList.add(queryId);
         return true;
+    }
+
+    /**
+     * Sets running status
+     *
+     * @param running state
+     */
+    public void setRunning(boolean running) {
+        this.running = running;
+        this.handleQueriesThread.interrupt();
+        this.handleRepliesThread.interrupt();
     }
 }
