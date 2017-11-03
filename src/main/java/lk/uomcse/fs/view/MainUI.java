@@ -34,9 +34,12 @@ public class MainUI {
     private JPanel pnlFiles;
     private JTable tblNeighbors;
     private JPanel pnlNeighbors;
-    private JLabel lblSearchResults;
     private JPanel pnlConsole;
     private JTextArea txtConsole;
+    private JPanel pnlSelfNode;
+    private JLabel lblName;
+    private JLabel lblIP;
+    private JLabel lblPort;
 
     // Models
     private ArrayList<Node> neighbors;
@@ -59,6 +62,8 @@ public class MainUI {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+
+
     }
 
     private void setupComponents() {
@@ -66,6 +71,7 @@ public class MainUI {
         this.setupSearchComponents();
         this.setupFileComponents();
         this.setupConsoleComponent();
+        this.setupSelfNodeInfo();
     }
 
     private void setupThreadComponents() {
@@ -96,6 +102,9 @@ public class MainUI {
 
         this.btnAddFile.addActionListener(e -> {
             String newFilename = JOptionPane.showInputDialog(frame, "Enter the filename", "FalconFS", JOptionPane.INFORMATION_MESSAGE);
+            if (null == newFilename) {
+                return;
+            }
             if (newFilename.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Filename is empty!", "FalconFS", JOptionPane.ERROR_MESSAGE);
             } else if (filenames.contains(newFilename)) {
@@ -143,5 +152,11 @@ public class MainUI {
                 return false;
             }
         });
+    }
+
+    private void setupSelfNodeInfo() {
+        this.lblName.setText("Name: " + me.toString());
+        this.lblIP.setText("IP: " + me.getIp());
+        this.lblPort.setText("Port: " + Integer.toString(me.getPort()));
     }
 }
