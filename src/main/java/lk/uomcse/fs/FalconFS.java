@@ -7,6 +7,7 @@ import lk.uomcse.fs.utils.ListUtils;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.utils.exceptions.RequestFailedException;
 import lk.uomcse.fs.view.FrameView;
+import lk.uomcse.fs.view.MainUI;
 import org.apache.log4j.Logger;
 
 import java.io.FileInputStream;
@@ -105,7 +106,8 @@ public class FalconFS {
             LOGGER.trace("Stopped all started services.");
             return;
         }
-        FrameView ui = new FrameView(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
+//        FrameView ui = new FrameView(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
+        MainUI ui1 = new MainUI(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
     }
 
     public boolean stop() {

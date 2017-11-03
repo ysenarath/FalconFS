@@ -10,38 +10,56 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**
+ * User Interface Starts from here
+ *
  * @author Dulanjaya
- * @since 10/24/2017
+ * @since Phase 1
  */
 public class FrameView {
+    // Models
     private ArrayList<Node> neighbors;
     private QueryService queryService;
     private ArrayList<String> filenames;
     private Node me;
 
+    // UI Components
+    // Main UI
     private JFrame frmMain;
     private JPanel pnlMain;
 
+    // Neighbors
     private JPanel pnlNeighbors;
     private JTable tblNeighbors;
     private JScrollPane scrollNeighbor;
     private JLabel lblNeighbors;
 
+    // Search Panel
     private JPanel pnlSearch;
     private JTextField txtSearch;
     private JButton btnSearch;
     private JLabel lblSearch;
     private JButton btnClear;
 
+    // Results Panel
     private JPanel pnlResults;
     private JScrollPane scrollResults;
 
+    // FileSystem Panel
     private JPanel pnlFileNames;
     private JLabel lblFilenames;
     private JTable tblFilenames;
     private JButton btnAddFilename;
     private JScrollPane scrollFilename;
 
+
+    /**
+     * Initializes the FrameView
+     *
+     * @param me
+     * @param neighbors
+     * @param queryService
+     * @param filenames
+     */
     public FrameView(Node me, ArrayList<Node> neighbors, QueryService queryService, ArrayList<String> filenames) {
         this.me = me;
         this.neighbors = neighbors;
@@ -56,7 +74,6 @@ public class FrameView {
      */
     private void initComponents() {
         frmMain = new JFrame("FalconFS - " + me.getIp() + ":" + Integer.toString(me.getPort()));
-
         pnlMain = new JPanel();
 
         pnlSearch = new JPanel();
@@ -101,7 +118,7 @@ public class FrameView {
 
         btnAddFilename.addActionListener(e -> {
             String filename = JOptionPane.showInputDialog("Enter the filename");
-            if(!filenames.contains(filename)) {
+            if (!filenames.contains(filename)) {
                 filenames.add(filename.trim().toLowerCase());
                 filenameModel.fireTableDataChanged();
             }
@@ -113,7 +130,7 @@ public class FrameView {
         frmMain.setSize(1000, 600);
         GridBagConstraints gbc = new GridBagConstraints();
 
-        pnlMain.setLayout(new GridLayout(1,1));
+        pnlMain.setLayout(new GridLayout(1, 1));
         frmMain.setContentPane(pnlMain);
 
         gbc.anchor = GridBagConstraints.NORTH;
@@ -212,14 +229,14 @@ public class FrameView {
         gbc.gridy = 0;
         gbc.gridx = 0;
         gbc.weightx = 1;
-        gbc.weighty= 1;
+        gbc.weighty = 1;
         JLabel lblResults = new JLabel("Search Results");
         pnlResults.add(lblResults, gbc);
 
         gbc.gridy = 1;
         gbc.gridx = 0;
         gbc.weightx = 1;
-        gbc.weighty= 30;
+        gbc.weighty = 30;
         gbc.fill = GridBagConstraints.BOTH;
         pnlResults.add(scrollResults, gbc);
     }
