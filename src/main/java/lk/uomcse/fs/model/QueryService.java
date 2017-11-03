@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentMap;
  * Initiates search requests and listens for replies
  */
 public class QueryService {
+
     private static final Logger LOGGER = Logger.getLogger(QueryService.class.getName());
 
     private static final int TTL = 5;
@@ -30,13 +31,19 @@ public class QueryService {
 
     private static final int MIN_REQ_HEALTH = 50;
 
+    private static final int MAX_INDEX_SIZE = 100;
+
+    private static final int MAX_NODE_QUEUE_LENGTH = 10;
+
+    // -----------------------------------------------------------------------------------------------------------------
+
     private final CacheService cacheService;
 
     private final RequestHandler handler;
 
     private final Node current;
 
-    private final List<String> filenames; //split file names which are lowercased
+    private final List<String> filenames; //  Split file names which are in lowercase
 
     private final List<Node> neighbours;
 
@@ -48,6 +55,8 @@ public class QueryService {
 
     private final ConcurrentHashMap<Node, List<String>> results;
 
+    // -----------------------------------------------------------------------------------------------------------------
+
     private String currentQuery;
 
     private int currentQueryID;
@@ -57,33 +66,32 @@ public class QueryService {
     /**
      * Query service
      *
-     * @param handler      a request handler
-     * @param current      current node (me)
-     * @param filenames    reference to list of filenames in this node
-     * @param neighbours   reference to list of neighbours
-     * @param cacheService cacheService to select best nodes
+     * @param handler    a request handler
+     * @param current    current node (me)
+     * @param filenames  reference to list of filenames in this node
+     * @param neighbours reference to list of neighbours
      */
-    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours, CacheService cacheService) {
+    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours) {
         this.handler = handler;
         this.current = current;
         this.filenames = filenames;
         this.neighbours = neighbours;
-        this.cacheService = cacheService;
+        //  Cache of nodes
+        this.cacheService = new CacheService(MAX_INDEX_SIZE, MAX_NODE_QUEUE_LENGTH);
         this.running = false;
         this.results = new ConcurrentHashMap<>();
         this.handleRepliesThread = new Thread(this::runHandleReplies);
         this.handleQueriesThread = new Thread(this::runHandleQueries);
-
         this.queryIdStore = CacheBuilder.newBuilder()
                 .maximumSize(ID_STORE_INDEX_SIZE)
                 .<String, Queue<String>>build().asMap();
-//                Queues.synchronizedQueue(EvictingQueue.create(qIdStoreLength));
     }
 
     /**
      * Starts handle replies thread and handle queries thread
      */
     public void start() {
+        running = true;
         this.handleQueriesThread.start();
         this.handleRepliesThread.start();
     }
@@ -92,7 +100,6 @@ public class QueryService {
      * Thread to handle replies
      */
     private void runHandleReplies() {
-        running = true;
         while (running) {
             String responseStr = this.handler.receiveMessage(SearchResponse.ID);
             SearchResponse response = SearchResponse.parse(responseStr);
@@ -124,7 +131,6 @@ public class QueryService {
      * Thread to handle queries
      */
     private void runHandleQueries() {
-        running = true;
         while (running) {
             Packet packet = this.handler.receivePacket(SearchRequest.ID);
             String requestStr = packet.getMessage();
@@ -161,14 +167,12 @@ public class QueryService {
             if (ignore != null)
                 bestNodes.remove(ignore);
             request.incrementHops();
-            bestNodes.forEach(node -> sendMessageWithLogs(node, request));
+            bestNodes.forEach(node -> {
+                this.handler.sendMessage(node.getIp(), node.getPort(), request);
+                LOGGER.info(String.format("Sending query %s to neighbour %s ", request.toString(), node.toString()));
+            });
         }
         return matches;
-    }
-
-    private void sendMessageWithLogs(Node node, SearchRequest request) {
-        this.handler.sendMessage(node.getIp(), node.getPort(), request);
-        LOGGER.info(String.format("Sending query %s to neighbour %s ", request.toString(), node.toString()));
     }
 
     /**
@@ -255,15 +259,6 @@ public class QueryService {
     }
 
     /**
-     * Sets running status
-     *
-     * @param running state
-     */
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
-    /**
      * Check if the given query is already resolved
      *
      * @param request a Search request
@@ -272,7 +267,6 @@ public class QueryService {
     private synchronized boolean isNewQuery(SearchRequest request) {
         String nodeName = request.getNode().toString();
         String queryId = request.getQueryId();
-
         Queue<String> idList = queryIdStore.get(nodeName);
         if (idList == null) {
             idList = Queues.synchronizedQueue(EvictingQueue.create(ID_STORE_QUERY_LENGTH));
@@ -280,8 +274,18 @@ public class QueryService {
         } else if (idList.contains(queryId)) {
             return false;
         }
-
         idList.add(queryId);
         return true;
+    }
+
+    /**
+     * Sets running status
+     *
+     * @param running state
+     */
+    public void setRunning(boolean running) {
+        this.running = running;
+        this.handleQueriesThread.interrupt();
+        this.handleRepliesThread.interrupt();
     }
 }

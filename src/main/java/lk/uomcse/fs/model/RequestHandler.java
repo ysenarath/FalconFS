@@ -13,6 +13,8 @@ import java.util.concurrent.*;
 public class RequestHandler extends Thread {
     private final static Logger LOGGER = Logger.getLogger(RequestHandler.class.getName());
 
+    private DatagramSocket socket;
+
     private boolean running;
 
     private final Receiver receiver;
@@ -27,7 +29,7 @@ public class RequestHandler extends Thread {
      * @param port port of this node
      */
     public RequestHandler(int port) {
-        DatagramSocket socket = DatagramSocketUtils.getSocket(port);
+        socket = DatagramSocketUtils.getSocket(port);
         this.receiver = new Receiver(socket);
         this.sender = new Sender(socket);
         handle = new ConcurrentHashMap<>();
@@ -39,6 +41,7 @@ public class RequestHandler extends Thread {
     @Override
     public void run() {
         running = true;
+        LOGGER.trace("Initializing request handler.");
         receiver.start();
         sender.start();
         while (running) {
@@ -48,19 +51,21 @@ public class RequestHandler extends Thread {
                 LOGGER.debug(String.format("Received packet: %s", receivedStr));
                 String[] data = receivedStr.split(" ");
                 String id;
-                // message should be at least contain 2 space separated strings
+                // Message should be at least contain 2 space separated strings
                 if (data.length >= 2) {
                     id = data[1];
                     handle.putIfAbsent(id, new LinkedBlockingQueue<>());
                     BlockingQueue<Packet> packets = handle.get(id);
                     packets.add(packet);
-                } // else ignore the message
+                } // else { ignore }
             } catch (InterruptedException e) {
-                // --retry
+                LOGGER.debug("Packet receive interrupted. Retrying...");
             }
         }
+        LOGGER.trace("Finalizing request handler.");
         this.sender.setRunning(false);
         this.receiver.setRunning(false);
+        this.socket.close();
     }
 
     /**
@@ -146,5 +151,6 @@ public class RequestHandler extends Thread {
      */
     public void setRunning(boolean running) {
         this.running = running;
+        this.interrupt();
     }
 }

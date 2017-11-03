@@ -22,10 +22,6 @@ import java.util.*;
 public class FalconFS {
     private final static Logger LOGGER = Logger.getLogger(FalconFS.class.getName());
 
-    private static final int MAX_INDEX_SIZE = 100;
-
-    private static final int MAX_NODE_QUEUE_LENGTH = 10;
-
     private String name;
 
     private Node me;
@@ -41,8 +37,6 @@ public class FalconFS {
     private JoinService joinService;
 
     private QueryService queryService;
-
-    private CacheService cacheService;
 
     private HeartbeatService heartbeatService;
 
@@ -64,12 +58,10 @@ public class FalconFS {
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
         this.handler = new RequestHandler(port);
-        //cache of nodes
-        this.cacheService = new CacheService(MAX_INDEX_SIZE, MAX_NODE_QUEUE_LENGTH);
         // Services
         this.bootstrapService = new BootstrapService(handler, bootstrapServer);
         this.joinService = new JoinService(handler, me, neighbours);
-        this.queryService = new QueryService(handler, me, filenames, neighbours, cacheService);
+        this.queryService = new QueryService(handler, me, filenames, neighbours);
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
@@ -83,33 +75,31 @@ public class FalconFS {
     public void start() {
         // 1. Start the listener - Blocking
         this.handler.start();
-        LOGGER.trace("Request handler started.");
         // 2. Connect to neighbours (bootstrap + join)
         boolean bootstrapState = this.bootstrap();
         if (bootstrapState) {
-            LOGGER.trace("Bootstrapping completed.");
             // 3. Start heartbeat service
             heartbeatService.start();
             pulseReceiverService.start();
             healthMonitorService.start();
-            LOGGER.trace("Heartbeat service started.");
             // 4. Start accepting nodes
             this.joinService.start();
-            LOGGER.trace("Listening to join messages.");
-            // 5. start querying
-            // while random keyword in keywords query(keyword)
+            // 5. start query service
             this.queryService.start();
-            LOGGER.trace("Listening to query messages.");
         } else {
-            LOGGER.trace("Bootstrap failed. Stopping started services.");
+            LOGGER.error("Bootstrap failed. Stopping request handler.");
             this.handler.setRunning(false);
-            LOGGER.trace("Stopped all started services.");
             return;
         }
 //        FrameView ui = new FrameView(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
         MainUI ui1 = new MainUI(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
     }
 
+    /**
+     * Stops all services
+     *
+     * @return success status
+     */
     public boolean stop() {
         this.queryService.setRunning(false);
         this.joinService.setRunning(false);
