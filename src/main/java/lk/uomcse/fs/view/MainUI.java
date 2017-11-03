@@ -112,8 +112,10 @@ public class MainUI {
         this.btnSearch.addActionListener(e -> {
             if (txtSearch.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Search string is empty!", "FalconFS", JOptionPane.ERROR_MESSAGE);
+            } else {
+                this.queryService.search(this.txtSearch.getText());
             }
-            this.queryService.search(this.txtSearch.getText());
+
         });
 
         this.btnClear.addActionListener(e -> {
