@@ -9,7 +9,6 @@ import lk.uomcse.fs.messages.SearchResponse;
 import org.apache.log4j.Logger;
 import com.google.common.collect.EvictingQueue;
 
-import java.net.IDN;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -231,8 +230,8 @@ public class QueryService {
                     break;
                 }
             }
-            LOGGER.debug(String.format("Found file with name %s for query %s", filename, query));
             if (isMatch) {
+                LOGGER.debug(String.format("Found file with name %s for query %s", filename, query));
                 found.add(filename.replace(' ', '_'));
             }
 
