@@ -88,6 +88,9 @@ public class FalconFS {
             // 5. start query service
             this.queryService.start();
         } else {
+            // TODO: Request user to enter Name(IP:Port) and update config properties
+            // TODO: Then retry start()
+            // TODO: Else show following message
             LOGGER.error("Bootstrap failed. Stopping request handler.");
             this.handler.setRunning(false);
             return;
