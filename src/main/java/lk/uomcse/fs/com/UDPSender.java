@@ -1,14 +1,16 @@
-package lk.uomcse.fs.udp;
+package lk.uomcse.fs.com;
+
+import lk.uomcse.fs.entity.Message;
+import lk.uomcse.fs.entity.UDPMessage;
+import lk.uomcse.fs.messages.IMessage;
 
 import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Sender extends Thread {
+public class UDPSender extends Sender {
     private static final int MAX_RETRIES = 3;
-
-    private boolean running;
 
     private DatagramSocket socket;
 
@@ -19,9 +21,8 @@ public class Sender extends Thread {
      *
      * @param socket Datagram socket
      */
-    public Sender(DatagramSocket socket) {
+    public UDPSender(DatagramSocket socket) {
         this.packets = new LinkedBlockingQueue<>();
-        this.running = false;
         this.socket = socket;
     }
 
@@ -51,12 +52,27 @@ public class Sender extends Thread {
         }
     }
 
-    public void send(DatagramPacket packet) {
+
+    /**
+     * Requests given node
+     *
+     * @param ip      ip of the requested node
+     * @param port    port of the requested node
+     * @param request request
+     */
+    @Override
+    public void send(String ip, int port, IMessage request) {
+        byte[] buf = request.toString().getBytes();
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(ip);
+        } catch (UnknownHostException e) {
+            // TODO: Create custom exception + handle correctly
+            throw new RuntimeException("The IP address of a host could not be determined.");
+        }
+        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
         this.packets.add(packet);
     }
 
-    public void setRunning(boolean running) {
-        this.running = running;
-        this.interrupt();
-    }
+
 }
