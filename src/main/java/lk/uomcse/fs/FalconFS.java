@@ -55,7 +55,12 @@ public class FalconFS {
         this.me = new Node(ip, port);
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
-        this.handler = new RequestHandler(port);
+//        TODO - handle errors
+        try {
+            this.handler = new RequestHandler(port, RequestHandler.CONNECTION_UDP);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
         // Services
         this.joinService = new JoinService(handler, me, neighbours);
         this.bootstrapService = new BootstrapService(handler, joinService, bootstrapServer);
