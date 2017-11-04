@@ -2,8 +2,9 @@ package lk.uomcse.fs.model;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Queues;
+import lk.uomcse.fs.entity.Message;
 import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.entity.Packet;
+import lk.uomcse.fs.entity.UDPMessage;
 import lk.uomcse.fs.messages.SearchRequest;
 import lk.uomcse.fs.messages.SearchResponse;
 import org.apache.log4j.Logger;
@@ -131,15 +132,15 @@ public class QueryService {
      */
     private void runHandleQueries() {
         while (running) {
-            Packet packet = this.handler.receivePacket(SearchRequest.ID);
-            String requestStr = packet.getMessage();
+            Message message = this.handler.receivePacket(SearchRequest.ID);
+            String requestStr = message.getMessage();
             LOGGER.info(String.format("Request received %s", requestStr));
             SearchRequest request = SearchRequest.parse(requestStr);
             //check for already served queries
             if (!isNewQuery(request)) {
                 continue;
             }
-            List<String> matches = searchUtils(request, packet.getReceiverNode());
+            List<String> matches = searchUtils(request, message.getReceiverNode());
             if (matches.size() > 0) {
                 SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.current, request.getHops() + 1, matches);
                 this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response);

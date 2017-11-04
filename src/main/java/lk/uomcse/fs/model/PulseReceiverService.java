@@ -1,7 +1,8 @@
 package lk.uomcse.fs.model;
 
+import lk.uomcse.fs.entity.Message;
 import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.entity.Packet;
+import lk.uomcse.fs.entity.UDPMessage;
 import lk.uomcse.fs.messages.HeartbeatPulse;
 import org.apache.log4j.Logger;
 
@@ -64,14 +65,14 @@ public class PulseReceiverService extends Thread {
      * Receives pulses from each neighbor and update the respective node.
      */
     private void receivePulses() {
-        Packet packet = this.requestHandler.receivePacket(HeartbeatPulse.ID);
+        Message message = this.requestHandler.receivePacket(HeartbeatPulse.ID);
         try {
-            InetAddress packetAddress = InetAddress.getByName(packet.getReceiverNode().getIp());
+            InetAddress packetAddress = InetAddress.getByName(message.getReceiverNode().getIp());
             for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
                 final Node neighbor = iterator.next();
                 InetAddress addressNeighbor = InetAddress.getByName(neighbor.getIp());
-                if (addressNeighbor.equals(packetAddress) && neighbor.getPort() == packet.getReceiverNode().getPort()) {
-                    neighbor.addPulseResponse(packet.getReceivedTime());
+                if (addressNeighbor.equals(packetAddress) && neighbor.getPort() == message.getReceiverNode().getPort()) {
+                    neighbor.addPulseResponse(message.getReceivedTime());
                     iterator.set(neighbor);
                 }
             }

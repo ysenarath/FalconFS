@@ -1,16 +1,24 @@
 package lk.uomcse.fs.model;
 
-import lk.uomcse.fs.entity.Packet;
+import lk.uomcse.fs.com.*;
+import lk.uomcse.fs.entity.Message;
+import lk.uomcse.fs.entity.UDPMessage;
 import lk.uomcse.fs.messages.IMessage;
-import lk.uomcse.fs.udp.Receiver;
-import lk.uomcse.fs.udp.Sender;
 import lk.uomcse.fs.utils.DatagramSocketUtils;
 import org.apache.log4j.Logger;
 
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.*;
 
 public class RequestHandler extends Thread {
+
+    public static final String CONNECTION_UDP = "udp";
+
+    public static final String CONNECTION_REST = "rest";
+
     private final static Logger LOGGER = Logger.getLogger(RequestHandler.class.getName());
 
     private DatagramSocket socket;
@@ -21,17 +29,26 @@ public class RequestHandler extends Thread {
 
     private final Sender sender;
 
-    private final ConcurrentMap<String, BlockingQueue<Packet>> handle;
+    private final ConcurrentMap<String, BlockingQueue<Message>> handle;
 
     /**
      * Constructor {{{{@link lk.uomcse.fs.messages.RegisterResponse}}}}
      *
      * @param port port of this node
      */
-    public RequestHandler(int port) {
-        socket = DatagramSocketUtils.getSocket(port);
-        this.receiver = new Receiver(socket);
-        this.sender = new Sender(socket);
+    public RequestHandler(int port, String connectionType) throws InstantiationException {
+        if (CONNECTION_UDP.equals(connectionType)) {
+            socket = DatagramSocketUtils.getSocket(port);
+            this.receiver = new UDPReceiver(socket);
+            this.sender = new UDPSender(socket);
+        } else if (CONNECTION_REST.equals(connectionType)) {
+            this.receiver = new RestReceiver();
+            this.sender = new RestSender();
+        } else {
+//            TODO handle errors
+            throw new InstantiationException(String.format("Provide connection type either %s or %s",
+                    CONNECTION_REST, CONNECTION_UDP));
+        }
         handle = new ConcurrentHashMap<>();
     }
 
@@ -46,20 +63,20 @@ public class RequestHandler extends Thread {
         sender.start();
         while (running) {
             try {
-                Packet packet = receiver.receive();
-                String receivedStr = packet.getMessage();
-                LOGGER.debug(String.format("Received packet: %s", receivedStr));
+                Message message = receiver.receive();
+                String receivedStr = message.getMessage();
+                LOGGER.debug(String.format("Received message: %s", receivedStr));
                 String[] data = receivedStr.split(" ");
                 String id;
                 // Message should be at least contain 2 space separated strings
                 if (data.length >= 2) {
                     id = data[1];
                     handle.putIfAbsent(id, new LinkedBlockingQueue<>());
-                    BlockingQueue<Packet> packets = handle.get(id);
-                    packets.add(packet);
+                    BlockingQueue<Message> messages = handle.get(id);
+                    messages.add(message);
                 } // else { ignore }
             } catch (InterruptedException e) {
-                LOGGER.debug("Packet receive interrupted. Retrying...");
+                LOGGER.debug("UDPMessage receive interrupted. Retrying...");
             }
         }
         LOGGER.trace("Finalizing request handler.");
@@ -76,16 +93,7 @@ public class RequestHandler extends Thread {
      * @param request request
      */
     public void sendMessage(String ip, int port, IMessage request) {
-        byte[] buf = request.toString().getBytes();
-        InetAddress address;
-        try {
-            address = InetAddress.getByName(ip);
-        } catch (UnknownHostException e) {
-            // TODO: Create custom exception + handle correctly
-            throw new RuntimeException("The IP address of a host could not be determined.");
-        }
-        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
-        sender.send(packet);
+        sender.send(ip, port, request);
     }
 
     /**
@@ -95,8 +103,8 @@ public class RequestHandler extends Thread {
      * @return reply as String
      */
     public String receiveMessage(String id) {
-        Packet packet = receivePacket(id);
-        return packet.getMessage();
+        Message message = receivePacket(id);
+        return message.getMessage();
     }
 
     /**
@@ -107,20 +115,20 @@ public class RequestHandler extends Thread {
      */
     public String receiveMessage(String id, int timeout) throws TimeoutException {
         handle.putIfAbsent(id, new LinkedBlockingQueue<>());
-        BlockingQueue<Packet> packets = handle.get(id);
-        Packet packet;
+        BlockingQueue<Message> messages = handle.get(id);
+        Message message;
         try {
             LOGGER.debug(String.format("Waiting for message with ID: %s", id));
-            packet = packets.poll(timeout, TimeUnit.SECONDS);
-            if (packet == null) {
-                throw new TimeoutException("Packed with given id not received.");
+            message = messages.poll(timeout, TimeUnit.SECONDS);
+            if (message == null) {
+                throw new TimeoutException("Message with given id not received.");
             }
             LOGGER.debug(String.format("Message with ID obtained: %s", id));
         } catch (InterruptedException e) {
             // TODO: change following exception
             throw new RuntimeException("Interrupted from getting a reply.");
         }
-        return packet.getMessage();
+        return message.getMessage();
     }
 
     /**
@@ -129,19 +137,19 @@ public class RequestHandler extends Thread {
      * @param id reply id (see protocol specs)
      * @return reply as packet
      */
-    public Packet receivePacket(String id) {
+    public Message receivePacket(String id) {
         handle.putIfAbsent(id, new LinkedBlockingQueue<>());
-        BlockingQueue<Packet> packets = handle.get(id);
-        Packet packet;
+        BlockingQueue<Message> messages = handle.get(id);
+        Message message;
         try {
             LOGGER.debug(String.format("Waiting for message with ID: %s", id));
-            packet = packets.take();
+            message = messages.take();
             LOGGER.debug(String.format("Message with ID obtained: %s", id));
         } catch (InterruptedException e) {
             // TODO: change following exception
             throw new RuntimeException("Interrupted from getting a reply.");
         }
-        return packet;
+        return message;
     }
 
     /**
