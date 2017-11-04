@@ -22,6 +22,7 @@ import java.util.ListIterator;
 public class PulseReceiverService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
 
+    // -----------------------------------------------------------------------------------------------------------------
 
     /**
      * List of {@code neighbors}.

@@ -19,36 +19,24 @@ import java.util.List;
 public class HeartbeatService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
 
-    /**
-     * Pulse Rate of the Heart Beats.
-     */
-    private final int SLEEP_TIME = 1000;
+    // Pulse Rate of the Heart Beats.
+    private final static int SLEEP_TIME = 1000;
 
+    // -----------------------------------------------------------------------------------------------------------------
 
-    /**
-     * Neighbors are the neighbor-nodes of the self-node.
-     */
-    private List<Node> neighbors;
+    // Heartbeat Pulse of each heartbeat
+    private final HeartbeatPulse pulse = new HeartbeatPulse();
 
+    // Neighbors are the neighbor-nodes of the self-node.
+    private final List<Node> neighbors;
 
-    /**
-     * Request Handler of the heartbeats.
-     *
-     * @see RequestHandler
-     */
-    private RequestHandler requestHandler;
+    // Request Handler of the heartbeats.
+    private final RequestHandler requestHandler;
 
-    /**
-     * Activation of the heartbeat
-     */
+    // -----------------------------------------------------------------------------------------------------------------
+
+    // Activation of the heartbeat
     private boolean pulseBeating = true;
-
-    /**
-     * Heartbeat Pulse of each heartbeat
-     *
-     * @see HeartbeatPulse
-     */
-    private HeartbeatPulse pulse = new HeartbeatPulse();
 
     /**
      * Initializes a new {@code HeartBeat} object.

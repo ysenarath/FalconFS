@@ -16,9 +16,9 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class CacheService {
 
-
     private final ConcurrentMap<String, Queue<Node>> cacheTable;
 
+    // -----------------------------------------------------------------------------------------------------------------
 
     private int indexSize, queueLength;
 

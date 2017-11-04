@@ -21,6 +21,8 @@ public class BootstrapService {
 
     private final static int MAX_RETRIES = 3;
 
+    // -----------------------------------------------------------------------------------------------------------------
+
     private final BootstrapServer server;
 
     private final JoinService joinService;

@@ -14,7 +14,7 @@ import java.util.concurrent.TimeoutException;
 public class JoinService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(JoinService.class.getName());
 
-    private boolean running;
+    // -----------------------------------------------------------------------------------------------------------------
 
     private final RequestHandler handler;
 
@@ -22,7 +22,11 @@ public class JoinService extends Thread {
 
     private final List<Node> neighbours;
 
+    // -----------------------------------------------------------------------------------------------------------------
+
     private int joinRetries;
+
+    private boolean running;
 
     /**
      * Allocates Join service object.

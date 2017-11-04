@@ -13,6 +13,8 @@ public class NodeSelector {
 
     private static final int MIN_REQ_HEALTH = 50;
 
+    // -----------------------------------------------------------------------------------------------------------------
+
     private final List<Node> neighbours;
 
     private final CacheService cacheService;

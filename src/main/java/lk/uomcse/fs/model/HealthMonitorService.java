@@ -18,16 +18,15 @@ import java.util.ListIterator;
 public class HealthMonitorService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(HealthMonitorService.class.getName());
 
-    /**
-     * Neighbors are the neighbor-nodes of the self-node.
-     */
-    private List<Node> neighbors;
+    // -----------------------------------------------------------------------------------------------------------------
 
-    /**
-     * Activation of the {@code HealthMonitorService}
-     */
+    // Neighbors are the neighbor-nodes of the self-node.
+    private final List<Node> neighbors;
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    // Activation of the {@code HealthMonitorService}
     private boolean pulseMeasuring = true;
-
 
     /**
      * Creates ne heartbeat object

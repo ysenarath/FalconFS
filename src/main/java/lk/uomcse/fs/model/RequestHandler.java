@@ -13,9 +13,9 @@ import java.util.concurrent.*;
 public class RequestHandler extends Thread {
     private final static Logger LOGGER = Logger.getLogger(RequestHandler.class.getName());
 
-    private DatagramSocket socket;
+    // -----------------------------------------------------------------------------------------------------------------
 
-    private boolean running;
+    private final DatagramSocket socket;
 
     private final Receiver receiver;
 
@@ -23,16 +23,20 @@ public class RequestHandler extends Thread {
 
     private final ConcurrentMap<String, BlockingQueue<Packet>> handle;
 
+    // -----------------------------------------------------------------------------------------------------------------
+
+    private boolean running;
+
     /**
      * Constructor {{{{@link lk.uomcse.fs.messages.RegisterResponse}}}}
      *
      * @param port port of this node
      */
     public RequestHandler(int port) {
-        socket = DatagramSocketUtils.getSocket(port);
+        this.socket = DatagramSocketUtils.getSocket(port);
         this.receiver = new Receiver(socket);
         this.sender = new Sender(socket);
-        handle = new ConcurrentHashMap<>();
+        this.handle = new ConcurrentHashMap<>();
     }
 
     /**
