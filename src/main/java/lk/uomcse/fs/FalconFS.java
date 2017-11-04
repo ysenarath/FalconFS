@@ -108,6 +108,7 @@ public class FalconFS {
      * @return success status
      */
     public boolean stop() {
+        this.bootstrapService.unregister(name, me);
         this.queryService.setRunning(false);
         this.joinService.setRunning(false);
         this.handler.setRunning(false);
