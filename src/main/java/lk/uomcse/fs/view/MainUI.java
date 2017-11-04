@@ -62,8 +62,6 @@ public class MainUI {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
-
-
     }
 
     private void setupComponents() {
@@ -138,7 +136,7 @@ public class MainUI {
         Logger.getRootLogger().addAppender(new AppenderSkeleton() {
             @Override
             protected void append(LoggingEvent loggingEvent) {
-                txtConsole.append(loggingEvent.getMessage() + "\n");
+                txtConsole.insert(loggingEvent.getMessage() + "\n", 0);
                 txtConsole.repaint();
             }
 
