@@ -85,7 +85,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- mvn install:install-file -Dfile=darcula.jar -DgroupId=com.github.bulenkov -DartifactId=darcula -Dversion=1.0 -Dpackaging=jar -->
+        <!-- Darcula is in libs/ -->
+        <dependency>
+            <groupId>com.github.bulenkov</groupId>
+            <artifactId>darcula</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
-
-
 </project>
