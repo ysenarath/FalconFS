@@ -54,8 +54,12 @@ public class JoinService extends Thread {
             // Request handling section
             this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), reply);
             Node n = request.getNode();
-            if (!neighbours.contains(n))
-                neighbours.add(n);
+            synchronized (neighbours) {
+                // Do not add duplicates (behave like a set)
+                if (!neighbours.contains(n)) {
+                    neighbours.add(n);
+                }
+            }
             LOGGER.info(String.format("Node(%s:%d) is joined to nodes: %s", current.getIp(), current.getPort(), neighbours.toString()));
         }
     }
@@ -87,8 +91,13 @@ public class JoinService extends Thread {
         }
         LOGGER.info(String.format("Replied to join request: %s", reply));
         JoinResponse rsp = JoinResponse.parse(reply);
-        if (rsp.isSuccess() && !neighbours.contains(n))
-            neighbours.add(n);
+        // Add neighbours if success or not.
+        // Not success implies it has already registered that node
+        synchronized (neighbours) {
+            // Do not add duplicates (behave like a set)
+            if (!neighbours.contains(n))
+                neighbours.add(n);
+        }
         return rsp.isSuccess();
     }
 

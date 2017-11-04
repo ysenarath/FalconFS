@@ -14,19 +14,41 @@ public class RegisterResponse implements IResponse {
 
     private List<Node> nodes;
 
+    /**
+     * Creates a Register response
+     *
+     * @param nodeCount number of nodes
+     * @param nodes     list of nodes
+     */
     private RegisterResponse(int nodeCount, List<Node> nodes) {
         this.nodeCount = nodeCount;
         this.nodes = nodes;
     }
 
+    /**
+     * Gets node count
+     *
+     * @return node count
+     */
     public int getNodeCount() {
         return nodeCount;
     }
 
+    /**
+     * Gets nodes
+     *
+     * @return list of nodes
+     */
     public List<Node> getNodes() {
         return nodes;
     }
 
+    /**
+     * Whether the register response indicates success state
+     * Not success error code can be obtained through getNodeCount()
+     *
+     * @return whether request for registration is a success
+     */
     public boolean isSuccess() {
         return nodeCount < 9996;
     }

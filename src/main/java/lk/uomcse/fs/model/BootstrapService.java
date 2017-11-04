@@ -10,6 +10,7 @@ import lk.uomcse.fs.messages.UnregisterResponse;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
+import lk.uomcse.fs.utils.exceptions.RequestFailedException;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -22,17 +23,21 @@ public class BootstrapService {
 
     private final BootstrapServer server;
 
-    private RequestHandler handler;
+    private final JoinService joinService;
+
+    private final RequestHandler handler;
 
     /**
      * Constructs bootstrap service providing register and unregister functions
      *
-     * @param handler Request handler
-     * @param bs      Bootstrap server (details)
+     * @param handler     Request handler
+     * @param joinService join service to join to nodes ones the registration is complete
+     * @param bs          Bootstrap server (details)
      */
-    public BootstrapService(RequestHandler handler, BootstrapServer bs) {
+    public BootstrapService(RequestHandler handler, JoinService joinService, BootstrapServer bs) {
         this.server = bs;
         this.handler = handler;
+        this.joinService = joinService;
     }
 
     /**
@@ -122,5 +127,30 @@ public class BootstrapService {
             }
         }
         throw new BootstrapException("Failed to unregister node. No reply received from bootstrap server.");
+    }
+
+
+    /**
+     * Connects with bootstrap server and joins to nodes provided
+     *
+     * @param name Name of the node
+     * @param self this node
+     * @return whether bootstrap is a success
+     */
+    public boolean bootstrap(String name, Node self) {
+        try {
+            List<Node> nodes = this.register(name, self);
+            nodes.forEach(joinService::join);
+            for (Node n : nodes) {
+                boolean status = joinService.join(n);
+                if (status)
+                    LOGGER.info(String.format("Joined to neighbour: %s", n.toString()));
+                else
+                    LOGGER.error(String.format("Failed join to neighbour: %s", n.toString()));
+            }
+        } catch (RequestFailedException | BootstrapException ex) {
+            return false;
+        }
+        return true;
     }
 }

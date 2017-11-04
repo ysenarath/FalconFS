@@ -4,15 +4,16 @@ import lk.uomcse.fs.entity.Node;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Dulanjaya
  * @since 10/24/2017
  */
 public class NeighborTableModel extends DefaultTableModel {
-    private ArrayList<Node> neighbors;
+    private List<Node> neighbors;
 
-    public NeighborTableModel(ArrayList<Node> neighbors) {
+    public NeighborTableModel(List<Node> neighbors) {
         this.neighbors = neighbors;
     }
 
@@ -24,20 +25,28 @@ public class NeighborTableModel extends DefaultTableModel {
     @Override
     public String getColumnName(int column) {
         switch (column) {
-            case 0: return "IP";
-            case 1: return "Port";
-            case 2: return "Health";
-            default: return "";
+            case 0:
+                return "IP";
+            case 1:
+                return "Port";
+            case 2:
+                return "Health";
+            default:
+                return "";
         }
     }
 
     @Override
     public Object getValueAt(int row, int column) {
         switch (column) {
-            case 0: return neighbors.get(row).getIp();
-            case 1: return neighbors.get(row).getPort();
-            case 2: return neighbors.get(row).getHealth();
-            default:return null;
+            case 0:
+                return neighbors.get(row).getIp();
+            case 1:
+                return neighbors.get(row).getPort();
+            case 2:
+                return neighbors.get(row).getHealth();
+            default:
+                return null;
         }
     }
 

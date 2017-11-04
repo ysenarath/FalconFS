@@ -4,15 +4,16 @@ import javax.swing.*;
 import javax.swing.event.ListDataListener;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Dulanjaya
  * @since 10/25/2017
  */
-public class FilenameModel extends DefaultTableModel{
-    ArrayList<String> filenames;
+public class FilenameModel extends DefaultTableModel {
+    List<String> filenames;
 
-    public FilenameModel(ArrayList<String> filenames) {
+    public FilenameModel(List<String> filenames) {
         this.filenames = filenames;
     }
 
@@ -23,7 +24,7 @@ public class FilenameModel extends DefaultTableModel{
 
     @Override
     public int getRowCount() {
-        if(filenames !=null) return filenames.size();
+        if (filenames != null) return filenames.size();
         else return 0;
     }
 

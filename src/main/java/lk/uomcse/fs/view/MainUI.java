@@ -11,7 +11,6 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
 
 /**
  * @author Dulanjaya
@@ -42,12 +41,12 @@ public class MainUI {
     private JLabel lblPort;
 
     // Models
-    private ArrayList<Node> neighbors;
+    private java.util.List<Node> neighbors;
     private QueryService queryService;
-    private ArrayList<String> filenames;
+    private java.util.List<String> filenames;
     private Node me;
 
-    public MainUI(Node me, ArrayList<Node> neighbors, QueryService queryService, ArrayList<String> filenames) {
+    public MainUI(Node me, java.util.List<Node> neighbors, QueryService queryService, java.util.List<String> filenames) {
         this.me = me;
         this.neighbors = neighbors;
         this.queryService = queryService;

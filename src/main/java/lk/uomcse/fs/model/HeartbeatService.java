@@ -20,14 +20,16 @@ public class HeartbeatService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
 
     /**
+     * Pulse Rate of the Heart Beats.
+     */
+    private final int SLEEP_TIME = 1000;
+
+
+    /**
      * Neighbors are the neighbor-nodes of the self-node.
      */
     private List<Node> neighbors;
 
-    /**
-     * Pulse Rate of the Heart Beats.
-     */
-    private final int SLEEP_TIME = 1000;
 
     /**
      * Request Handler of the heartbeats.
