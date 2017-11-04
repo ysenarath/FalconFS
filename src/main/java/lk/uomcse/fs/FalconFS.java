@@ -45,12 +45,12 @@ public class FalconFS {
     /**
      * Imports file system requirements
      *
-     * @param name            name of this file server
-     * @param ip              designated ip of this node
-     * @param port            assigned port of this node
-     * @param bootstrapServer a bootstrap server entity
+     * @param name name of this file server
+     * @param ip   designated ip of this node
+     * @param port assigned port of this node
+     * @param bs   a bootstrap server entity
      */
-    public FalconFS(String name, String ip, int port, BootstrapServer bootstrapServer) {
+    public FalconFS(String name, String ip, int port, BootstrapServer bs) {
         this.name = name;
         this.self = new Node(ip, port);
         this.neighbours = new ArrayList<>();
@@ -58,7 +58,7 @@ public class FalconFS {
         this.handler = new RequestHandler(port);
         // Services {
         this.joinService = new JoinService(handler, self, neighbours);
-        this.bootstrapService = new BootstrapService(handler, joinService, bootstrapServer);
+        this.bootstrapService = new BootstrapService(handler, joinService, bs, name, self);
         this.queryService = new QueryService(handler, self, filenames, neighbours);
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours);
@@ -74,7 +74,7 @@ public class FalconFS {
         // 1. Start the listener - Blocking
         this.handler.start();
         // 2. Connect to neighbours (bootstrap + join)
-        boolean state = bootstrapService.bootstrap(name, self);
+        boolean state = bootstrapService.bootstrap();
         if (state) {
             // 3. Start heartbeat service
             this.heartbeatService.start();
@@ -103,6 +103,7 @@ public class FalconFS {
      * @return success status
      */
     public boolean stop() {
+        this.bootstrapService.unregister();
         this.queryService.setRunning(false);
         this.joinService.setRunning(false);
         this.handler.setRunning(false);
@@ -127,6 +128,15 @@ public class FalconFS {
      */
     public List<String> getFilenames() {
         return filenames;
+    }
+
+    /**
+     * Gets self name
+     *
+     * @return name of self node
+     */
+    public String getName() {
+        return name;
     }
 
     /**

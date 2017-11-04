@@ -29,28 +29,34 @@ public class BootstrapService {
 
     private final RequestHandler handler;
 
+    private final String name;
+
+    private final Node self;
+
     /**
      * Constructs bootstrap service providing register and unregister functions
      *
      * @param handler     Request handler
      * @param joinService join service to join to nodes ones the registration is complete
      * @param bs          Bootstrap server (details)
+     * @param name        name of the client
+     * @param self        node represented by the name
      */
-    public BootstrapService(RequestHandler handler, JoinService joinService, BootstrapServer bs) {
+    public BootstrapService(RequestHandler handler, JoinService joinService, BootstrapServer bs, String name, Node self) {
         this.server = bs;
         this.handler = handler;
         this.joinService = joinService;
+        this.name = name;
+        this.self = self;
     }
 
     /**
      * Registers the node bootstrap from server
      *
-     * @param name name of the client
-     * @param me   node represented by the name
      * @return List of nodes if the request is successful
      */
-    public List<Node> register(String name, Node me) throws BootstrapException {
-        RegisterRequest msg = new RegisterRequest(name, me);
+    public List<Node> register() throws BootstrapException {
+        RegisterRequest msg = new RegisterRequest(name, self);
         LOGGER.info(String.format("Requesting bootstrap server: %s", msg.toString()));
         String reply = null;
         int retries = 0;
@@ -77,9 +83,9 @@ public class BootstrapService {
         } else {
             switch (rsp.getNodeCount()) {
                 case (9998):
-                    boolean status = this.unregister(name, me);
+                    boolean status = this.unregister();
                     if (!status) throw new BootstrapException("Un-registration failed. Unable to bootstrap.");
-                    return this.register(name, me);
+                    return this.register();
                 case (9999):
                     err = new ErrorInCommand.Builder(9999)
                             .setError("failed, there is some error in the command")
@@ -105,12 +111,10 @@ public class BootstrapService {
     /**
      * Unregisters the node bootstrap from server
      *
-     * @param name name of the client
-     * @param me   node represented by the name
      * @return whether the response is success
      */
-    public boolean unregister(String name, Node me) throws BootstrapException {
-        UnregisterRequest msg = new UnregisterRequest(name, me);
+    public boolean unregister() throws BootstrapException {
+        UnregisterRequest msg = new UnregisterRequest(name, self);
         LOGGER.info(String.format("Requesting Bootstrap Server: %s", msg.toString()));
         String reply;
         int count = 0;
@@ -135,13 +139,11 @@ public class BootstrapService {
     /**
      * Connects with bootstrap server and joins to nodes provided
      *
-     * @param name Name of the node
-     * @param self this node
      * @return whether bootstrap is a success
      */
-    public boolean bootstrap(String name, Node self) {
+    public boolean bootstrap() {
         try {
-            List<Node> nodes = this.register(name, self);
+            List<Node> nodes = this.register();
             nodes.forEach(joinService::join);
             for (Node n : nodes) {
                 boolean status = joinService.join(n);
