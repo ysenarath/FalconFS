@@ -8,7 +8,6 @@ import lk.uomcse.fs.messages.JoinResponse;
 import org.apache.log4j.Logger;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 public class JoinService extends Thread {
@@ -18,7 +17,7 @@ public class JoinService extends Thread {
 
     private final RequestHandler handler;
 
-    private final Node current;
+    private final Node self;
 
     private final List<Node> neighbours;
 
@@ -32,12 +31,12 @@ public class JoinService extends Thread {
      * Allocates Join service object.
      *
      * @param handler    Request handler
-     * @param current    Current node running this join service
+     * @param self       Current node running this join service
      * @param neighbours reference to neighbours
      */
-    public JoinService(RequestHandler handler, Node current, List<Node> neighbours) {
+    public JoinService(RequestHandler handler, Node self, List<Node> neighbours) {
         this.handler = handler;
-        this.current = current;
+        this.self = self;
         this.neighbours = neighbours;
         this.joinRetries = 3;
     }
@@ -49,7 +48,7 @@ public class JoinService extends Thread {
     @Override
     public void run() {
         running = true;
-        LOGGER.trace(String.format("Starting join service for node at (%s:%d).", current.getIp(), current.getPort()));
+        LOGGER.trace(String.format("Starting join service for node at (%s:%d).", self.getIp(), self.getPort()));
         while (running) {
             String msg = this.handler.receiveMessage(JoinRequest.ID);
             JoinRequest request = JoinRequest.parse(msg);
@@ -64,7 +63,7 @@ public class JoinService extends Thread {
                     neighbours.add(n);
                 }
             }
-            LOGGER.info(String.format("Node(%s:%d) is joined to nodes: %s", current.getIp(), current.getPort(), neighbours.toString()));
+            LOGGER.info(String.format("Node(%s:%d) is joined to nodes: %s", self.getIp(), self.getPort(), neighbours.toString()));
         }
     }
 
@@ -75,7 +74,7 @@ public class JoinService extends Thread {
      * @return whether join request is success or not
      */
     public boolean join(Node n) {
-        IRequest jr = new JoinRequest(current);
+        IRequest jr = new JoinRequest(self);
         String reply = null;
         for (int i = 0; i < this.joinRetries; i++) {
             LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getIp(), n.getPort(), jr.toString()));

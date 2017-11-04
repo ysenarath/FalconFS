@@ -22,7 +22,7 @@ public class FalconFS {
 
     private String name;
 
-    private Node me;
+    private Node self;
 
     private List<String> filenames;
 
@@ -52,14 +52,14 @@ public class FalconFS {
      */
     public FalconFS(String name, String ip, int port, BootstrapServer bootstrapServer) {
         this.name = name;
-        this.me = new Node(ip, port);
+        this.self = new Node(ip, port);
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
         this.handler = new RequestHandler(port);
-        // Services
-        this.joinService = new JoinService(handler, me, neighbours);
+        // Services {
+        this.joinService = new JoinService(handler, self, neighbours);
         this.bootstrapService = new BootstrapService(handler, joinService, bootstrapServer);
-        this.queryService = new QueryService(handler, me, filenames, neighbours);
+        this.queryService = new QueryService(handler, self, filenames, neighbours);
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
@@ -74,12 +74,12 @@ public class FalconFS {
         // 1. Start the listener - Blocking
         this.handler.start();
         // 2. Connect to neighbours (bootstrap + join)
-        boolean state = bootstrapService.bootstrap(name, me);
+        boolean state = bootstrapService.bootstrap(name, self);
         if (state) {
             // 3. Start heartbeat service
-            heartbeatService.start();
-            pulseReceiverService.start();
-            healthMonitorService.start();
+            this.heartbeatService.start();
+            this.pulseReceiverService.start();
+            this.healthMonitorService.start();
             // 4. Start accepting nodes
             this.joinService.start();
             // 5. start query service
@@ -93,8 +93,8 @@ public class FalconFS {
             // TODO: Show error message box with above message
             return;
         }
-//        FrameView ui = new FrameView(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
-        MainUI ui1 = new MainUI(this.me, neighbours, queryService, filenames);
+//        FrameView ui = new FrameView(this.self, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
+        MainUI ui1 = new MainUI(this.self, neighbours, queryService, filenames);
     }
 
     /**

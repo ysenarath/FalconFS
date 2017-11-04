@@ -40,7 +40,7 @@ public class QueryService {
 
     private final RequestHandler handler;
 
-    private final Node current;
+    private final Node self;
 
     private final List<String> filenames; //  Split file names which are in lowercase
 
@@ -66,13 +66,13 @@ public class QueryService {
      * Query service
      *
      * @param handler    a request handler
-     * @param current    current node (me)
+     * @param self       self node (me)
      * @param filenames  reference to list of filenames in this node
      * @param neighbours reference to list of neighbours
      */
-    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours) {
+    public QueryService(RequestHandler handler, Node self, List<String> filenames, List<Node> neighbours) {
         this.handler = handler;
-        this.current = current;
+        this.self = self;
         this.filenames = filenames;
         this.neighbours = neighbours;
         //  Cache of nodes
@@ -104,7 +104,7 @@ public class QueryService {
             SearchResponse response = SearchResponse.parse(responseStr);
             if (Integer.parseInt(response.getQueryID()) == currentQueryID) {
                 this.updateResults(response.getNode(), response.getFilenames());
-                LOGGER.info(String.format("Response received matching current query: %s", response.toString()));
+                LOGGER.info(String.format("Response received matching self query: %s", response.toString()));
             } else {
                 LOGGER.info(String.format("Response received matching old query: %s", response.toString()));
             }
@@ -112,7 +112,7 @@ public class QueryService {
     }
 
     /**
-     * Sets current search query
+     * Sets self search query
      *
      * @param query query
      */
@@ -120,10 +120,10 @@ public class QueryService {
         results.clear();
         currentQuery = query;
         currentQueryID += 1;
-        SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), current, query, 0);
+        SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), self, query, 0);
         List<String> matches = searchUtils(request, null);
         if (matches.size() > 0)
-            this.updateResults(current, matches);
+            this.updateResults(self, matches);
     }
 
     /**
@@ -141,7 +141,7 @@ public class QueryService {
             }
             List<String> matches = searchUtils(request, packet.getReceiverNode());
             if (matches.size() > 0) {
-                SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.current, request.getHops() + 1, matches);
+                SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.self, request.getHops() + 1, matches);
                 this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response);
                 LOGGER.info(String.format("Response sent %s", response.toString()));
             }
@@ -240,9 +240,9 @@ public class QueryService {
     }
 
     /**
-     * Returns current query
+     * Returns self query
      *
-     * @return current query in progress
+     * @return self query in progress
      */
     public String getCurrentQuery() {
         return currentQuery;
