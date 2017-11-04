@@ -3,6 +3,7 @@ package lk.uomcse.fs;
 import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.utils.FrameUtils;
 import lk.uomcse.fs.utils.ListUtils;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.utils.exceptions.RequestFailedException;
@@ -147,6 +148,7 @@ public class FalconFS {
      * @param args No args yet
      */
     public static void main(String[] args) throws FileNotFoundException {
+        FrameUtils.setLookAndFeel("Darcula");
         Properties props = new Properties();
         InputStream inputStream = FalconFS.class.getClassLoader().getResourceAsStream("config.properties");
         if (inputStream == null)
