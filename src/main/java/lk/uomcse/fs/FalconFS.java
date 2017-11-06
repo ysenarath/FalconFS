@@ -1,8 +1,8 @@
 package lk.uomcse.fs;
 
-import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.utils.FrameUtils;
 import lk.uomcse.fs.utils.ListUtils;
 import lk.uomcse.fs.view.MainUI;
@@ -12,7 +12,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Falcon File System
@@ -22,7 +25,7 @@ public class FalconFS {
 
     private String name;
 
-    private Node me;
+    private Node self;
 
     private List<String> filenames;
 
@@ -52,7 +55,7 @@ public class FalconFS {
      */
     public FalconFS(String name, String ip, int port, BootstrapServer bootstrapServer) {
         this.name = name;
-        this.me = new Node(ip, port);
+        this.self = new Node(ip, port);
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
 //        TODO - handle errors
@@ -62,9 +65,9 @@ public class FalconFS {
             e.printStackTrace();
         }
         // Services
-        this.joinService = new JoinService(handler, me, neighbours);
-        this.bootstrapService = new BootstrapService(handler, joinService, bootstrapServer);
-        this.queryService = new QueryService(handler, me, filenames, neighbours);
+        this.joinService = new JoinService(handler, self, neighbours);
+        this.bootstrapService = new BootstrapService(handler, joinService, bootstrapServer, name, self);
+        this.queryService = new QueryService(handler, self, filenames, neighbours);
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
@@ -79,7 +82,7 @@ public class FalconFS {
         // 1. Start the listener - Blocking
         this.handler.start();
         // 2. Connect to neighbours (bootstrap + join)
-        boolean state = bootstrapService.bootstrap(name, me);
+        boolean state = bootstrapService.bootstrap();
         if (state) {
             // 3. Start heartbeat service
             heartbeatService.start();
@@ -98,8 +101,8 @@ public class FalconFS {
             // TODO: Show error message box with above message
             return;
         }
-//        FrameView ui = new FrameView(this.me, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
-        MainUI ui1 = new MainUI(this.me, neighbours, queryService, filenames);
+//        FrameView ui = new FrameView(this.self, (ArrayList<Node>) neighbours, queryService, (ArrayList<String>) filenames);
+        MainUI ui1 = new MainUI(this.self, neighbours, queryService, filenames);
     }
 
     /**
@@ -108,7 +111,7 @@ public class FalconFS {
      * @return success status
      */
     public boolean stop() {
-        this.bootstrapService.unregister(name, me);
+        this.bootstrapService.unregister();
         this.queryService.setRunning(false);
         this.joinService.setRunning(false);
         this.handler.setRunning(false);
