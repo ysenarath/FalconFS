@@ -3,7 +3,7 @@ package lk.uomcse.fs.messages;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length JOINOK value
-public class JoinResponse implements IResponse {
+public class JoinResponse extends Message implements IResponse {
     public static final String ID = "JOINOK";
 
     // True: Success; False: Failed
@@ -31,13 +31,13 @@ public class JoinResponse implements IResponse {
     /**
      * Parses join response message
      *
-     * @param reply reply in string
+     * @param data reply in string form
      * @return Unregister response message
      */
-    public static JoinResponse parse(String reply) {
-        if (reply == null)
+    public static JoinResponse parse(String data) {
+        if (data == null)
             throw new NullPointerException();
-        String[] response = reply.split(" ");
+        String[] response = data.split(" ");
         if (response.length != 3)
             throw new InvalidFormatException("Parsing failed due to not having enough content to match the format.");
         if (!response[1].equals(ID))
@@ -61,5 +61,15 @@ public class JoinResponse implements IResponse {
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();
+    }
+
+    /**
+     * Returns ID
+     *
+     * @return ID of this message type
+     */
+    @Override
+    public String getID() {
+        return ID;
     }
 }

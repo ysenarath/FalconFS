@@ -3,7 +3,7 @@ package lk.uomcse.fs.messages;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length UNROK value
-public class UnregisterResponse implements IResponse {
+public class UnregisterResponse extends Message implements IResponse {
     public static final String ID = "UNROK";
 
     // True: Success; False: Failed
@@ -44,5 +44,15 @@ public class UnregisterResponse implements IResponse {
             throw new InvalidFormatException(String.format("Parsing failed due to not having message id: %s. (Received message ID: %s)", ID, response[1]));
         boolean success = response[2].equals("0");
         return new UnregisterResponse(success);
+    }
+
+    /**
+     * Returns ID
+     *
+     * @return ID of this message type
+     */
+    @Override
+    public String getID() {
+        return ID;
     }
 }

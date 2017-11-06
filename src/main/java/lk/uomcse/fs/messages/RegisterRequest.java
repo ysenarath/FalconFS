@@ -3,7 +3,9 @@ package lk.uomcse.fs.messages;
 import lk.uomcse.fs.entity.Node;
 
 // length REG IP_address port_no username
-public class RegisterRequest implements IRequest {
+public class RegisterRequest extends Message implements IRequest {
+    private static final String ID = "REG";
+
     private Node node;
 
     private String name;
@@ -31,5 +33,16 @@ public class RegisterRequest implements IRequest {
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();
+    }
+
+
+    /**
+     * Returns ID
+     *
+     * @return ID of this message type
+     */
+    @Override
+    public String getID() {
+        return ID;
     }
 }

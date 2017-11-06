@@ -1,11 +1,12 @@
 package lk.uomcse.fs.com;
 
-import lk.uomcse.fs.entity.Message;
-import lk.uomcse.fs.entity.UDPMessage;
 import lk.uomcse.fs.messages.IMessage;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -73,6 +74,4 @@ public class UDPSender extends Sender {
         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
         this.packets.add(packet);
     }
-
-
 }

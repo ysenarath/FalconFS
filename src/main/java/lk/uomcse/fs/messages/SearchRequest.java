@@ -4,7 +4,7 @@ import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length SER qid IP port file_name hops
-public class SearchRequest implements IRequest {
+public class SearchRequest extends Message implements IRequest {
     public static final String ID = "SER";
 
     private String queryId;
@@ -112,6 +112,17 @@ public class SearchRequest implements IRequest {
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();
+    }
+
+
+    /**
+     * Returns ID
+     *
+     * @return ID of this message type
+     */
+    @Override
+    public String getID() {
+        return ID;
     }
 
 

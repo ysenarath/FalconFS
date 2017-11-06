@@ -8,7 +8,6 @@ import lk.uomcse.fs.messages.JoinResponse;
 import org.apache.log4j.Logger;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 public class JoinService extends Thread {
@@ -47,8 +46,7 @@ public class JoinService extends Thread {
         running = true;
         LOGGER.trace(String.format("Starting join service for node at (%s:%d).", current.getIp(), current.getPort()));
         while (running) {
-            String msg = this.handler.receiveMessage(JoinRequest.ID);
-            JoinRequest request = JoinRequest.parse(msg);
+            JoinRequest request = (JoinRequest) this.handler.receiveMessage(JoinRequest.ID);
             IMessage reply = new JoinResponse(true);
             LOGGER.info(String.format("Replying to join request: %s", reply.toString()));
             // Request handling section
@@ -72,13 +70,13 @@ public class JoinService extends Thread {
      */
     public boolean join(Node n) {
         IRequest jr = new JoinRequest(current);
-        String reply = null;
+        JoinResponse reply = null;
         for (int i = 0; i < this.joinRetries; i++) {
             LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getIp(), n.getPort(), jr.toString()));
             handler.sendMessage(n.getIp(), n.getPort(), jr);
             LOGGER.debug("Waiting for receive message.");
             try {
-                reply = handler.receiveMessage(JoinResponse.ID, 5);
+                reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 5);
                 break;
             } catch (TimeoutException e) {
                 if (i == this.joinRetries - 1) {
@@ -89,8 +87,8 @@ public class JoinService extends Thread {
                     LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [RETRYING]", n.toString()));
             }
         }
-        LOGGER.info(String.format("Replied to join request: %s", reply));
-        JoinResponse rsp = JoinResponse.parse(reply);
+        if (reply == null) return false;
+        LOGGER.info(String.format("Replied to join request: %s", reply.toString()));
         // Add neighbours if success or not.
         // Not success implies it has already registered that node
         synchronized (neighbours) {
@@ -98,7 +96,7 @@ public class JoinService extends Thread {
             if (!neighbours.contains(n))
                 neighbours.add(n);
         }
-        return rsp.isSuccess();
+        return reply.isSuccess();
     }
 
     /**

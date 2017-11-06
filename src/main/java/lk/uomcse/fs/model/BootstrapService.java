@@ -54,12 +54,12 @@ public class BootstrapService {
     public List<Node> register() throws BootstrapException {
         RegisterRequest msg = new RegisterRequest(name, self);
         LOGGER.info(String.format("Requesting bootstrap server: %s", msg.toString()));
-        String reply = null;
+        RegisterResponse response = null;
         int retries = 0;
         while (true)
             try {
                 this.handler.sendMessage(this.server.getHost(), this.server.getPort(), msg);
-                reply = this.handler.receiveMessage(RegisterResponse.ID, 5);
+                response = (RegisterResponse) this.handler.receiveMessage(RegisterResponse.ID, 5);
                 break;
             } catch (TimeoutException e) {
                 if (retries < MAX_RETRIES) {
@@ -70,14 +70,13 @@ public class BootstrapService {
                     throw new BootstrapException("Failed the attempt to register. Unable to receive message from bootstrap.");
                 }
             }
-        LOGGER.info(String.format("Bootstrap server replied: %s", reply));
-        RegisterResponse rsp = RegisterResponse.parse(reply);
+        LOGGER.info(String.format("Bootstrap server replied: %s", response.toString()));
         Error err;
-        if (rsp.isSuccess()) {
+        if (response.isSuccess()) {
             // TODO: Select random 2 and return
-            return rsp.getNodes();
+            return response.getNodes();
         } else {
-            switch (rsp.getNodeCount()) {
+            switch (response.getNodeCount()) {
                 case (9998):
                     boolean status = this.unregister();
                     if (!status) throw new BootstrapException("Un-registration failed. Unable to bootstrap.");
@@ -112,23 +111,22 @@ public class BootstrapService {
     public boolean unregister() throws BootstrapException {
         UnregisterRequest msg = new UnregisterRequest(name, self);
         LOGGER.info(String.format("Requesting Bootstrap Server: %s", msg.toString()));
-        String reply;
+        UnregisterResponse response;
         int count = 0;
         //try again for three times to unregister
         while (count < MAX_RETRIES) {
             try {
-                // Method will wait for reply
+                // Method will wait for response
                 this.handler.sendMessage(this.server.getHost(), this.server.getPort(), msg);
-                reply = this.handler.receiveMessage(UnregisterResponse.ID, 5);
-                LOGGER.info(String.format("Bootstrap Server replied: %s", reply));
-                UnregisterResponse rsp = UnregisterResponse.parse(reply);
-                return rsp.isSuccess();
+                response = (UnregisterResponse) this.handler.receiveMessage(UnregisterResponse.ID, 5);
+                LOGGER.info(String.format("Bootstrap Server replied: %s", response.toString()));
+                return response.isSuccess();
             } catch (TimeoutException e) {
                 count += 1;
                 LOGGER.error("Failed the " + count + " attempt to unregister");
             }
         }
-        throw new BootstrapException("Failed to unregister node. No reply received from bootstrap server.");
+        throw new BootstrapException("Failed to unregister node. No response received from bootstrap server.");
     }
 
 

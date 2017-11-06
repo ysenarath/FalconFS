@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // length REGOK no_nodes IP_1 port_1 IP_2 port_2
-public class RegisterResponse implements IResponse {
+public class RegisterResponse extends Message implements IResponse {
     public static final String ID = "REGOK";
 
     private int nodeCount;
@@ -79,5 +79,16 @@ public class RegisterResponse implements IResponse {
             lst.add(node);
         }
         return new RegisterResponse(n, lst);
+    }
+
+
+    /**
+     * Returns ID
+     *
+     * @return ID of this message type
+     */
+    @Override
+    public String getID() {
+        return ID;
     }
 }

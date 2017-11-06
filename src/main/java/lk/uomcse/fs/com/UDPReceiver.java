@@ -1,17 +1,19 @@
 package lk.uomcse.fs.com;
 
 import com.google.common.collect.Queues;
-import lk.uomcse.fs.entity.UDPMessage;
+import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.messages.*;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.util.concurrent.BlockingQueue;
 
 public class UDPReceiver extends Receiver {
     private DatagramSocket socket;
 
-    private final BlockingQueue<UDPMessage> UDPMessages;
+    private final BlockingQueue<IMessage> messages;
 
     /**
      * Creates the part of client that handles receives
@@ -20,7 +22,7 @@ public class UDPReceiver extends Receiver {
      */
     public UDPReceiver(DatagramSocket socket) {
         super();
-        this.UDPMessages = Queues.newLinkedBlockingDeque();
+        this.messages = Queues.newLinkedBlockingDeque();
         this.socket = socket;
     }
 
@@ -34,8 +36,19 @@ public class UDPReceiver extends Receiver {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             try {
                 socket.receive(packet);
-                UDPMessage p = new UDPMessage(packet);
-                UDPMessages.offer(p);
+                long receivedTime = System.currentTimeMillis();
+                String ip = ((InetSocketAddress) packet.getSocketAddress()).getHostName();
+                int port = ((InetSocketAddress) packet.getSocketAddress()).getPort();
+                Node sender = new Node(ip, port);
+                IMessage p = parseMessage(packet);
+                if (p == null) {
+                    System.err.println("Null message :(");
+                    continue;
+                }
+                System.out.println(p.toString());
+                p.setSender(sender);
+                p.setReceivedTime(receivedTime);
+                messages.offer(p);
             } catch (IOException ignored) {
                 // -- Retry
             }
@@ -43,13 +56,57 @@ public class UDPReceiver extends Receiver {
     }
 
     /**
-     * Takes UDPMessages received from the queue
+     * Parses the message and returns the parsed object
+     *
+     * @param packet packet to be parsed
+     * @return Message object after parsing
+     */
+    private IMessage parseMessage(DatagramPacket packet) {
+        String data = new String(packet.getData(), 0, packet.getLength());
+        String[] args = data.split(" ");
+        if (args.length < 2) return null;
+        String id = args[1];
+        IMessage message = null;
+        switch (id) {
+            case HeartbeatPulse.ID:
+                message = HeartbeatPulse.parse(data);
+                break;
+            case JoinRequest.ID:
+                message = JoinRequest.parse(data);
+                break;
+            case JoinResponse.ID:
+                message = JoinResponse.parse(data);
+                break;
+            case LeaveRequest.ID:
+                message = LeaveRequest.parse(data);
+                break;
+            case LeaveResponse.ID:
+                message = LeaveResponse.parse(data);
+                break;
+            case RegisterResponse.ID:
+                message = RegisterResponse.parse(data);
+                break;
+            case SearchRequest.ID:
+                message = SearchRequest.parse(data);
+                break;
+            case SearchResponse.ID:
+                message = SearchResponse.parse(data);
+                break;
+            case UnregisterResponse.ID:
+                message = UnregisterResponse.parse(data);
+                break;
+        }
+        return message;
+    }
+
+    /**
+     * Takes messages received from the queue
      *
      * @return received message
      * @throws InterruptedException Whether receive was interrupted
      */
     @Override
-    public UDPMessage receive() throws InterruptedException {
-        return UDPMessages.take();
+    public IMessage receive() throws InterruptedException {
+        return messages.take();
     }
 }

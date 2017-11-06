@@ -1,14 +1,12 @@
 package lk.uomcse.fs.model;
 
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Queues;
-import lk.uomcse.fs.entity.Message;
 import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.entity.UDPMessage;
 import lk.uomcse.fs.messages.SearchRequest;
 import lk.uomcse.fs.messages.SearchResponse;
 import org.apache.log4j.Logger;
-import com.google.common.collect.EvictingQueue;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -101,8 +99,7 @@ public class QueryService {
      */
     private void runHandleReplies() {
         while (running) {
-            String responseStr = this.handler.receiveMessage(SearchResponse.ID);
-            SearchResponse response = SearchResponse.parse(responseStr);
+            SearchResponse response = (SearchResponse) this.handler.receiveMessage(SearchResponse.ID);
             if (Integer.parseInt(response.getQueryID()) == currentQueryID) {
                 this.updateResults(response.getNode(), response.getFilenames());
                 LOGGER.info(String.format("Response received matching current query: %s", response.toString()));
@@ -132,15 +129,13 @@ public class QueryService {
      */
     private void runHandleQueries() {
         while (running) {
-            Message message = this.handler.receivePacket(SearchRequest.ID);
-            String requestStr = message.getMessage();
-            LOGGER.info(String.format("Request received %s", requestStr));
-            SearchRequest request = SearchRequest.parse(requestStr);
+            SearchRequest request = (SearchRequest) this.handler.receiveMessage(SearchRequest.ID);
+            LOGGER.info(String.format("Request received %s", request.toString()));
             //check for already served queries
             if (!isNewQuery(request)) {
                 continue;
             }
-            List<String> matches = searchUtils(request, message.getReceiverNode());
+            List<String> matches = searchUtils(request, request.getSender());
             if (matches.size() > 0) {
                 SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.current, request.getHops() + 1, matches);
                 this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response);
