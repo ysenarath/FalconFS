@@ -2,6 +2,7 @@ package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.com.*;
 import lk.uomcse.fs.messages.IMessage;
+import lk.uomcse.fs.messages.JoinRequest;
 import lk.uomcse.fs.utils.DatagramSocketUtils;
 import org.apache.log4j.Logger;
 

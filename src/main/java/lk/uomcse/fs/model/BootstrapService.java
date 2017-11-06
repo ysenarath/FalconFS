@@ -58,7 +58,7 @@ public class BootstrapService {
         int retries = 0;
         while (true)
             try {
-                this.handler.sendMessage(this.server.getHost(), this.server.getPort(), msg);
+                this.handler.sendMessage(this.server.getAddress(), this.server.getPort(), msg);
                 response = (RegisterResponse) this.handler.receiveMessage(RegisterResponse.ID, 5);
                 break;
             } catch (TimeoutException e) {
@@ -117,7 +117,7 @@ public class BootstrapService {
         while (count < MAX_RETRIES) {
             try {
                 // Method will wait for response
-                this.handler.sendMessage(this.server.getHost(), this.server.getPort(), msg);
+                this.handler.sendMessage(this.server.getAddress(), this.server.getPort(), msg);
                 response = (UnregisterResponse) this.handler.receiveMessage(UnregisterResponse.ID, 5);
                 LOGGER.info(String.format("Bootstrap Server replied: %s", response.toString()));
                 return response.isSuccess();
