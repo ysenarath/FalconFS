@@ -1,9 +1,9 @@
 package lk.uomcse.fs.com;
 
-import lk.uomcse.fs.messages.JoinRequest;
-import lk.uomcse.fs.messages.JoinResponse;
-import lk.uomcse.fs.messages.SearchRequest;
-import lk.uomcse.fs.messages.SearchResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.messages.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -11,6 +11,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
 
 @Path("/")
 public class RestReceiver extends Receiver {
@@ -25,10 +26,7 @@ public class RestReceiver extends Receiver {
     @Path(JoinRequest.ID)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response joinRequest(JoinRequest joinRequest, @Context HttpServletRequest req) {
-        System.out.println(req.getRemoteHost());
-        System.out.println(req.getRemoteAddr());
-        System.out.println(req.getRemotePort());
-        System.out.println(joinRequest.getID());
+        collectInfo(joinRequest, req);
         messages.offer(joinRequest);
         return Response.status(200).entity("join request received").build();
     }
@@ -36,7 +34,8 @@ public class RestReceiver extends Receiver {
     @POST
     @Path(JoinResponse.ID)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response joinResponse(JoinResponse joinResponse) {
+    public Response joinResponse(JoinResponse joinResponse, @Context HttpServletRequest req) {
+        collectInfo(joinResponse, req);
         messages.offer(joinResponse);
         return Response.status(200).entity("join response received").build();
     }
@@ -44,7 +43,8 @@ public class RestReceiver extends Receiver {
     @POST
     @Path(SearchRequest.ID)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response searchRequest(SearchRequest searchRequest) {
+    public Response searchRequest(SearchRequest searchRequest, @Context HttpServletRequest req) {
+        collectInfo(searchRequest, req);
         messages.offer(searchRequest);
         return Response.status(200).entity("search request received").build();
     }
@@ -52,8 +52,62 @@ public class RestReceiver extends Receiver {
     @POST
     @Path(SearchResponse.ID)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response searchResponse(SearchRequest searchRequest) {
-        messages.offer(searchRequest);
-        return Response.status(200).entity("search response received").build();
+    public Response searchResponse(String response, @Context HttpServletRequest req) {
+        ObjectMapper ob = new ObjectMapper();
+        SearchResponse searchResponse;
+        try {
+            searchResponse = ob.readValue(response, SearchResponse.class);
+            System.out.println(searchResponse.getFilenames());
+
+            collectInfo(searchResponse, req);
+            messages.offer(searchResponse);
+            return Response.status(200).entity("search response received").build();
+
+        } catch (IOException e) {
+//            TODO handle error
+            e.printStackTrace();
+            return Response.status(400).entity("Can not parse response").build();
+        }
     }
+
+    @POST
+    @Path(LeaveRequest.ID)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response leaveRequest(LeaveRequest leaveRequest, @Context HttpServletRequest req) {
+        collectInfo(leaveRequest, req);
+        messages.offer(leaveRequest);
+        return Response.status(200).entity("leave request received").build();
+    }
+
+//    TODO Test Leave request/response
+    @POST
+    @Path(LeaveResponse.ID)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response leaveResponse(LeaveResponse leaveResponse, @Context HttpServletRequest req) {
+        collectInfo(leaveResponse, req);
+        messages.offer(leaveResponse);
+        return Response.status(200).entity("leave response received").build();
+    }
+
+    @POST
+    @Path(HeartbeatPulse.ID)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response heartbeatPulse(HeartbeatPulse heartbeatPulse, @Context HttpServletRequest req) {
+        collectInfo(heartbeatPulse, req);
+        messages.offer(heartbeatPulse);
+        return Response.status(200).entity("heartbeat pulse received").build();
+    }
+
+
+    private void collectInfo(IMessage message, HttpServletRequest req) {
+        message.setReceivedTime(System.currentTimeMillis());
+        message.setSender(new Node(req.getRemoteAddr(), req.getRemotePort()));
+        ObjectMapper ob = new ObjectMapper();
+        try {
+            System.out.println(ob.writeValueAsString(message));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
