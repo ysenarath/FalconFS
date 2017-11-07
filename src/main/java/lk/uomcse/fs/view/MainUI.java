@@ -78,7 +78,22 @@ public class MainUI {
              */
             @Override
             public void windowClosing(WindowEvent e) {
-                MainUI.this.controller.stop();
+                final JDialog shutdownMessage = new JDialog(frame, Dialog.ModalityType.APPLICATION_MODAL);
+                shutdownMessage.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                shutdownMessage.setLayout(new GridLayout());
+                shutdownMessage.setTitle("FalconFS");
+                Label lblShutdown = new Label("FalconFS is shutting down...");
+                lblShutdown.setFont(new Font("Helvatica", Font.PLAIN, 20));
+                shutdownMessage.add(lblShutdown);
+                shutdownMessage.pack();
+                shutdownMessage.setLocationRelativeTo(frame);
+                new Thread(() -> {
+                    MainUI.this.controller.stop();
+                    shutdownMessage.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+                    shutdownMessage.dispose();
+                }).start();
+                shutdownMessage.setVisible(true);
+
             }
         });
     }
