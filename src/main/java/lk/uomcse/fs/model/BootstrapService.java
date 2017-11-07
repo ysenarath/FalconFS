@@ -1,6 +1,7 @@
 package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.entity.BootstrapServer;
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.RegisterRequest;
 import lk.uomcse.fs.messages.RegisterResponse;
@@ -51,7 +52,7 @@ public class BootstrapService {
      *
      * @return List of nodes if the request is successful
      */
-    public List<Node> register() throws BootstrapException {
+    public List<Neighbour> register() throws BootstrapException {
         RegisterRequest msg = new RegisterRequest(name, self);
         LOGGER.info(String.format("Requesting bootstrap server: %s", msg.toString()));
         RegisterResponse response = null;
@@ -137,9 +138,9 @@ public class BootstrapService {
      */
     public boolean bootstrap() {
         try {
-            List<Node> nodes = this.register();
+            List<Neighbour> nodes = this.register();
             nodes.forEach(joinService::join);
-            for (Node n : nodes) {
+            for (Neighbour n : nodes) {
                 boolean status = joinService.join(n);
                 if (status)
                     LOGGER.info(String.format("Joined to neighbour: %s", n.toString()));

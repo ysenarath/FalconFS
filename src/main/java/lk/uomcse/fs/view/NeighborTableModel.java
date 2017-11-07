@@ -1,5 +1,6 @@
 package lk.uomcse.fs.view;
 
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 
 import javax.swing.table.DefaultTableModel;
@@ -11,9 +12,9 @@ import java.util.List;
  * @since 10/24/2017
  */
 public class NeighborTableModel extends DefaultTableModel {
-    private List<Node> neighbors;
+    private List<Neighbour> neighbors;
 
-    public NeighborTableModel(List<Node> neighbors) {
+    public NeighborTableModel(List<Neighbour> neighbors) {
         this.neighbors = neighbors;
     }
 
@@ -40,9 +41,9 @@ public class NeighborTableModel extends DefaultTableModel {
     public Object getValueAt(int row, int column) {
         switch (column) {
             case 0:
-                return neighbors.get(row).getIp();
+                return neighbors.get(row).getNode().getIp();
             case 1:
-                return neighbors.get(row).getPort();
+                return neighbors.get(row).getNode().getPort();
             case 2:
                 return neighbors.get(row).getHealth();
             default:

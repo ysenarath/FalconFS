@@ -1,23 +1,22 @@
 package lk.uomcse.fs.com;
 
+import com.google.common.collect.Queues;
 import lk.uomcse.fs.messages.IMessage;
 
+import java.util.concurrent.BlockingQueue;
+
 public abstract class Receiver extends Thread {
-    protected boolean running;
+    boolean running;
+
+    final BlockingQueue<IMessage> messages;
 
     /**
      * Constructor
      */
     Receiver() {
         this.running = false;
+        this.messages = Queues.newLinkedBlockingDeque();
     }
-
-    /**
-     * Takes Messages received from the queue
-     *
-     * @return received message
-     */
-    public abstract IMessage receive() throws InterruptedException;
 
     /**
      * Returns whether the Receiver instance is running
@@ -36,5 +35,15 @@ public abstract class Receiver extends Thread {
     public void setRunning(boolean running) {
         this.running = running;
         this.interrupt();
+    }
+
+    /**
+     * Takes messages received from the queue
+     *
+     * @return received message
+     * @throws InterruptedException Whether receive was interrupted
+     */
+    public IMessage receive() throws InterruptedException {
+        return messages.take();
     }
 }

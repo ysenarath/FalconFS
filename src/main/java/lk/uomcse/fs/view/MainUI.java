@@ -1,5 +1,6 @@
 package lk.uomcse.fs.view;
 
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.model.QueryService;
 import org.apache.log4j.AppenderSkeleton;
@@ -41,12 +42,12 @@ public class MainUI {
     private JLabel lblPort;
 
     // Models
-    private java.util.List<Node> neighbors;
+    private java.util.List<Neighbour> neighbors;
     private QueryService queryService;
     private java.util.List<String> filenames;
     private Node me;
 
-    public MainUI(Node me, java.util.List<Node> neighbors, QueryService queryService, java.util.List<String> filenames) {
+    public MainUI(Node me, java.util.List<Neighbour> neighbors, QueryService queryService, java.util.List<String> filenames) {
         this.me = me;
         this.neighbors = neighbors;
         this.queryService = queryService;

@@ -1,5 +1,6 @@
 package lk.uomcse.fs.model;
 
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.HeartbeatPulse;
 import lk.uomcse.fs.messages.IMessage;
@@ -26,7 +27,7 @@ public class PulseReceiverService extends Thread {
     /**
      * List of {@code neighbors}.
      */
-    private List<Node> neighbors;
+    private List<Neighbour> neighbors;
 
     /**
      * Message Request Handler.
@@ -45,7 +46,7 @@ public class PulseReceiverService extends Thread {
      * @param requestHandler RequestHandler of the self-node.
      * @param neighbors      List of neighbors of the self-node.
      */
-    public PulseReceiverService(RequestHandler requestHandler, List<Node> neighbors) {
+    public PulseReceiverService(RequestHandler requestHandler, List<Neighbour> neighbors) {
         this.neighbors = neighbors;
         this.requestHandler = requestHandler;
     }
@@ -67,10 +68,10 @@ public class PulseReceiverService extends Thread {
         IMessage message = this.requestHandler.receiveMessage(HeartbeatPulse.ID);
         try {
             InetAddress packetAddress = InetAddress.getByName(message.getSender().getIp());
-            for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
-                final Node neighbor = iterator.next();
-                InetAddress addressNeighbor = InetAddress.getByName(neighbor.getIp());
-                if (addressNeighbor.equals(packetAddress) && neighbor.getPort() == message.getSender().getPort()) {
+            for (final ListIterator<Neighbour> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
+                final Neighbour neighbor = iterator.next();
+                InetAddress addressNeighbor = InetAddress.getByName(neighbor.getNode().getIp());
+                if (addressNeighbor.equals(packetAddress) && neighbor.getNode().getPort() == message.getSender().getPort()) {
                     neighbor.addPulseResponse(message.getReceivedTime());
                     iterator.set(neighbor);
                 }

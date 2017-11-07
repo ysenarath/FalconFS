@@ -13,7 +13,6 @@ import java.util.concurrent.BlockingQueue;
 public class UDPReceiver extends Receiver {
     private DatagramSocket socket;
 
-    private final BlockingQueue<IMessage> messages;
 
     /**
      * Creates the part of client that handles receives
@@ -22,7 +21,6 @@ public class UDPReceiver extends Receiver {
      */
     public UDPReceiver(DatagramSocket socket) {
         super();
-        this.messages = Queues.newLinkedBlockingDeque();
         this.socket = socket;
     }
 
@@ -99,14 +97,5 @@ public class UDPReceiver extends Receiver {
         return message;
     }
 
-    /**
-     * Takes messages received from the queue
-     *
-     * @return received message
-     * @throws InterruptedException Whether receive was interrupted
-     */
-    @Override
-    public IMessage receive() throws InterruptedException {
-        return messages.take();
-    }
+
 }

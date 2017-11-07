@@ -3,6 +3,7 @@ package lk.uomcse.fs.model;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Queues;
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.SearchRequest;
 import lk.uomcse.fs.messages.SearchResponse;
@@ -43,7 +44,7 @@ public class QueryService {
 
     private final List<String> filenames; //  Split file names which are in lowercase
 
-    private final List<Node> neighbours;
+    private final List<Neighbour> neighbours;
 
     private final ConcurrentMap<String, Queue<String>> queryIdStore;
 
@@ -69,7 +70,7 @@ public class QueryService {
      * @param filenames  reference to list of filenames in this node
      * @param neighbours reference to list of neighbours
      */
-    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Node> neighbours) {
+    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Neighbour> neighbours) {
         this.handler = handler;
         this.current = current;
         this.filenames = filenames;
@@ -201,7 +202,9 @@ public class QueryService {
 
         synchronized (neighbours) {
             Collections.sort(neighbours);
-            bestNodes.addAll(neighbours.subList(0, fromNeighbours > neighbours.size() ? neighbours.size() : fromNeighbours));
+            for (int i = 0; i < (fromNeighbours > neighbours.size() ? neighbours.size() : fromNeighbours); i ++){
+                bestNodes.add(neighbours.get(i).getNode());
+            }
         }
 
         return bestNodes;
