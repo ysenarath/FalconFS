@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 /**
  * Created by anuradha on 10/24/17.
  */
-public class AlreadyRegisteredError extends Error {
+public class AlreadyRegisteredError extends BootstrapError {
 
     private final static Logger LOGGER = Logger.getLogger(AlreadyRegisteredError.class.getName());
 

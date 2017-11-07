@@ -5,18 +5,17 @@ import org.apache.log4j.Logger;
 /**
  * Created by anuradha on 10/24/17.
  */
-public class BsFullError extends Error {
+public class BootstrapFullError extends BootstrapError {
 
     private final static Logger LOGGER = Logger.getLogger(AlreadyRegisteredError.class.getName());
 
-    private BsFullError(Builder builder) {
+    private BootstrapFullError(Builder builder) {
         this.ErrorCode = builder.errorCode;
         this.ErrorMessage = builder.error;
     }
 
     @Override
     public void handleError() {
-
         LOGGER.error(getErrorMessage());
     }
 
@@ -26,17 +25,6 @@ public class BsFullError extends Error {
 
     public String getErrorMessage() {
         return this.ErrorMessage;
-    }
-
-    /**
-     * Returns the detail message string of this throwable.
-     *
-     * @return the detail message string of this {@code Throwable} instance
-     * (which may be {@code null}).
-     */
-    @Override
-    public String getMessage() {
-        return getErrorMessage();
     }
 
     public static class Builder {
@@ -53,8 +41,8 @@ public class BsFullError extends Error {
             return this;
         }
 
-        public BsFullError build() {
-            return new BsFullError(this);
+        public BootstrapFullError build() {
+            return new BootstrapFullError(this);
         }
     }
 }

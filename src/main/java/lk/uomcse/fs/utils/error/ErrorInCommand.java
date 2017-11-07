@@ -5,36 +5,35 @@ import org.apache.log4j.Logger;
 /**
  * Created by anuradha on 10/24/17.
  */
-public class ErrorInCommand extends Error {
+public class ErrorInCommand extends BootstrapError {
 
     private final static Logger LOGGER = Logger.getLogger(AlreadyRegisteredError.class.getName());
 
-    private ErrorInCommand(Builder builder){
+    private ErrorInCommand(Builder builder) {
         this.ErrorCode = builder.errorCode;
         this.ErrorMessage = builder.error;
     }
 
     @Override
     public void handleError() {
-        LOGGER.error(getErrorMessage() +
-                           "---------- Please check your command ;( ------------");
+        LOGGER.error(getErrorMessage() + "---------- Please check your command ;( ------------");
     }
 
-    public int getErrorCode(){
+    public int getErrorCode() {
         return this.ErrorCode;
     }
 
-    public String getErrorMessage(){
+    public String getErrorMessage() {
         return this.ErrorMessage;
     }
 
 
-    public static class Builder{
+    public static class Builder {
 
         private int errorCode;
         private String error;
 
-        public Builder(int errorCode){
+        public Builder(int errorCode) {
             this.errorCode = errorCode;
         }
 
@@ -43,7 +42,7 @@ public class ErrorInCommand extends Error {
             return this;
         }
 
-        public ErrorInCommand build(){
+        public ErrorInCommand build() {
             return new ErrorInCommand(this);
         }
     }
