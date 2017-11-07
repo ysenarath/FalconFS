@@ -1,9 +1,11 @@
 package lk.uomcse.fs.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length SER qid IP port file_name hops
+@JsonIgnoreProperties(value = { "sender", "receivedTime" }, ignoreUnknown = true)
 public class SearchRequest extends Message implements IRequest {
     public static final String ID = "SER";
 
@@ -14,6 +16,11 @@ public class SearchRequest extends Message implements IRequest {
     private String filename;
 
     private int hops;
+
+    /**
+     * Used by Jakson
+     */
+    public SearchRequest(){}
 
     /**
      * Cstr of SearchRequest
@@ -126,4 +133,19 @@ public class SearchRequest extends Message implements IRequest {
     }
 
 
+    public void setQueryId(String queryId) {
+        this.queryId = queryId;
+    }
+
+    public void setNode(Node node) {
+        this.node = node;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public void setHops(int hops) {
+        this.hops = hops;
+    }
 }
