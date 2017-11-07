@@ -51,11 +51,11 @@ public class JoinService extends Thread {
             LOGGER.info(String.format("Replying to join request: %s", reply.toString()));
             // Request handling section
             this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), reply);
-            Node n = request.getNode();
+            Neighbour n = new Neighbour(request.getNode());
             synchronized (neighbours) {
                 // Do not add duplicates (behave like a set)
                 if (!neighbours.contains(n)) {
-                    neighbours.add(new Neighbour(n));
+                    neighbours.add(n);
                 }
             }
             LOGGER.info(String.format("Node(%s:%d) is joined to nodes: %s", current.getIp(), current.getPort(), neighbours.toString()));

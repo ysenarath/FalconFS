@@ -24,7 +24,7 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
         this.node = node;
         this.hasLeft = false;
         this.health = 0;
-        this.pulseResponses = new ArrayList<Long>();
+        this.pulseResponses = new ArrayList<>();
     }
 
     public Neighbour(String ip, int port) {
@@ -32,7 +32,7 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
         Random rand = new Random();
 
         this.health = rand.nextInt(100) + 1;
-        this.pulseResponses = new ArrayList<Long>();
+        this.pulseResponses = new ArrayList<>();
     }
 
     public int getHealth() {
