@@ -22,8 +22,7 @@ public class FrameUtils {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e2) {
-                // TODO: Error log and Error message
-                return;
+                // ignore
             }
         }
     }
