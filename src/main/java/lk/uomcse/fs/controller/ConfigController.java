@@ -3,6 +3,7 @@ package lk.uomcse.fs.controller;
 import lk.uomcse.fs.FalconFS;
 import lk.uomcse.fs.model.Configuration;
 import lk.uomcse.fs.utils.ListUtils;
+import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.view.ConfigView;
 import lk.uomcse.fs.view.MainUI;
 
@@ -88,12 +89,23 @@ public class ConfigController {
      * Connects to the new instance
      */
     public void connect() {
-        FalconFS fs = new FalconFS(this.model);
-        MainUI ui = new MainUI();
-        fs.getFilenames().addAll(ListUtils.randomSubList(model.getFiles(), 4, 2));
-        MainController controller = new MainController(fs, ui);
-        controller.updateView();
-        view.close();
+        FalconFS fs = null;
+        try {
+            fs = new FalconFS(this.model);
+            MainUI ui = new MainUI();
+            fs.getFilenames().addAll(ListUtils.randomSubList(model.getFiles(), 4, 2));
+            MainController controller = new MainController(fs, ui);
+            controller.updateView();
+            view.setVisible(false);
+        } catch (InstantiationException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Instantiation Error", JOptionPane.ERROR_MESSAGE);
+        } catch (BootstrapException e) {
+            if (e.getErrorCode() != 9997) {
+                JOptionPane.showMessageDialog(null, e.getMessage(), "Bootstrap Error", JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }
+        }
+
     }
 
     /**
@@ -103,7 +115,7 @@ public class ConfigController {
         try {
             model.save();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "IO Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

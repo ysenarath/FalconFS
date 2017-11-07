@@ -14,17 +14,12 @@ public class MainController {
     private final MainUI view;
     private final FalconFS model;
 
-    public MainController(FalconFS model, MainUI view) {
+    public MainController(FalconFS model, MainUI view) throws BootstrapException {
         this.model = model;
         this.view = view;
-        try {
-            this.model.start();
-            this.view.setController(this);
-            this.view.initialize();
-        } catch (BootstrapException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
-        }
+        this.model.start();
+        this.view.setController(this);
+        this.view.initialize();
     }
 
     public QueryService getQueryService() {
@@ -47,7 +42,12 @@ public class MainController {
     }
 
     public void stop() {
-        model.stop();
+        try {
+            model.stop();
+        } catch (BootstrapException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Bootstrap Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        }
     }
 
     public String getName() {
