@@ -60,6 +60,7 @@ public class MainUI {
 
     private void initializeFrame() {
         frame.setContentPane(this.mainPanel);
+        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
