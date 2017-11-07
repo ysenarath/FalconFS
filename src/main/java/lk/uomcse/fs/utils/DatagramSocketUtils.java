@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class DatagramSocketUtils {
-    private final static Logger LOGGER = Logger.getLogger(FalconFS.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(DatagramSocketUtils.class.getName());
 
     private static final ConcurrentMap<Integer, DatagramSocket> sockets = new ConcurrentHashMap<>();
 

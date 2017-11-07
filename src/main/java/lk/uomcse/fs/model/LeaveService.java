@@ -62,20 +62,19 @@ public class LeaveService extends Thread {
      */
     public void leave() {
         neighbours.forEach(neighbour -> {
-            Neighbour node = neighbour;
             LeaveRequest request = new LeaveRequest(self);
-            handler.sendMessage(node.getNode().getIp(), node.getNode().getPort(), request);
+            handler.sendMessage(neighbour.getNode().getIp(), neighbour.getNode().getPort(), request);
             int retry = 0;
             LeaveResponse response;
             while (retry < MAX_RETRIES) {
                 try {
-                    response = (LeaveResponse) handler.receiveMessage(LeaveResponse.ID, 5);
+                    response = (LeaveResponse) handler.receiveMessage(LeaveResponse.ID, 1);
                     break;
                 } catch (TimeoutException e) {
                     retry++;
                 }
             }
-            node.setLeft(true);
+            neighbour.setLeft(true);
         });
         // Assuming that all the nodes has received/ has already left the system
     }
