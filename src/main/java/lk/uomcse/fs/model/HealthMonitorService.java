@@ -1,6 +1,7 @@
 package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.entity.Neighbour;
+import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -59,9 +60,13 @@ public class HealthMonitorService extends Thread {
         }
 
         // If health of all neighbors become zero, bootstrapping is done
-        if(hasNoActiveNeighbors && neighbors.size() > 0) {
-            LOGGER.info("Bootstrapping");
-            this.bootstrapService.bootstrap();
+        if (hasNoActiveNeighbors && neighbors.size() > 0) {
+            LOGGER.info("Bootstrapping since health of all the nodes are zero.");
+            try {
+                this.bootstrapService.bootstrap();
+            } catch (BootstrapException e) {
+                // ignore and may try in next iteration
+            }
         }
 
     }
