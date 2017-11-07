@@ -1,12 +1,17 @@
 package lk.uomcse.fs.utils.exceptions;
 
 public class BootstrapException extends RuntimeException {
+
+    // ID of the error message
+    private int errorCode;
+
     /**
      * Constructs a new runtime exception with {@code null} as its
      * detail message.  The cause is not initialized, and may subsequently be
      * initialized by a call to {@link #initCause}.
      */
-    public BootstrapException() {
+    public BootstrapException(int errorCode) {
+        this.errorCode = errorCode;
     }
 
     /**
@@ -17,8 +22,9 @@ public class BootstrapException extends RuntimeException {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public BootstrapException(String message) {
+    public BootstrapException(int errorCode, String message) {
         super(message);
+        this.errorCode = errorCode;
     }
 
     /**
@@ -35,8 +41,9 @@ public class BootstrapException extends RuntimeException {
      *                unknown.)
      * @since 1.4
      */
-    public BootstrapException(String message, Throwable cause) {
+    public BootstrapException(int errorCode, String message, Throwable cause) {
         super(message, cause);
+        this.errorCode = errorCode;
     }
 
     /**
@@ -52,8 +59,9 @@ public class BootstrapException extends RuntimeException {
      *              unknown.)
      * @since 1.4
      */
-    public BootstrapException(Throwable cause) {
+    public BootstrapException(int errorCode, Throwable cause) {
         super(cause);
+        this.errorCode = errorCode;
     }
 
     /**
@@ -70,7 +78,26 @@ public class BootstrapException extends RuntimeException {
      *                           be writable
      * @since 1.7
      */
-    public BootstrapException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public BootstrapException(int errorCode, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+        this.errorCode = errorCode;
+    }
+
+    /**
+     * Gets bootstrap error code
+     *
+     * @return error code
+     */
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    /**
+     * Sets bootstrap error code
+     *
+     * @param errorCode error code
+     */
+    public void setErrorCode(int errorCode) {
+        this.errorCode = errorCode;
     }
 }
