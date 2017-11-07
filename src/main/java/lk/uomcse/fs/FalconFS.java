@@ -61,7 +61,7 @@ public class FalconFS {
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
-        this.healthMonitorService = new HealthMonitorService(neighbours);
+        this.healthMonitorService = new HealthMonitorService(neighbours, bootstrapService);
         // }
     }
 

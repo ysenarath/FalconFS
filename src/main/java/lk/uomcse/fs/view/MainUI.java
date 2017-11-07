@@ -6,6 +6,7 @@ import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.model.QueryService;
 import lk.uomcse.fs.utils.FrameUtils;
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 
@@ -155,8 +156,10 @@ public class MainUI {
         Logger.getRootLogger().addAppender(new AppenderSkeleton() {
             @Override
             protected void append(LoggingEvent loggingEvent) {
-                txtConsole.insert(loggingEvent.getMessage() + "\n", 0);
-                txtConsole.repaint();
+                if (loggingEvent.getLevel() == Level.INFO) {
+                    txtConsole.insert(loggingEvent.getMessage() + "\n", 0);
+                    txtConsole.repaint();
+                }
             }
 
             @Override

@@ -18,7 +18,7 @@ import java.util.List;
  * @since Phase1
  */
 public class HeartbeatService extends Thread {
-    private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
+    private final static Logger LOGGER = Logger.getLogger(HeartbeatService.class.getName());
 
     /**
      * Pulse Rate of the Heart Beats.
@@ -78,7 +78,7 @@ public class HeartbeatService extends Thread {
     private void sendPulses() {
         try {
             for (Neighbour neighbor : neighbors) {
-                LOGGER.info("Sending Heartbeat Message:" + neighbor.getNode().getIp());
+                LOGGER.debug("Sending Heartbeat Message:" + neighbor.getNode().getIp());
                 this.requestHandler.sendMessage(neighbor.getNode().getIp(), neighbor.getNode().getPort(), this.pulse);
             }
             Thread.sleep(SLEEP_TIME);

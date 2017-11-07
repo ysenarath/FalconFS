@@ -29,24 +29,41 @@ public class HealthMonitorService extends Thread {
 
 
     /**
+     * Bootstrap Service
+     */
+    private BootstrapService bootstrapService;
+
+    /**
      * Creates ne heartbeat object
      *
      * @param neighbors
      */
-    public HealthMonitorService(List<Neighbour> neighbors) {
+    public HealthMonitorService(List<Neighbour> neighbors, BootstrapService bootstrapService) {
         this.neighbors = neighbors;
+        this.bootstrapService = bootstrapService;
     }
 
     /**
      * Measure the health of each neighbor
      */
     private void measureHealth() {
+        boolean hasNoActiveNeighbors = true;
         for (final ListIterator<Neighbour> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
             final Neighbour neighbor = iterator.next();
             neighbor.setHealth(neighbor.getPulseCount() * 10 / 5);
             LOGGER.debug(String.format("Neighbour %s health updated %d", neighbor.toString(), neighbor.getHealth()));
+            if (neighbor.getHealth() != 0) {
+                hasNoActiveNeighbors = false;
+            }
             iterator.set(neighbor);
         }
+
+        // If health of all neighbors become zero, bootstrapping is done
+        if(hasNoActiveNeighbors && neighbors.size() > 0) {
+            LOGGER.info("Bootstrapping");
+            this.bootstrapService.bootstrap();
+        }
+
     }
 
     /**
