@@ -5,11 +5,11 @@ import org.apache.log4j.Logger;
 /**
  * Created by anuradha on 10/24/17.
  */
-public class ErrorInCommand extends BootstrapError {
+public class CommandError extends BootstrapError {
 
     private final static Logger LOGGER = Logger.getLogger(AlreadyRegisteredError.class.getName());
 
-    private ErrorInCommand(Builder builder) {
+    private CommandError(Builder builder) {
         this.ErrorCode = builder.errorCode;
         this.ErrorMessage = builder.error;
     }
@@ -42,8 +42,8 @@ public class ErrorInCommand extends BootstrapError {
             return this;
         }
 
-        public ErrorInCommand build() {
-            return new ErrorInCommand(this);
+        public CommandError build() {
+            return new CommandError(this);
         }
     }
 }
