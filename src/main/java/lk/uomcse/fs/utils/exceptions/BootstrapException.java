@@ -1,6 +1,6 @@
 package lk.uomcse.fs.utils.exceptions;
 
-public class BootstrapException extends RuntimeException {
+public class BootstrapException extends Exception {
 
     // ID of the error message
     private int errorCode;
