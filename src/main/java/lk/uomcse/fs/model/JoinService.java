@@ -14,6 +14,8 @@ import java.util.concurrent.TimeoutException;
 public class JoinService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(JoinService.class.getName());
 
+    private static final int MAX_RETRIES = 3;
+
     private boolean running;
 
     private final RequestHandler handler;
@@ -21,8 +23,6 @@ public class JoinService extends Thread {
     private final Node current;
 
     private final List<Neighbour> neighbours;
-
-    private int joinRetries;
 
     /**
      * Allocates Join service object.
@@ -35,7 +35,6 @@ public class JoinService extends Thread {
         this.handler = handler;
         this.current = current;
         this.neighbours = neighbours;
-        this.joinRetries = 3;
     }
 
     /**
@@ -72,17 +71,19 @@ public class JoinService extends Thread {
     public boolean join(Neighbour n) {
         IRequest jr = new JoinRequest(current);
         JoinResponse reply = null;
-        for (int i = 0; i < this.joinRetries; i++) {
+        int retries = 0;
+        while (retries < MAX_RETRIES) {
             LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getNode().getIp(), n.getNode().getPort(), jr.toString()));
             handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), jr);
             LOGGER.debug("Waiting for receive message.");
             try {
-                reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 5);
+                reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 1);
                 break;
             } catch (TimeoutException e) {
-                if (i == this.joinRetries - 1) {
+                retries++;
+                if (retries == MAX_RETRIES) {
                     LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [CANCEL_JOIN]", n.toString()));
-                    LOGGER.info(String.format("Join request failed after attempting %d times", this.joinRetries));
+                    LOGGER.info(String.format("Join request failed after attempting %d times", retries));
                     return false;
                 } else
                     LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [RETRYING]", n.toString()));

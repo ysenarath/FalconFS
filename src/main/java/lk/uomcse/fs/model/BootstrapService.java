@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 public class BootstrapService {
     private final static Logger LOGGER = Logger.getLogger(BootstrapService.class.getName());
@@ -26,11 +27,14 @@ public class BootstrapService {
 
     private final JoinService joinService;
 
+    private final LeaveService leaveService;
+
     private final RequestHandler handler;
 
     private final String name;
 
     private final Node self;
+
 
     /**
      * Constructs bootstrap service providing register and unregister functions
@@ -39,10 +43,11 @@ public class BootstrapService {
      * @param joinService join service to join to nodes ones the registration is complete
      * @param bs          Bootstrap server (details)
      */
-    public BootstrapService(RequestHandler handler, JoinService joinService, BootstrapServer bs, String name, Node self) {
+    public BootstrapService(RequestHandler handler, JoinService joinService, LeaveService leaveService, BootstrapServer bs, String name, Node self) {
         this.server = bs;
         this.handler = handler;
         this.joinService = joinService;
+        this.leaveService = leaveService;
         this.name = name;
         this.self = self;
     }
@@ -75,7 +80,7 @@ public class BootstrapService {
         Error err;
         if (response.isSuccess()) {
             // TODO: Select random 2 and return
-            return response.getNodes();
+            return response.getNodes().stream().map(Neighbour::new).collect(Collectors.toList());
         } else {
             switch (response.getNodeCount()) {
                 case (9998):
@@ -84,17 +89,17 @@ public class BootstrapService {
                     return this.register();
                 case (9999):
                     err = new ErrorInCommand.Builder(9999)
-                            .setError("failed, there is some error in the command")
+                            .setError("Failed, there is some error in the command")
                             .build();
                     break;
                 case (9997):
                     err = new BsFullError.Builder(9997)
-                            .setError("failed, registered to another user, try a different IP and port")
+                            .setError("Failed, registered to another user, try a different IP and port")
                             .build();
                     break;
                 case (9996):
                     err = new BsFullError.Builder(9996)
-                            .setError("failed, can’t register. BS full.")
+                            .setError("Failed, can’t register. BS full.")
                             .build();
                     break;
                 default:
@@ -121,6 +126,8 @@ public class BootstrapService {
                 this.handler.sendMessage(this.server.getAddress(), this.server.getPort(), msg);
                 response = (UnregisterResponse) this.handler.receiveMessage(UnregisterResponse.ID, 5);
                 LOGGER.info(String.format("Bootstrap Server replied: %s", response.toString()));
+                LOGGER.info("Leaving neighbours");
+                leaveService.leave();
                 return response.isSuccess();
             } catch (TimeoutException e) {
                 count += 1;
@@ -133,10 +140,8 @@ public class BootstrapService {
 
     /**
      * Connects with bootstrap server and joins to nodes provided
-     *
-     * @return whether bootstrap is a success
      */
-    public boolean bootstrap() {
+    public void bootstrap() {
         try {
             List<Neighbour> nodes = this.register();
             nodes.forEach(joinService::join);
@@ -148,8 +153,7 @@ public class BootstrapService {
                     LOGGER.error(String.format("Failed join to neighbour: %s", n.toString()));
             }
         } catch (RequestFailedException | BootstrapException ex) {
-            return false;
+            throw new BootstrapException(ex.getMessage());
         }
-        return true;
     }
 }

@@ -1,13 +1,14 @@
 package lk.uomcse.fs.entity;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Random;
 
-public class Node {
+public class Node implements Comparator<Node>, Comparable<Node> {
     private String ip;
 
     private int port;
+
+    //health of the node. should be in between 0 and 100
+    private Integer health;
 
     public Node(String ip, int port) {
         this.ip = ip;
@@ -30,7 +31,19 @@ public class Node {
         this.port = port;
     }
 
+    public int getHealth() {
+        return health;
+    }
 
+    public void setHealth(int health) {
+        if (health > 10) {
+            this.health = 10;
+        } else if (health < 0) {
+            this.health = 0;
+        } else {
+            this.health = health;
+        }
+    }
 
     @Override
     public String toString() {
@@ -55,4 +68,13 @@ public class Node {
         return result;
     }
 
+    @Override
+    public int compare(Node o1, Node o2) {
+        return o1.health - o2.health;
+    }
+
+    @Override
+    public int compareTo(Node o) {
+        return (o.health).compareTo(this.health);
+    }
 }

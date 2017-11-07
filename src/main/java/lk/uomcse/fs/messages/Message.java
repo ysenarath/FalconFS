@@ -7,6 +7,11 @@ public abstract class Message implements IMessage {
 
     private long receivedTime;
 
+    public Message() {
+        sender = null;
+        receivedTime = 0;
+    }
+
     /**
      * Sets sender
      *

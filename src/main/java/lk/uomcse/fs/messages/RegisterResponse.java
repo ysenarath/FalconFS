@@ -1,6 +1,5 @@
 package lk.uomcse.fs.messages;
 
-import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
@@ -13,7 +12,7 @@ public class RegisterResponse extends Message implements IResponse {
 
     private int nodeCount;
 
-    private List<Neighbour> nodes;
+    private List<Node> nodes;
 
     /**
      * Creates a Register response
@@ -21,7 +20,7 @@ public class RegisterResponse extends Message implements IResponse {
      * @param nodeCount number of nodes
      * @param nodes     list of nodes
      */
-    private RegisterResponse(int nodeCount, List<Neighbour> nodes) {
+    private RegisterResponse(int nodeCount, List<Node> nodes) {
         this.nodeCount = nodeCount;
         this.nodes = nodes;
     }
@@ -40,7 +39,7 @@ public class RegisterResponse extends Message implements IResponse {
      *
      * @return list of nodes
      */
-    public List<Neighbour> getNodes() {
+    public List<Node> getNodes() {
         return nodes;
     }
 
@@ -70,13 +69,13 @@ public class RegisterResponse extends Message implements IResponse {
             throw new InvalidFormatException(String.format("Parsing failed due to not having message id: %s. (Received message ID: %s)", ID, response[1]));
         int n = Integer.parseInt(response[2]);
         if (n > 9995) {
-            return new RegisterResponse(n, null);
+            return new RegisterResponse(n, new ArrayList<>());
         }
-        List<Neighbour> lst = new ArrayList<>();
+        List<Node> lst = new ArrayList<>();
         for (int i = 3; i < 3 + n * 2; i += 2) {
             String ip = response[i];
             int port = Integer.parseInt(response[i + 1]);
-            Neighbour neighbour = new Neighbour(ip, port);
+            Node neighbour = new Node(ip, port);
             lst.add(neighbour);
         }
         return new RegisterResponse(n, lst);
@@ -91,5 +90,15 @@ public class RegisterResponse extends Message implements IResponse {
     @Override
     public String getID() {
         return ID;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(" ");
+        sb.append(ID).append(" ").append(nodeCount);
+        nodes.forEach(node -> sb.append(" ").append(node.getIp()).append(node.getPort()));
+        String length = String.format("%04d", sb.length() + 4);
+        sb.insert(0, length);
+        return sb.toString();
     }
 }

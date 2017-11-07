@@ -9,8 +9,11 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
 
     private Node node;
 
-    //health of the node. should be in between 0 and 100
+    //health of the node. should be in between 0 and 10
     private Integer health;
+
+    // After graceful leave this is true
+    private boolean hasLeft;
 
     /**
      * BeatCount of a node.
@@ -19,9 +22,8 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
 
     public Neighbour(Node node) {
         this.node = node;
-        Random rand = new Random();
-
-        this.health = rand.nextInt(100) + 1;
+        this.hasLeft = false;
+        this.health = 0;
         this.pulseResponses = new ArrayList<Long>();
     }
 
@@ -97,11 +99,12 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Node) {
-            return node.equals(o);
-        } else if (o instanceof Neighbour)
-            return node.equals(((Neighbour) o).getNode());
-        return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Neighbour neighbour = (Neighbour) o;
+
+        return node.equals(neighbour.node);
     }
 
     @Override
@@ -109,4 +112,16 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
         return node.hashCode();
     }
 
+    /**
+     * Whether the node
+     *
+     * @return
+     */
+    public boolean isHasLeft() {
+        return hasLeft;
+    }
+
+    public void setHasLeft(boolean hasLeft) {
+        this.hasLeft = hasLeft;
+    }
 }

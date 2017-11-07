@@ -1,6 +1,7 @@
 package lk.uomcse.fs.view;
 
 import lk.uomcse.fs.controller.ConfigController;
+import lk.uomcse.fs.utils.FrameUtils;
 import lk.uomcse.fs.utils.IPUtils;
 
 import javax.swing.*;
@@ -8,11 +9,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultFormatter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ConfigView {
-    private final JFrame frame = new JFrame("Setup Configurations");
+    private final JFrame frame = new JFrame("Setup Configuration");
 
     private JTextField bsAddressText;
     private JButton saveButton;
@@ -21,7 +20,7 @@ public class ConfigView {
     private JComboBox selfAddressCombo;
     private JSpinner selfPortSpinner;
     private JSpinner bsPortSpinner;
-    private JPanel pnlMain;
+    private JPanel mainPanel;
     private ConfigController controller;
 
     public ConfigView() {
@@ -38,18 +37,19 @@ public class ConfigView {
      * Initialize form
      */
     private void initFrame() {
-        frame.setContentPane(this.pnlMain);
+        frame.setContentPane(this.mainPanel);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setSize(new Dimension(450, 350));
         frame.setVisible(true);
+        FrameUtils.centreWindow(frame);
     }
 
     private void initComponents() {
         // Init self address combo boxes
         selfAddressCombo.removeAllItems();
         IPUtils.getPublicIpAddress().forEach(selfAddressCombo::addItem);
-
+        // Init port spinner to default values
         for (JComponent comp : new JComponent[]{selfPortSpinner.getEditor(), bsPortSpinner.getEditor()}) {
             JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
             DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
@@ -127,5 +127,9 @@ public class ConfigView {
 
     public void setBootstrapServerAddress(String value) {
         bsAddressText.setText(value);
+    }
+
+    public void close() {
+        frame.setVisible(false);
     }
 }

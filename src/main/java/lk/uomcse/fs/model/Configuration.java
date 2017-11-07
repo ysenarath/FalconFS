@@ -9,9 +9,9 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
 
-public class Configurations {
+public class Configuration {
 
-    private static final Logger LOGGER = Logger.getLogger(Configurations.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Configuration.class.getName());
 
     private String name;
     private String address;
@@ -20,7 +20,7 @@ public class Configurations {
     private String configPath;
     private List<String> files;
 
-    public Configurations(String name, String address, int port, BootstrapServer bootstrapServer, String configPath, List<String> files) {
+    public Configuration(String name, String address, int port, BootstrapServer bootstrapServer, String configPath, List<String> files) {
         this.name = name;
         this.address = address;
         this.port = port;
@@ -77,8 +77,8 @@ public class Configurations {
         Properties prop = new Properties();
         OutputStream output = null;
         if (configPath == null) {
-            LOGGER.info("Please disable debug mode to save configurations.");
-            throw new IOException("Please disable debug mode to save configs.");
+            LOGGER.info("Unable to save configurations");
+            throw new IOException("Unable to save configurations. Please try different config location.");
         }
         try {
             output = new FileOutputStream(configPath);

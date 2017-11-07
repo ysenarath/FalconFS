@@ -20,10 +20,10 @@ public class HeartbeatPulse extends Message implements IMessage {
     }
 
     /**
-     * Parses unregister response message
+     * Parses Heartbeat pulse response message
      *
      * @param reply reply in string
-     * @return Unregister response message
+     * @return Heartbeat pulse message
      */
     public static HeartbeatPulse parse(String reply) {
         if (reply == null)

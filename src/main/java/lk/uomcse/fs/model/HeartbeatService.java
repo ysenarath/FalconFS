@@ -31,7 +31,6 @@ public class HeartbeatService extends Thread {
      */
     private List<Neighbour> neighbors;
 
-
     /**
      * Request Handler of the heartbeats.
      *

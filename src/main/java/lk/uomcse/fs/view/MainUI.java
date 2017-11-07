@@ -1,17 +1,19 @@
 package lk.uomcse.fs.view;
 
+import lk.uomcse.fs.controller.MainController;
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.model.QueryService;
+import lk.uomcse.fs.utils.FrameUtils;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.List;
 
 /**
  * @author Dulanjaya
@@ -19,7 +21,7 @@ import java.io.PrintStream;
  */
 public class MainUI {
     private final JFrame frame = new JFrame("FalconFS");
-    private JPanel pnlMain;
+    private JPanel mainPanel;
     private JTextField txtSearch;
     private JButton btnSearch;
     private JPanel pnlLeft;
@@ -40,6 +42,7 @@ public class MainUI {
     private JLabel lblName;
     private JLabel lblIP;
     private JLabel lblPort;
+    private MainController controller;
 
     // Models
     private java.util.List<Neighbour> neighbors;
@@ -47,21 +50,36 @@ public class MainUI {
     private java.util.List<String> filenames;
     private Node me;
 
-    public MainUI(Node me, java.util.List<Neighbour> neighbors, QueryService queryService, java.util.List<String> filenames) {
-        this.me = me;
-        this.neighbors = neighbors;
-        this.queryService = queryService;
-        this.filenames = filenames;
+    public MainUI() {
+    }
 
+
+    public void setController(MainController controller) {
+        this.controller = controller;
+    }
+
+    public void initialize() {
         this.initializeFrame();
         this.setupComponents();
     }
 
     private void initializeFrame() {
-        frame.setContentPane(this.pnlMain);
+        frame.setContentPane(this.mainPanel);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+        FrameUtils.centreWindow(frame);
+        frame.addWindowListener(new WindowAdapter() {
+            /**
+             * Invoked when a window has been closed.
+             *
+             * @param e
+             */
+            @Override
+            public void windowClosing(WindowEvent e) {
+                MainUI.this.controller.stop();
+            }
+        });
     }
 
     private void setupComponents() {
@@ -73,10 +91,10 @@ public class MainUI {
     }
 
     private void setupThreadComponents() {
-        final ResultTableModel resultTableModel = new ResultTableModel(queryService);
+        final ResultTableModel resultTableModel = new ResultTableModel(controller.getQueryService());
         tblResults.setModel(resultTableModel);
 
-        final NeighborTableModel neighborTableModel = new NeighborTableModel(neighbors);
+        final NeighborTableModel neighborTableModel = new NeighborTableModel(controller.getNeighbours());
         tblNeighbors.setModel(neighborTableModel);
 
         new Thread(() -> {
@@ -95,6 +113,7 @@ public class MainUI {
     }
 
     private void setupFileComponents() {
+        List<String> filenames = controller.getFilenames();
         final FilenameModel filenameModel = new FilenameModel(filenames);
         tblFiles.setModel(filenameModel);
 
@@ -120,7 +139,7 @@ public class MainUI {
             if (txtSearch.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Search string is empty!", "FalconFS", JOptionPane.ERROR_MESSAGE);
             } else {
-                this.queryService.search(this.txtSearch.getText());
+                controller.getQueryService().search(this.txtSearch.getText());
             }
 
         });
@@ -153,8 +172,8 @@ public class MainUI {
     }
 
     private void setupSelfNodeInfo() {
-        this.lblName.setText("Name: " + me.toString());
-        this.lblIP.setText("IP: " + me.getIp());
-        this.lblPort.setText("Port: " + Integer.toString(me.getPort()));
+        this.lblName.setText("Name: " + controller.getSelf().toString());
+        this.lblIP.setText("IP: " + controller.getSelf().getIp());
+        this.lblPort.setText("Port: " + Integer.toString(controller.getSelf().getPort()));
     }
 }

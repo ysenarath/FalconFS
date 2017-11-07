@@ -32,7 +32,7 @@ public class JoinResponse extends Message implements IResponse {
      * Parses join response message
      *
      * @param data reply in string form
-     * @return Unregister response message
+     * @return Join response message
      */
     public static JoinResponse parse(String data) {
         if (data == null)
