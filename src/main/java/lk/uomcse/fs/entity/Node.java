@@ -7,6 +7,12 @@ public class Node {
     private int port;
 
     /**
+     * For Jakson support
+     */
+    public Node(){}
+
+
+    /**
      * Node containing IP and port of an application instance
      *
      * @param ip   ip

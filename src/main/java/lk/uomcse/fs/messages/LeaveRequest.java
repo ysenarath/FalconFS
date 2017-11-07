@@ -1,12 +1,19 @@
 package lk.uomcse.fs.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lk.uomcse.fs.entity.Node;
 
 // length LEAVE IP_address port_no
+@JsonIgnoreProperties(value = {"sender", "receivedTime"}, ignoreUnknown = true)
 public class LeaveRequest extends Message implements IRequest {
     public static final String ID = "LEAVE";
 
     private Node node;
+
+    /**
+     * Used by Jakson
+     */
+    public LeaveRequest(){}
 
     /**
      * Cstr
@@ -62,4 +69,6 @@ public class LeaveRequest extends Message implements IRequest {
         sb.insert(0, length);
         return sb.toString();
     }
+
+
 }

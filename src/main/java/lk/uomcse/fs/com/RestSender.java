@@ -15,7 +15,7 @@ public class RestSender extends Sender {
     public void send(String ip, int port, IMessage request) {
 
         WebTarget webTarget = client
-                .target(String.format("%s:%d", ip, port))
+                .target(String.format("http://%s:%d", ip, port))
                 .path(String.format("/%s", request.getID()));
 
         Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON);

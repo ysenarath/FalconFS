@@ -171,6 +171,7 @@ public class MainUI {
     private void setupConsoleComponent() {
         txtConsole.setBackground(Color.BLACK);
         txtConsole.setForeground(Color.GREEN);
+        txtConsole.setEditable(false);
         Logger.getRootLogger().addAppender(new AppenderSkeleton() {
             @Override
             protected void append(LoggingEvent loggingEvent) {

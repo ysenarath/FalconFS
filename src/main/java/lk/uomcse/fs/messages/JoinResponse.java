@@ -1,13 +1,21 @@
 package lk.uomcse.fs.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length JOINOK value
+@JsonIgnoreProperties(value = {"sender", "receivedTime"}, ignoreUnknown = true)
 public class JoinResponse extends Message implements IResponse {
     public static final String ID = "JOINOK";
 
     // True: Success; False: Failed
     private boolean success;
+
+    /**
+     * Used by Jakson
+     */
+    public JoinResponse() {
+    }
 
     /**
      * Constructor
@@ -71,5 +79,9 @@ public class JoinResponse extends Message implements IResponse {
     @Override
     public String getID() {
         return ID;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 }

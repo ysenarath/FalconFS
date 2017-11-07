@@ -1,5 +1,6 @@
 package lk.uomcse.fs.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
@@ -7,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 // length SEROK qid no_files IP port hops filename1 filename2 ... ...
+@JsonIgnoreProperties(value = {"sender", "receivedTime"}, ignoreUnknown = true)
 public class SearchResponse extends Message implements IResponse {
     public static final String ID = "SEROK";
 
@@ -19,6 +21,13 @@ public class SearchResponse extends Message implements IResponse {
     private int hops;
 
     private List<String> filenames;
+
+    /**
+     * Used by Jakson
+     */
+
+    public SearchResponse() {
+    }
 
     /**
      * Cstr
@@ -136,5 +145,25 @@ public class SearchResponse extends Message implements IResponse {
     @Override
     public String getID() {
         return ID;
+    }
+
+    public void setQueryID(String queryID) {
+        this.queryID = queryID;
+    }
+
+    public void setFileCount(int fileCount) {
+        this.fileCount = fileCount;
+    }
+
+    public void setNode(Node node) {
+        this.node = node;
+    }
+
+    public void setHops(int hops) {
+        this.hops = hops;
+    }
+
+    public void setFilenames(List<String> filenames) {
+        this.filenames = filenames;
     }
 }

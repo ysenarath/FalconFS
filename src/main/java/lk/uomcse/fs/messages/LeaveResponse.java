@@ -1,12 +1,20 @@
 package lk.uomcse.fs.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length LEAVEOK value
+@JsonIgnoreProperties(value = {"sender", "receivedTime"}, ignoreUnknown = true)
 public class LeaveResponse extends Message implements IResponse {
     public static final String ID = "LEAVEOK";
 
     private boolean success;
+
+    /**
+     * Used by Jakson
+     */
+    public LeaveResponse() {
+    }
 
     public LeaveResponse(boolean success) {
         this.success = success;
@@ -57,5 +65,14 @@ public class LeaveResponse extends Message implements IResponse {
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();
+    }
+
+    @Override
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 }
