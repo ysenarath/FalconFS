@@ -1,5 +1,6 @@
 package lk.uomcse.fs.model;
 
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.HeartbeatPulse;
 import org.apache.log4j.Logger;
@@ -28,7 +29,7 @@ public class HeartbeatService extends Thread {
     /**
      * Neighbors are the neighbor-nodes of the self-node.
      */
-    private List<Node> neighbors;
+    private List<Neighbour> neighbors;
 
 
     /**
@@ -57,7 +58,7 @@ public class HeartbeatService extends Thread {
      * @param requestHandler requestHandler of the Self-Node
      * @param neighbors      Neighbors list of the Self-Node
      */
-    public HeartbeatService(RequestHandler requestHandler, List<Node> neighbors) {
+    public HeartbeatService(RequestHandler requestHandler, List<Neighbour> neighbors) {
         this.requestHandler = requestHandler;
         this.neighbors = neighbors;
     }
@@ -77,9 +78,9 @@ public class HeartbeatService extends Thread {
      */
     private void sendPulses() {
         try {
-            for (Node neighbor : neighbors) {
-                LOGGER.info("Sending Heartbeat Message:" + neighbor.getIp());
-                this.requestHandler.sendMessage(neighbor.getIp(), neighbor.getPort(), this.pulse);
+            for (Neighbour neighbor : neighbors) {
+                LOGGER.info("Sending Heartbeat Message:" + neighbor.getNode().getIp());
+                this.requestHandler.sendMessage(neighbor.getNode().getIp(), neighbor.getNode().getPort(), this.pulse);
             }
             Thread.sleep(SLEEP_TIME);
         } catch (InterruptedException e) {

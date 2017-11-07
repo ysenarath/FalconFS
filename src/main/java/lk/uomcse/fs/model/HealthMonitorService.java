@@ -1,7 +1,6 @@
 package lk.uomcse.fs.model;
 
-import lk.uomcse.fs.FalconFS;
-import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.entity.Neighbour;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class HealthMonitorService extends Thread {
     /**
      * Neighbors are the neighbor-nodes of the self-node.
      */
-    private List<Node> neighbors;
+    private List<Neighbour> neighbors;
 
     /**
      * Activation of the {@code HealthMonitorService}
@@ -34,7 +33,7 @@ public class HealthMonitorService extends Thread {
      *
      * @param neighbors
      */
-    public HealthMonitorService(List<Node> neighbors) {
+    public HealthMonitorService(List<Neighbour> neighbors) {
         this.neighbors = neighbors;
     }
 
@@ -42,8 +41,8 @@ public class HealthMonitorService extends Thread {
      * Measure the health of each neighbor
      */
     private void measureHealth() {
-        for (final ListIterator<Node> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
-            final Node neighbor = iterator.next();
+        for (final ListIterator<Neighbour> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
+            final Neighbour neighbor = iterator.next();
             neighbor.setHealth(neighbor.getPulseCount() * 10 / 5);
             LOGGER.debug(String.format("Neighbour %s health updated %d", neighbor.toString(), neighbor.getHealth()));
             iterator.set(neighbor);

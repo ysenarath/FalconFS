@@ -1,5 +1,6 @@
 package lk.uomcse.fs.view;
 
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.model.QueryService;
 
@@ -17,7 +18,7 @@ import java.util.ArrayList;
  */
 public class FrameView {
     // Models
-    private ArrayList<Node> neighbors;
+    private ArrayList<Neighbour> neighbors;
     private QueryService queryService;
     private ArrayList<String> filenames;
     private Node me;
@@ -60,7 +61,7 @@ public class FrameView {
      * @param queryService
      * @param filenames
      */
-    public FrameView(Node me, ArrayList<Node> neighbors, QueryService queryService, ArrayList<String> filenames) {
+    public FrameView(Node me, ArrayList<Neighbour> neighbors, QueryService queryService, ArrayList<String> filenames) {
         this.me = me;
         this.neighbors = neighbors;
         this.queryService = queryService;

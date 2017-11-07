@@ -1,5 +1,6 @@
 package lk.uomcse.fs.model;
 
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.messages.IRequest;
@@ -19,7 +20,7 @@ public class JoinService extends Thread {
 
     private final Node current;
 
-    private final List<Node> neighbours;
+    private final List<Neighbour> neighbours;
 
     private int joinRetries;
 
@@ -30,7 +31,7 @@ public class JoinService extends Thread {
      * @param current    Current node running this join service
      * @param neighbours reference to neighbours
      */
-    public JoinService(RequestHandler handler, Node current, List<Node> neighbours) {
+    public JoinService(RequestHandler handler, Node current, List<Neighbour> neighbours) {
         this.handler = handler;
         this.current = current;
         this.neighbours = neighbours;
@@ -55,7 +56,7 @@ public class JoinService extends Thread {
             synchronized (neighbours) {
                 // Do not add duplicates (behave like a set)
                 if (!neighbours.contains(n)) {
-                    neighbours.add(n);
+                    neighbours.add(new Neighbour(n));
                 }
             }
             LOGGER.info(String.format("Node(%s:%d) is joined to nodes: %s", current.getIp(), current.getPort(), neighbours.toString()));
@@ -68,12 +69,12 @@ public class JoinService extends Thread {
      * @param n a node to join
      * @return whether join request is success or not
      */
-    public boolean join(Node n) {
+    public boolean join(Neighbour n) {
         IRequest jr = new JoinRequest(current);
         JoinResponse reply = null;
         for (int i = 0; i < this.joinRetries; i++) {
-            LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getIp(), n.getPort(), jr.toString()));
-            handler.sendMessage(n.getIp(), n.getPort(), jr);
+            LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getNode().getIp(), n.getNode().getPort(), jr.toString()));
+            handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), jr);
             LOGGER.debug("Waiting for receive message.");
             try {
                 reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 5);

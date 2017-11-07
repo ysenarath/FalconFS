@@ -1,6 +1,7 @@
 package lk.uomcse.fs;
 
 import lk.uomcse.fs.entity.BootstrapServer;
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.utils.FrameUtils;
@@ -29,7 +30,7 @@ public class FalconFS {
 
     private List<String> filenames;
 
-    private List<Node> neighbours;
+    private List<Neighbour> neighbours;
 
     private RequestHandler handler;
 

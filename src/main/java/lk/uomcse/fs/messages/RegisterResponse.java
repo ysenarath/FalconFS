@@ -1,5 +1,6 @@
 package lk.uomcse.fs.messages;
 
+import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
@@ -12,7 +13,7 @@ public class RegisterResponse extends Message implements IResponse {
 
     private int nodeCount;
 
-    private List<Node> nodes;
+    private List<Neighbour> nodes;
 
     /**
      * Creates a Register response
@@ -20,7 +21,7 @@ public class RegisterResponse extends Message implements IResponse {
      * @param nodeCount number of nodes
      * @param nodes     list of nodes
      */
-    private RegisterResponse(int nodeCount, List<Node> nodes) {
+    private RegisterResponse(int nodeCount, List<Neighbour> nodes) {
         this.nodeCount = nodeCount;
         this.nodes = nodes;
     }
@@ -39,7 +40,7 @@ public class RegisterResponse extends Message implements IResponse {
      *
      * @return list of nodes
      */
-    public List<Node> getNodes() {
+    public List<Neighbour> getNodes() {
         return nodes;
     }
 
@@ -71,12 +72,12 @@ public class RegisterResponse extends Message implements IResponse {
         if (n > 9995) {
             return new RegisterResponse(n, null);
         }
-        List<Node> lst = new ArrayList<>();
+        List<Neighbour> lst = new ArrayList<>();
         for (int i = 3; i < 3 + n * 2; i += 2) {
             String ip = response[i];
             int port = Integer.parseInt(response[i + 1]);
-            Node node = new Node(ip, port);
-            lst.add(node);
+            Neighbour neighbour = new Neighbour(ip, port);
+            lst.add(neighbour);
         }
         return new RegisterResponse(n, lst);
     }
