@@ -1,6 +1,5 @@
 package lk.uomcse.fs.com;
 
-import com.google.common.collect.Queues;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.*;
 
@@ -34,8 +33,9 @@ public class UDPReceiver extends Receiver {
             try {
                 socket.receive(packet);
                 long receivedTime = System.currentTimeMillis();
-                String ip = ((InetSocketAddress) packet.getSocketAddress()).getHostName();
-                int port = ((InetSocketAddress) packet.getSocketAddress()).getPort();
+                InetSocketAddress socketAddress = (InetSocketAddress) packet.getSocketAddress();
+                String ip = socketAddress.getAddress().getHostAddress();
+                int port = socketAddress.getPort();
                 Node sender = new Node(ip, port);
                 IMessage p = parseMessage(packet);
                 if (p == null) {
