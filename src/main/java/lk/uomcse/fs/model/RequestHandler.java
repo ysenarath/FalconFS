@@ -112,7 +112,7 @@ public class RequestHandler extends Thread {
      * Gets reply for reply ID if exists or waits until there is a reply
      *
      * @param id reply id (see protocol specs)
-     * @return reply as String
+     * @return reply as IMessage
      */
     public IMessage receiveMessage(String id, int timeout) throws TimeoutException {
         handle.putIfAbsent(id, new LinkedBlockingQueue<>());
