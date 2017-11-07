@@ -9,6 +9,7 @@ import lk.uomcse.fs.messages.JoinResponse;
 import org.apache.log4j.Logger;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 public class JoinService extends Thread {
@@ -46,19 +47,15 @@ public class JoinService extends Thread {
         running = true;
         LOGGER.trace(String.format("Starting join service for node at (%s:%d).", current.getIp(), current.getPort()));
         while (running) {
+            // Get request
             JoinRequest request = (JoinRequest) this.handler.receiveMessage(JoinRequest.ID);
+            // Send reply
             IMessage reply = new JoinResponse(true);
             LOGGER.info(String.format("Replying to join request: %s", reply.toString()));
-            // Request handling section
             this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), reply);
+            // Add joined neighbours
             Neighbour n = new Neighbour(request.getNode());
-            synchronized (neighbours) {
-                // Do not add duplicates (behave like a set)
-                if (!neighbours.contains(n)) {
-                    neighbours.add(n);
-                }
-            }
-            LOGGER.info(String.format("Node(%s:%d) is joined to nodes: %s", current.getIp(), current.getPort(), neighbours.toString()));
+            onNeighbourJoin(n);
         }
     }
 
@@ -77,7 +74,7 @@ public class JoinService extends Thread {
             handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), jr);
             LOGGER.debug("Waiting for receive message.");
             try {
-                reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 1);
+                reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 3);
                 break;
             } catch (TimeoutException e) {
                 retries++;
@@ -93,12 +90,25 @@ public class JoinService extends Thread {
         LOGGER.info(String.format("Replied to join request: %s", reply.toString()));
         // Add neighbours if success or not.
         // Not success implies it has already registered that node
+        onNeighbourJoin(n);
+        return reply.isSuccess();
+    }
+
+    /**
+     * onNeighbourJoin update/ add neighbour objects in this node
+     *
+     * @param n a neighbour
+     */
+    private void onNeighbourJoin(Neighbour n) {
         synchronized (neighbours) {
             // Do not add duplicates (behave like a set)
-            if (!neighbours.contains(n))
+            Optional<Neighbour> neighbour = neighbours.stream().filter(t -> t.equals(n)).findAny();
+            if (neighbour.isPresent())
+                neighbour.get().setLeft(false);
+            else
                 neighbours.add(n);
+            LOGGER.info(String.format("Joined to nodes: %s", neighbours.toString()));
         }
-        return reply.isSuccess();
     }
 
     /**
