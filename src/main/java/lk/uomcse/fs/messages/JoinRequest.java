@@ -1,13 +1,20 @@
 package lk.uomcse.fs.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length JOIN IP_address port_no
+@JsonIgnoreProperties(value = { "sender", "receivedTime" }, ignoreUnknown = true)
 public class JoinRequest extends Message implements IRequest {
     public static final String ID = "JOIN";
 
     private Node node;
+
+    /**
+     * Used by Jakson
+     */
+    public JoinRequest(){}
 
     public JoinRequest(Node node) {
         this.node = node;
@@ -64,4 +71,10 @@ public class JoinRequest extends Message implements IRequest {
     public String getID() {
         return ID;
     }
+
+    public void setNode(Node node) {
+        this.node = node;
+    }
+
+
 }
