@@ -13,7 +13,7 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
     private Integer health;
 
     // After graceful leave this is true
-    private boolean hasLeft;
+    private boolean left;
 
     /**
      * BeatCount of a node.
@@ -22,7 +22,7 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
 
     public Neighbour(Node node) {
         this.node = node;
-        this.hasLeft = false;
+        this.left = false;
         this.health = 0;
         this.pulseResponses = new ArrayList<>();
     }
@@ -117,11 +117,11 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
      *
      * @return
      */
-    public boolean isHasLeft() {
-        return hasLeft;
+    public boolean isLeft() {
+        return left;
     }
 
-    public void setHasLeft(boolean hasLeft) {
-        this.hasLeft = hasLeft;
+    public void setLeft(boolean left) {
+        this.left = left;
     }
 }

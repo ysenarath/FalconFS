@@ -46,7 +46,7 @@ public class LeaveService extends Thread {
             Optional<Neighbour> optionalNode = neighbours.stream().filter(node -> node.getNode().equals(request.getNode())).findAny();
             if (optionalNode.isPresent()) {
                 Neighbour n = optionalNode.get();
-                n.setHasLeft(true);
+                n.setLeft(true);
                 LeaveResponse response = new LeaveResponse(true);
                 handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), response);
             } else {
@@ -75,7 +75,7 @@ public class LeaveService extends Thread {
                     retry++;
                 }
             }
-            node.setHasLeft(true);
+            node.setLeft(true);
         });
         // Assuming that all the nodes has received/ has already left the system
     }
