@@ -4,7 +4,7 @@ import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length JOIN IP_address port_no
-public class JoinRequest implements IRequest {
+public class JoinRequest extends Message implements IRequest {
     public static final String ID = "JOIN";
 
     private Node node;
@@ -27,6 +27,12 @@ public class JoinRequest implements IRequest {
         return sb.toString();
     }
 
+    /**
+     * Parses the join request
+     *
+     * @param msg message type
+     * @return Join request message
+     */
     public static JoinRequest parse(String msg) {
         if (msg == null)
             throw new NullPointerException();
@@ -40,7 +46,22 @@ public class JoinRequest implements IRequest {
         return new JoinRequest(new Node(ip, port));
     }
 
+    /**
+     * Returns Node one should join with
+     *
+     * @return node
+     */
     public Node getNode() {
         return node;
+    }
+
+    /**
+     * Returns ID
+     *
+     * @return ID of this message type
+     */
+    @Override
+    public String getID() {
+        return ID;
     }
 }

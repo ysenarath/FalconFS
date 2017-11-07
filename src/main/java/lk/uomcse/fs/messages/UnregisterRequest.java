@@ -3,7 +3,9 @@ package lk.uomcse.fs.messages;
 import lk.uomcse.fs.entity.Node;
 
 // length UNREG IP_address port_no username
-public class UnregisterRequest implements IRequest {
+public class UnregisterRequest extends Message implements IRequest {
+    private static final String ID = "UNREG";
+
     private String name;
 
     private Node node;
@@ -25,5 +27,15 @@ public class UnregisterRequest implements IRequest {
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();
+    }
+
+    /**
+     * Returns ID
+     *
+     * @return ID of this message type
+     */
+    @Override
+    public String getID() {
+        return ID;
     }
 }

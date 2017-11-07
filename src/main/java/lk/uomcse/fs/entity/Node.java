@@ -65,12 +65,12 @@ public class Node implements Comparator<Node>, Comparable<Node> {
         long currentTime = System.currentTimeMillis() - 5000;
         int size = pulseResponses.size();
         int count = 0;
-        for(int i = size - 1; i >= 0 ; i--) {
-            if(pulseResponses.get(i) > currentTime) {
+        for (int i = size - 1; i >= 0; i--) {
+            if (pulseResponses.get(i) > currentTime) {
                 count++;
             }
         }
-        if(count != size) {
+        if (count != size) {
             pulseResponses = new ArrayList<Long>(pulseResponses.subList(count, size));
         }
         return count;

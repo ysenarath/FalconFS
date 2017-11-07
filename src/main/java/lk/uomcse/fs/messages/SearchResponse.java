@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 // length SEROK qid no_files IP port hops filename1 filename2 ... ...
-public class SearchResponse implements IResponse {
+public class SearchResponse extends Message implements IResponse {
     public static final String ID = "SEROK";
 
     private String queryID;
@@ -126,5 +126,15 @@ public class SearchResponse implements IResponse {
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();
+    }
+
+    /**
+     * Returns ID
+     *
+     * @return ID of this message type
+     */
+    @Override
+    public String getID() {
+        return ID;
     }
 }
