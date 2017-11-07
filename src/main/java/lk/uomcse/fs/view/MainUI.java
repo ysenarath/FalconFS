@@ -45,12 +45,6 @@ public class MainUI {
     private JLabel lblPort;
     private MainController controller;
 
-    // Models
-    private java.util.List<Neighbour> neighbors;
-    private QueryService queryService;
-    private java.util.List<String> filenames;
-    private Node me;
-
     public MainUI() {
     }
 
@@ -190,7 +184,7 @@ public class MainUI {
     }
 
     private void setupSelfNodeInfo() {
-        this.lblName.setText("Name: " + controller.getSelf().toString());
+        this.lblName.setText("Name: " + controller.getName());
         this.lblIP.setText("IP: " + controller.getSelf().getIp());
         this.lblPort.setText("Port: " + Integer.toString(controller.getSelf().getPort()));
     }

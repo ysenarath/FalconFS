@@ -132,4 +132,8 @@ public class FalconFS {
     public Node getSelf() {
         return self;
     }
+
+    public String getName() {
+        return name;
+    }
 }

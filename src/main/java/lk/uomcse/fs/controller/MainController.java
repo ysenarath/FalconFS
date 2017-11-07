@@ -49,4 +49,8 @@ public class MainController {
     public void stop() {
         model.stop();
     }
+
+    public String getName() {
+        return model.getName();
+    }
 }
