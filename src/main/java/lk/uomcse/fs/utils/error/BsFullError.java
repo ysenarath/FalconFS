@@ -9,7 +9,7 @@ public class BsFullError extends Error {
 
     private final static Logger LOGGER = Logger.getLogger(AlreadyRegisteredError.class.getName());
 
-    private BsFullError(Builder builder){
+    private BsFullError(Builder builder) {
         this.ErrorCode = builder.errorCode;
         this.ErrorMessage = builder.error;
     }
@@ -20,21 +20,31 @@ public class BsFullError extends Error {
         LOGGER.error(getErrorMessage());
     }
 
-    public int getErrorCode(){
+    public int getErrorCode() {
         return this.ErrorCode;
     }
 
-    public String getErrorMessage(){
+    public String getErrorMessage() {
         return this.ErrorMessage;
     }
 
+    /**
+     * Returns the detail message string of this throwable.
+     *
+     * @return the detail message string of this {@code Throwable} instance
+     * (which may be {@code null}).
+     */
+    @Override
+    public String getMessage() {
+        return getErrorMessage();
+    }
 
-    public static class Builder{
+    public static class Builder {
 
         private int errorCode;
         private String error;
 
-        public Builder(int errorCode){
+        public Builder(int errorCode) {
             this.errorCode = errorCode;
         }
 
@@ -43,7 +53,7 @@ public class BsFullError extends Error {
             return this;
         }
 
-        public BsFullError build(){
+        public BsFullError build() {
             return new BsFullError(this);
         }
     }

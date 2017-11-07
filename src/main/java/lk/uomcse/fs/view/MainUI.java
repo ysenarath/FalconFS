@@ -60,6 +60,7 @@ public class MainUI {
 
     private void initializeFrame() {
         frame.setContentPane(this.mainPanel);
+        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
@@ -145,6 +146,13 @@ public class MainUI {
     }
 
     private void setupSearchComponents() {
+        this.txtSearch.addActionListener(e -> {
+            if (txtSearch.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Search string is empty!", "FalconFS", JOptionPane.ERROR_MESSAGE);
+            } else {
+                controller.getQueryService().search(this.txtSearch.getText());
+            }
+        });
         this.btnSearch.addActionListener(e -> {
             if (txtSearch.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Search string is empty!", "FalconFS", JOptionPane.ERROR_MESSAGE);
@@ -156,12 +164,14 @@ public class MainUI {
 
         this.btnClear.addActionListener(e -> {
             this.txtSearch.setText("");
+            this.controller.getQueryService().clear();
         });
     }
 
     private void setupConsoleComponent() {
         txtConsole.setBackground(Color.BLACK);
         txtConsole.setForeground(Color.GREEN);
+        txtConsole.setEditable(false);
         Logger.getRootLogger().addAppender(new AppenderSkeleton() {
             @Override
             protected void append(LoggingEvent loggingEvent) {

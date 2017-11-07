@@ -28,6 +28,7 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
     }
 
     public int getHealth() {
+        if (left) return 0;
         return health;
     }
 
