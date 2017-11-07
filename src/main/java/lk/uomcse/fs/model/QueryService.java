@@ -117,7 +117,7 @@ public class QueryService {
      *
      * @param query query
      */
-    public void search(String query) {
+    public synchronized void search(String query) {
         results.clear();
         currentQuery = query;
         currentQueryID += 1;
@@ -289,5 +289,14 @@ public class QueryService {
         this.running = running;
         this.handleQueriesThread.interrupt();
         this.handleRepliesThread.interrupt();
+    }
+
+    /**
+     * Clears the results list
+     */
+    public synchronized void clear() {
+        this.results.clear();
+        this.currentQuery = "";
+        this.currentQueryID ++;
     }
 }
