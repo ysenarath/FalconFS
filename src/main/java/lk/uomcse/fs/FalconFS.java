@@ -42,17 +42,13 @@ public class FalconFS {
     /**
      * Imports file system requirements
      */
-    public FalconFS(Configuration model) {
+    public FalconFS(Configuration model) throws InstantiationException {
         this.name = model.getName();
         this.self = new Node(model.getAddress(), model.getPort());
 
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
-        try {
-            this.handler = new RequestHandler(model.getPort(), RequestHandler.CONNECTION_UDP);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }
+        this.handler = new RequestHandler(model.getPort(), RequestHandler.CONNECTION_UDP);
         // Services
         this.leaveService = new LeaveService(handler, self, neighbours);
         this.joinService = new JoinService(handler, self, neighbours);
@@ -84,16 +80,15 @@ public class FalconFS {
             // 5. start query service
             queryService.start();
         } catch (BootstrapException e) {
-            LOGGER.error(e.getMessage());
             handler.setRunning(false);
-            throw new BootstrapException(e.getMessage());
+            throw e;
         }
     }
 
     /**
      * Unregister from all nodes if possible (?)
      */
-    public void stop() {
+    public void stop() throws BootstrapException {
         this.bootstrapService.unregister();
     }
 

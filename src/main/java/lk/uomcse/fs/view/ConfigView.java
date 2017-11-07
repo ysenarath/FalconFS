@@ -129,7 +129,7 @@ public class ConfigView {
         bsAddressText.setText(value);
     }
 
-    public void close() {
-        frame.setVisible(false);
+    public void setVisible(boolean visible) {
+        this.frame.setVisible(visible);
     }
 }

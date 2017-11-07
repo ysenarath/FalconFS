@@ -19,7 +19,7 @@
                 <version>2.5.1</version>
                 <executions>
                     <execution>
-                        <id>copy-dependencies</id>
+                        <errorCode>copy-dependencies</errorCode>
                         <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>

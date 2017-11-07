@@ -8,10 +8,10 @@ import lk.uomcse.fs.messages.RegisterResponse;
 import lk.uomcse.fs.messages.UnregisterRequest;
 import lk.uomcse.fs.messages.UnregisterResponse;
 import lk.uomcse.fs.utils.TextFormatUtils;
-import lk.uomcse.fs.utils.error.BsFullError;
-import lk.uomcse.fs.utils.error.ErrorInCommand;
+import lk.uomcse.fs.utils.error.BootstrapError;
+import lk.uomcse.fs.utils.error.BootstrapFullError;
+import lk.uomcse.fs.utils.error.CommandError;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
-import lk.uomcse.fs.utils.exceptions.RequestFailedException;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -73,11 +73,11 @@ public class BootstrapService {
                     retries++;
                 } else {
                     LOGGER.error("Failed the attempt to register. Unable to receive message from bootstrap.");
-                    throw new BootstrapException("Failed the attempt to register. Unable to receive message from bootstrap.");
+                    throw new BootstrapException(0, "Failed the attempt to register. Unable to receive message from bootstrap.");
                 }
             }
         LOGGER.info(String.format("Bootstrap server replied: %s", response.toString()));
-        Error err;
+        BootstrapError err;
         if (response.isSuccess()) {
             // TODO: Select random 2 and return
             return response.getNodes().stream().map(Neighbour::new).collect(Collectors.toList());
@@ -85,20 +85,20 @@ public class BootstrapService {
             switch (response.getNodeCount()) {
                 case (9998):
                     boolean status = this.unregister();
-                    if (!status) throw new BootstrapException("Un-registration failed. Unable to bootstrap.");
+                    if (!status) throw new BootstrapException(9998, "Un-registration failed. Unable to bootstrap.");
                     return this.register();
                 case (9999):
-                    err = new ErrorInCommand.Builder(9999)
+                    err = new CommandError.Builder(9999)
                             .setError("Failed, there is some error in the command")
                             .build();
                     break;
                 case (9997):
-                    err = new BsFullError.Builder(9997)
+                    err = new BootstrapFullError.Builder(9997)
                             .setError("Failed, registered to another user, try a different IP and port")
                             .build();
                     break;
                 case (9996):
-                    err = new BsFullError.Builder(9996)
+                    err = new BootstrapFullError.Builder(9996)
                             .setError("Failed, can’t register. BS full.")
                             .build();
                     break;
@@ -106,7 +106,7 @@ public class BootstrapService {
                     throw new UnknownError("Unknown error code received from bootstrap server.");
             }
         }
-        throw new BootstrapException(err.getMessage());
+        throw new BootstrapException(err.getErrorCode(), err.getErrorMessage());
     }
 
     /**
@@ -134,14 +134,14 @@ public class BootstrapService {
                 LOGGER.error("Failed the " + count + " attempt to unregister");
             }
         }
-        throw new BootstrapException("Failed to unregister node. No response received from bootstrap server.");
+        throw new BootstrapException(0, "Failed to unregister node. No response received from bootstrap server.");
     }
 
 
     /**
      * Connects with bootstrap server and joins to nodes provided
      */
-    public void bootstrap() {
+    public void bootstrap() throws BootstrapException {
         try {
             List<Neighbour> nodes = this.register();
             nodes.forEach(joinService::join);
@@ -152,8 +152,8 @@ public class BootstrapService {
                 else
                     LOGGER.error(String.format("Failed join to neighbour: %s", n.toString()));
             }
-        } catch (RequestFailedException | BootstrapException ex) {
-            throw new BootstrapException(ex.getMessage());
+        } catch (BootstrapException ex) {
+            throw new BootstrapException(ex.getErrorCode(), ex.getMessage());
         }
     }
 }

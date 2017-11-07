@@ -6,6 +6,7 @@ import lk.uomcse.fs.utils.DatagramSocketUtils;
 import org.apache.log4j.Logger;
 
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.concurrent.*;
 
 public class RequestHandler extends Thread {
@@ -33,14 +34,17 @@ public class RequestHandler extends Thread {
      */
     public RequestHandler(int port, String connectionType) throws InstantiationException {
         if (CONNECTION_UDP.equals(connectionType)) {
-            socket = DatagramSocketUtils.getSocket(port);
+            try {
+                socket = DatagramSocketUtils.getSocket(port);
+            } catch (SocketException e) {
+                throw new InstantiationException("Unable to create the socket. Try changing the IP:Port.");
+            }
             this.receiver = new UDPReceiver(socket);
             this.sender = new UDPSender(socket);
         } else if (CONNECTION_REST.equals(connectionType)) {
             this.receiver = new RestReceiver();
             this.sender = new RestSender();
         } else {
-//            TODO handle errors
             throw new InstantiationException(String.format("Provide connection type either %s or %s",
                     CONNECTION_REST, CONNECTION_UDP));
         }
