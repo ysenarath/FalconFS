@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.util.concurrent.BlockingQueue;
 
 public class UDPReceiver extends Receiver {
     private DatagramSocket socket;
@@ -40,10 +39,8 @@ public class UDPReceiver extends Receiver {
                 Node sender = new Node(ip, port);
                 IMessage p = parseMessage(packet);
                 if (p == null) {
-                    System.err.println("Null message :(");
                     continue;
                 }
-                System.out.println(p.toString());
                 p.setSender(sender);
                 p.setReceivedTime(receivedTime);
                 messages.offer(p);

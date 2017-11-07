@@ -9,10 +9,13 @@ import lk.uomcse.fs.messages.JoinResponse;
 import org.apache.log4j.Logger;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 
 public class JoinService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(JoinService.class.getName());
+
+    private static final int MAX_RETRIES = 3;
 
     private boolean running;
 
@@ -21,8 +24,6 @@ public class JoinService extends Thread {
     private final Node current;
 
     private final List<Neighbour> neighbours;
-
-    private int joinRetries;
 
     /**
      * Allocates Join service object.
@@ -35,7 +36,6 @@ public class JoinService extends Thread {
         this.handler = handler;
         this.current = current;
         this.neighbours = neighbours;
-        this.joinRetries = 3;
     }
 
     /**
@@ -47,19 +47,15 @@ public class JoinService extends Thread {
         running = true;
         LOGGER.trace(String.format("Starting join service for node at (%s:%d).", current.getIp(), current.getPort()));
         while (running) {
+            // Get request
             JoinRequest request = (JoinRequest) this.handler.receiveMessage(JoinRequest.ID);
+            // Send reply
             IMessage reply = new JoinResponse(true);
             LOGGER.info(String.format("Replying to join request: %s", reply.toString()));
-            // Request handling section
             this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), reply);
-            Node n = request.getNode();
-            synchronized (neighbours) {
-                // Do not add duplicates (behave like a set)
-                if (!neighbours.contains(n)) {
-                    neighbours.add(new Neighbour(n));
-                }
-            }
-            LOGGER.info(String.format("Node(%s:%d) is joined to nodes: %s", current.getIp(), current.getPort(), neighbours.toString()));
+            // Add joined neighbours
+            Neighbour n = new Neighbour(request.getNode());
+            onNeighbourJoin(n);
         }
     }
 
@@ -72,17 +68,19 @@ public class JoinService extends Thread {
     public boolean join(Neighbour n) {
         IRequest jr = new JoinRequest(current);
         JoinResponse reply = null;
-        for (int i = 0; i < this.joinRetries; i++) {
+        int retries = 0;
+        while (retries < MAX_RETRIES) {
             LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getNode().getIp(), n.getNode().getPort(), jr.toString()));
             handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), jr);
             LOGGER.debug("Waiting for receive message.");
             try {
-                reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 5);
+                reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 3);
                 break;
             } catch (TimeoutException e) {
-                if (i == this.joinRetries - 1) {
+                retries++;
+                if (retries == MAX_RETRIES) {
                     LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [CANCEL_JOIN]", n.toString()));
-                    LOGGER.info(String.format("Join request failed after attempting %d times", this.joinRetries));
+                    LOGGER.info(String.format("Join request failed after attempting %d times", retries));
                     return false;
                 } else
                     LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [RETRYING]", n.toString()));
@@ -92,12 +90,25 @@ public class JoinService extends Thread {
         LOGGER.info(String.format("Replied to join request: %s", reply.toString()));
         // Add neighbours if success or not.
         // Not success implies it has already registered that node
+        onNeighbourJoin(n);
+        return reply.isSuccess();
+    }
+
+    /**
+     * onNeighbourJoin update/ add neighbour objects in this node
+     *
+     * @param n a neighbour
+     */
+    private void onNeighbourJoin(Neighbour n) {
         synchronized (neighbours) {
             // Do not add duplicates (behave like a set)
-            if (!neighbours.contains(n))
+            Optional<Neighbour> neighbour = neighbours.stream().filter(t -> t.equals(n)).findAny();
+            if (neighbour.isPresent())
+                neighbour.get().setLeft(false);
+            else
                 neighbours.add(n);
+            LOGGER.info(String.format("Joined to nodes: %s", neighbours.toString()));
         }
-        return reply.isSuccess();
     }
 
     /**

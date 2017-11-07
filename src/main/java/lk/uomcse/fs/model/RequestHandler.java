@@ -94,14 +94,16 @@ public class RequestHandler extends Thread {
     public IMessage receiveMessage(String id) {
         handle.putIfAbsent(id, new LinkedBlockingQueue<>());
         BlockingQueue<IMessage> messages = handle.get(id);
-        IMessage message;
-        try {
-            LOGGER.debug(String.format("Waiting for message with ID: %s", id));
-            message = messages.take();
-            LOGGER.debug(String.format("Message with ID obtained: %s", id));
-        } catch (InterruptedException e) {
-            // TODO: change following exception
-            throw new RuntimeException("Interrupted from getting a reply.");
+        IMessage message = null;
+        while (running) {
+            try {
+                LOGGER.debug(String.format("Waiting for message with ID: %s", id));
+                message = messages.take();
+                LOGGER.debug(String.format("Message with ID obtained: %s", id));
+                break;
+            } catch (InterruptedException e) {
+                LOGGER.debug("Interrupted from getting a reply. Retrying...");
+            }
         }
         return message;
     }
@@ -110,22 +112,24 @@ public class RequestHandler extends Thread {
      * Gets reply for reply ID if exists or waits until there is a reply
      *
      * @param id reply id (see protocol specs)
-     * @return reply as String
+     * @return reply as IMessage
      */
     public IMessage receiveMessage(String id, int timeout) throws TimeoutException {
         handle.putIfAbsent(id, new LinkedBlockingQueue<>());
         BlockingQueue<IMessage> messages = handle.get(id);
-        IMessage message;
-        try {
-            LOGGER.debug(String.format("Waiting for message with ID: %s", id));
-            message = messages.poll(timeout, TimeUnit.SECONDS);
-            if (message == null) {
-                throw new TimeoutException("Message with given id not received.");
+        IMessage message = null;
+        while (running) {
+            try {
+                LOGGER.debug(String.format("Waiting for message with ID: %s", id));
+                message = messages.poll(timeout, TimeUnit.SECONDS);
+                if (message == null) {
+                    throw new TimeoutException("Message with given id not received.");
+                }
+                LOGGER.debug(String.format("Message with ID obtained: %s", id));
+                break;
+            } catch (InterruptedException e) {
+                LOGGER.debug("Interrupted from getting a reply. Retrying...");
             }
-            LOGGER.debug(String.format("Message with ID obtained: %s", id));
-        } catch (InterruptedException e) {
-            // TODO: change following exception
-            throw new RuntimeException("Interrupted from getting a reply.");
         }
         return message;
     }

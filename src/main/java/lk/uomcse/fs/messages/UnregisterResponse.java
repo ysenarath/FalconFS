@@ -55,4 +55,14 @@ public class UnregisterResponse extends Message implements IResponse {
     public String getID() {
         return ID;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(" ");
+        sb.append(ID).append(" ")
+                .append(this.success ? 0 : 9999);
+        String length = String.format("%04d", sb.length() + 4);
+        sb.insert(0, length);
+        return sb.toString();
+    }
 }

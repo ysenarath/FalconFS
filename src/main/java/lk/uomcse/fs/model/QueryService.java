@@ -101,6 +101,8 @@ public class QueryService {
     private void runHandleReplies() {
         while (running) {
             SearchResponse response = (SearchResponse) this.handler.receiveMessage(SearchResponse.ID);
+            if (response == null)
+                continue;
             if (Integer.parseInt(response.getQueryID()) == currentQueryID) {
                 this.updateResults(response.getNode(), response.getFilenames());
                 LOGGER.info(String.format("Response received matching current query: %s", response.toString()));
@@ -131,6 +133,8 @@ public class QueryService {
     private void runHandleQueries() {
         while (running) {
             SearchRequest request = (SearchRequest) this.handler.receiveMessage(SearchRequest.ID);
+            if (request == null)
+                continue;
             LOGGER.info(String.format("Request received %s", request.toString()));
             //check for already served queries
             if (!isNewQuery(request)) {

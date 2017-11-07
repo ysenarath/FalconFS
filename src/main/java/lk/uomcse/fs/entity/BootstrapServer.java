@@ -5,20 +5,28 @@ import org.apache.log4j.Logger;
 public class BootstrapServer {
     private final static Logger LOGGER = Logger.getLogger(BootstrapServer.class.getName());
 
-    private final String host;
+    private String address;
 
-    private final int port;
+    private int port;
 
-    public BootstrapServer(String host, int port) {
-        this.host = host;
+    public BootstrapServer(String address, int port) {
+        this.address = address;
         this.port = port;
     }
 
-    public String getHost() {
-        return host;
+    public String getAddress() {
+        return address;
     }
 
     public int getPort() {
         return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }
