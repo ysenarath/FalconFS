@@ -32,6 +32,8 @@ public class NeighborTableModel extends DefaultTableModel {
                 return "Port";
             case 2:
                 return "Health";
+            case 3:
+                return "Health";
             default:
                 return "";
         }
@@ -45,6 +47,8 @@ public class NeighborTableModel extends DefaultTableModel {
             case 1:
                 return neighbors.get(row).getNode().getPort();
             case 2:
+                return neighbors.get(row).isLeft();
+            case 3:
                 return neighbors.get(row).getHealth();
             default:
                 return null;
@@ -53,7 +57,7 @@ public class NeighborTableModel extends DefaultTableModel {
 
     @Override
     public int getColumnCount() {
-        return 3;
+        return 4;
     }
 
     @Override

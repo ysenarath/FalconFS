@@ -40,9 +40,10 @@ public class LeaveService extends Thread {
     @Override
     public void run() {
         running = true;
-        LOGGER.trace(String.format("Starting leave service for node at (%s:%d).", self.getIp(), self.getPort()));
+        LOGGER.trace(String.format("Starting leave service for node at (%s:%d)", self.getIp(), self.getPort()));
         while (running) {
             LeaveRequest request = (LeaveRequest) this.handler.receiveMessage(LeaveRequest.ID);
+            LOGGER.info(String.format("Processing leave request by %s", request.getNode()));
             Optional<Neighbour> optionalNode = neighbours.stream().filter(node -> node.getNode().equals(request.getNode())).findAny();
             if (optionalNode.isPresent()) {
                 Neighbour n = optionalNode.get();
@@ -58,21 +59,27 @@ public class LeaveService extends Thread {
     }
 
     /**
-     * Sends leave requests to neighbours and remove them from routing table
+     * Sends leave requests to neighbours and remove them from routing table if they are alive
      */
     public void leave() {
         neighbours.forEach(neighbour -> {
-            LeaveRequest request = new LeaveRequest(self);
-            handler.sendMessage(neighbour.getNode().getIp(), neighbour.getNode().getPort(), request);
-            int retry = 0;
-            LeaveResponse response;
-            while (retry < MAX_RETRIES) {
-                try {
-                    response = (LeaveResponse) handler.receiveMessage(LeaveResponse.ID, 1);
-                    break;
-                } catch (TimeoutException e) {
-                    retry++;
+            LOGGER.info(String.format("Leaving neighbour %s", neighbour.getNode()));
+            if (neighbour.getHealth() > 0) {
+                LeaveRequest request = new LeaveRequest(self);
+                handler.sendMessage(neighbour.getNode().getIp(), neighbour.getNode().getPort(), request);
+                int retry = 0;
+                LeaveResponse response;
+                while (retry < MAX_RETRIES) {
+                    try {
+                        response = (LeaveResponse) handler.receiveMessage(LeaveResponse.ID, 1);
+                        break;
+                    } catch (TimeoutException e) {
+                        retry++;
+                    }
                 }
+                // TODO: LOG info
+            } else {
+                // TODO: LOG info
             }
             neighbour.setLeft(true);
         });

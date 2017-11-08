@@ -2,6 +2,7 @@ package lk.uomcse.fs.messages;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length LEAVE IP_address port_no
 @JsonIgnoreProperties(value = {"sender", "receivedTime"}, ignoreUnknown = true)
@@ -24,8 +25,23 @@ public class LeaveRequest extends Message implements IRequest {
         this.node = node;
     }
 
-    public static IMessage parse(String data) {
-        return null;
+    /**
+     * Parses leave response
+     *
+     * @param msg message to be parsed
+     * @return Message type
+     */
+    public static IMessage parse(String msg) {
+        if (msg == null)
+            throw new NullPointerException();
+        String[] response = msg.split(" ");
+        if (response.length != 4)
+            throw new InvalidFormatException("Parsing failed due to not having correct word length.");
+        if (!response[1].equals(ID))
+            throw new InvalidFormatException(String.format("Parsing failed due to not having message id: %s. (Received message ID: %s)", ID, response[1]));
+        String ip = response[2];
+        int port = Integer.parseInt(response[3]);
+        return new LeaveRequest(new Node(ip, port));
     }
 
     /**

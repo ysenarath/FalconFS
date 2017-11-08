@@ -107,6 +107,7 @@ public class MainUI {
 
         final NeighborTableModel neighborTableModel = new NeighborTableModel(controller.getNeighbours());
         tblNeighbors.setModel(neighborTableModel);
+        tblNeighbors.getColumnModel().getColumn(3).setCellRenderer(new ProgressCellRenderer());
 
         new Thread(() -> {
             boolean isActive = true;

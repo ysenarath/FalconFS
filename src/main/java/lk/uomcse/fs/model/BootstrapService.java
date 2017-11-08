@@ -126,7 +126,6 @@ public class BootstrapService {
                 this.handler.sendMessage(this.server.getAddress(), this.server.getPort(), msg);
                 response = (UnregisterResponse) this.handler.receiveMessage(UnregisterResponse.ID, 1);
                 LOGGER.info(String.format("Bootstrap Server replied: %s", response.toString()));
-                LOGGER.info("Leaving neighbours");
                 leaveService.leave();
                 return response.isSuccess();
             } catch (TimeoutException e) {
