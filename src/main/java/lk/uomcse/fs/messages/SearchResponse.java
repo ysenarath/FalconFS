@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 // length SEROK qid no_files IP port hops filename1 filename2 ... ...
-@JsonIgnoreProperties(value = {"sender", "receivedTime"}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"receivedTime"}, ignoreUnknown = true)
 public class SearchResponse extends Message implements IResponse {
     public static final String ID = "SEROK";
 

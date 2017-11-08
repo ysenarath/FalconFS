@@ -36,8 +36,6 @@ public class BootstrapService {
 
     private final Node self;
 
-    private RequestHandler.SenderType senderType;
-
 
     /**
      * Constructs bootstrap service providing register and unregister functions
@@ -53,7 +51,6 @@ public class BootstrapService {
         this.leaveService = leaveService;
         this.name = name;
         this.self = self;
-        this.senderType = RequestHandler.SenderType.UDP;
     }
 
     /**
@@ -68,7 +65,7 @@ public class BootstrapService {
         int retries = 0;
         while (true)
             try {
-                this.handler.sendMessage(this.server.getAddress(), this.server.getPort(), msg, senderType);
+                this.handler.sendMessage(this.server.getAddress(), this.server.getPort(), msg, true);
                 response = (RegisterResponse) this.handler.receiveMessage(RegisterResponse.ID, 1);
                 break;
             } catch (TimeoutException e) {
@@ -129,7 +126,7 @@ public class BootstrapService {
         while (count < MAX_RETRIES) {
             try {
                 // Method will wait for response
-                this.handler.sendMessage(this.server.getAddress(), this.server.getPort(), msg, senderType);
+                this.handler.sendMessage(this.server.getAddress(), this.server.getPort(), msg, true);
                 response = (UnregisterResponse) this.handler.receiveMessage(UnregisterResponse.ID, 1);
                 LOGGER.info(String.format("Bootstrap Server replied: %s", response.toString()));
                 if (leaveNodes)

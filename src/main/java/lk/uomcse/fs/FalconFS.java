@@ -4,6 +4,7 @@ import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.model.*;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
+import org.apache.catalina.LifecycleException;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -44,23 +45,30 @@ public class FalconFS {
     /**
      * Imports file system requirements
      */
-    public FalconFS(Configuration model) throws InstantiationException {
+    public FalconFS(Configuration model) throws InstantiationException, LifecycleException {
         //TODO sender type set this using GUI
         this.senderType = RequestHandler.SenderType.REST;
+        int udpPort = 11233;////////////////////////////
 
         this.name = model.getName();
         this.self = new Node(model.getAddress(), model.getPort());
 
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
-        this.handler = new RequestHandler(model.getPort());
+
+        if (RequestHandler.SenderType.REST.equals(senderType)){
+            this.handler = new RequestHandler(self,udpPort);
+        }else{
+            this.handler = new RequestHandler(self.getPort());
+        }
+
         // Services
-        this.leaveService = new LeaveService(handler, self, neighbours, senderType);
-        this.joinService = new JoinService(handler, self, neighbours, senderType);
+        this.leaveService = new LeaveService(handler, self, neighbours);
+        this.joinService = new JoinService(handler, self, neighbours);
         this.bootstrapService = new BootstrapService(handler, joinService, leaveService, model.getBootstrapServer(), name, self);
-        this.queryService = new QueryService(handler, self, filenames, neighbours, senderType);
+        this.queryService = new QueryService(handler, self, filenames, neighbours);
         // Heartbeat services
-        this.heartbeatService = new HeartbeatService(handler, neighbours, senderType);
+        this.heartbeatService = new HeartbeatService(handler, neighbours);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
         this.healthMonitorService = new HealthMonitorService(neighbours, bootstrapService);
     }

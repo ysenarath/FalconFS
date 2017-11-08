@@ -9,7 +9,7 @@ import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
  * @author Dulanjaya
  * @since 10/23/2017
  */
-@JsonIgnoreProperties(value = {"sender", "receivedTime"}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"receivedTime"}, ignoreUnknown = true)
 public class HeartbeatPulse extends Message implements IMessage {
     public static final String ID = "HBPULSE";
 

@@ -5,7 +5,7 @@ import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length JOIN IP_address port_no
-@JsonIgnoreProperties(value = { "sender", "receivedTime" }, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"receivedTime" }, ignoreUnknown = true)
 public class JoinRequest extends Message implements IRequest {
     public static final String ID = "JOIN";
 

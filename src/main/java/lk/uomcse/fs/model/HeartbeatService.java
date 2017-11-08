@@ -50,7 +50,6 @@ public class HeartbeatService extends Thread {
      */
     private HeartbeatPulse pulse;
 
-    private RequestHandler.SenderType senderType;
 
     /**
      * Initializes a new {@code HeartBeat} object.
@@ -59,12 +58,11 @@ public class HeartbeatService extends Thread {
      * @param requestHandler requestHandler of the Self-Node
      * @param neighbors      Neighbors list of the Self-Node
      */
-    public HeartbeatService(RequestHandler requestHandler, List<Neighbour> neighbors, RequestHandler.SenderType senderType) {
+    public HeartbeatService(RequestHandler requestHandler, List<Neighbour> neighbors) {
         this.requestHandler = requestHandler;
         this.neighbors = neighbors;
         this.pulse = new HeartbeatPulse();
         this.pulseBeating = true;
-        this.senderType = senderType;
     }
 
     /**
@@ -84,7 +82,7 @@ public class HeartbeatService extends Thread {
         try {
             for (Neighbour neighbor : neighbors) {
                 LOGGER.debug("Sending Heartbeat Message:" + neighbor.getNode().getIp());
-                this.requestHandler.sendMessage(neighbor.getNode().getIp(), neighbor.getNode().getPort(), this.pulse, senderType);
+                this.requestHandler.sendMessage(neighbor.getNode().getIp(), neighbor.getNode().getPort(), this.pulse, false);
             }
             Thread.sleep(SLEEP_TIME);
         } catch (InterruptedException e) {

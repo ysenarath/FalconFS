@@ -37,9 +37,6 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response joinRequest(JoinRequest joinRequest, @Context HttpServletRequest req) {
         collectInfo(joinRequest, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
-        BlockingQueue<IMessage> messages = handle.get(JoinRequest.ID);
-        messages.add(joinRequest);
         return Response.status(200).entity("join request received").build();
     }
 
@@ -48,9 +45,6 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response joinResponse(JoinResponse joinResponse, @Context HttpServletRequest req) {
         collectInfo(joinResponse, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
-        BlockingQueue<IMessage> messages = handle.get(JoinResponse.ID);
-        messages.add(joinResponse);
         return Response.status(200).entity("join response received").build();
     }
 
@@ -59,9 +53,6 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response searchRequest(SearchRequest searchRequest, @Context HttpServletRequest req) {
         collectInfo(searchRequest, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
-        BlockingQueue<IMessage> messages = handle.get(SearchRequest.ID);
-        messages.add(searchRequest);
         return Response.status(200).entity("search request received").build();
     }
 
@@ -73,14 +64,7 @@ public class RestService extends Receiver {
         SearchResponse searchResponse;
         try {
             searchResponse = ob.readValue(response, SearchResponse.class);
-            System.out.println(searchResponse.getFilenames());
-
             collectInfo(searchResponse, req);
-
-            handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
-            BlockingQueue<IMessage> messages = handle.get(SearchResponse.ID);
-            messages.add(searchResponse);
-
             return Response.status(200).entity("search response received").build();
 
         } catch (IOException e) {
@@ -95,9 +79,6 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response leaveRequest(LeaveRequest leaveRequest, @Context HttpServletRequest req) {
         collectInfo(leaveRequest, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
-        BlockingQueue<IMessage> messages = handle.get(LeaveRequest.ID);
-        messages.add(leaveRequest);
         return Response.status(200).entity("leave request received").build();
     }
 
@@ -107,9 +88,6 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response leaveResponse(LeaveResponse leaveResponse, @Context HttpServletRequest req) {
         collectInfo(leaveResponse, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
-        BlockingQueue<IMessage> messages = handle.get(LeaveResponse.ID);
-        messages.add(leaveResponse);
         return Response.status(200).entity("leave response received").build();
     }
 
@@ -118,16 +96,18 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response heartbeatPulse(HeartbeatPulse heartbeatPulse, @Context HttpServletRequest req) {
         collectInfo(heartbeatPulse, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
-        BlockingQueue<IMessage> messages = handle.get(HeartbeatPulse.ID);
-        messages.add(heartbeatPulse);
         return Response.status(200).entity("heartbeat pulse received").build();
     }
 
 
     private void collectInfo(IMessage message, HttpServletRequest req) {
         message.setReceivedTime(System.currentTimeMillis());
-        message.setSender(new Node(req.getRemoteAddr(), req.getRemotePort()));
+
+        handle.putIfAbsent(message.getID(), new LinkedBlockingQueue<>());
+        BlockingQueue<IMessage> messages = handle.get(message.getID());
+        messages.add(message);
+
+        System.out.println(message.getSender().toString());
         ObjectMapper ob = new ObjectMapper();
         try {
             System.out.println(ob.writeValueAsString(message));

@@ -25,8 +25,6 @@ public class JoinService extends Thread {
 
     private final List<Neighbour> neighbours;
 
-    private RequestHandler.SenderType senderType;
-
     /**
      * Allocates Join service object.
      *
@@ -34,11 +32,10 @@ public class JoinService extends Thread {
      * @param current    Current node running this join service
      * @param neighbours reference to neighbours
      */
-    public JoinService(RequestHandler handler, Node current, List<Neighbour> neighbours, RequestHandler.SenderType senderType) {
+    public JoinService(RequestHandler handler, Node current, List<Neighbour> neighbours) {
         this.handler = handler;
         this.current = current;
         this.neighbours = neighbours;
-        this.senderType = senderType;
     }
 
     /**
@@ -55,7 +52,7 @@ public class JoinService extends Thread {
             // Send reply
             IMessage reply = new JoinResponse(true);
             LOGGER.info(String.format("Replying to join request: %s", reply.toString()));
-            this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), reply, senderType);
+            this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), reply, false);
             // Add joined neighbours
             Neighbour n = new Neighbour(request.getNode());
             onNeighbourJoin(n);
@@ -74,7 +71,7 @@ public class JoinService extends Thread {
         int retries = 0;
         while (retries < MAX_RETRIES) {
             LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getNode().getIp(), n.getNode().getPort(), jr.toString()));
-            handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), jr, senderType);
+            handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), jr, false);
             LOGGER.debug("Waiting for receive message.");
             try {
                 reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 3);

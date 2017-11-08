@@ -1,5 +1,6 @@
 package lk.uomcse.fs.com;
 
+import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.IMessage;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -15,6 +16,7 @@ import org.glassfish.jersey.servlet.ServletProperties;
 import javax.servlet.Filter;
 import java.io.File;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 
@@ -24,20 +26,20 @@ public class RestReceiver extends Receiver {
 
     private Tomcat tomcat;
 
-    private int port;
+    private Node self;
 
 
-    public RestReceiver(int port) {
+    public RestReceiver(Node self) {
         this.tomcat = new Tomcat();
-        this.port = port;
+        this.self = self;
     }
 
     public void startWebServices(ConcurrentMap<String, BlockingQueue<IMessage>> handle) throws LifecycleException {
 
 //        TODO check if ip setting required
         //set host ip and port
-//        tomcat.setHostname(this.self.getIp());
-        tomcat.setPort(this.port);
+        tomcat.setHostname(this.self.getIp());
+        tomcat.setPort(this.self.getPort());
         LOGGER.info(String.format("Tomcat servers started using address %s:%d", tomcat.getHost().getName(), tomcat.getConnector().getPort()));
 
         File base = new File(".");

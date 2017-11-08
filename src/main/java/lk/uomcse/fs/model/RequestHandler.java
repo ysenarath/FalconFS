@@ -1,6 +1,7 @@
 package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.com.*;
+import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.utils.DatagramSocketUtils;
 import org.apache.catalina.LifecycleException;
@@ -20,41 +21,58 @@ public class RequestHandler extends Thread {
 
     private boolean running;
 
-    private final UDPSender udpSender;
+    private UDPSender udpSender;
 
-    private final UDPReceiver udpReceiver;
+    private UDPReceiver udpReceiver;
 
-    private final RestSender restSender;
+    private RestSender restSender;
 
-    private final RestReceiver restReceiver;
+    private RestReceiver restReceiver;
 
-    private final ConcurrentMap<String, BlockingQueue<IMessage>> handle;
+    private ConcurrentMap<String, BlockingQueue<IMessage>> handle;
+
+    private SenderType senderType;
 
     /**
      * Constructor {{{{@link lk.uomcse.fs.messages.RegisterResponse}}}}
+     * Used for webservice
      *
-     * @param port port of this node
+     * @param self self node
+     * @param port port for UPD connection
      */
-    public RequestHandler(int port) throws InstantiationException {
-
+    public RequestHandler(Node self, int port) throws InstantiationException, LifecycleException {
+        this.senderType = SenderType.REST;
         handle = new ConcurrentHashMap<>();
+        this.restReceiver = new RestReceiver(self);
+        this.restSender = new RestSender(self);
 
+        initHandler(port);
+
+        restReceiver.startWebServices(handle);
+
+    }
+
+    /**
+     * Constructor {{{{@link lk.uomcse.fs.messages.RegisterResponse}}}}
+     * Used for pure UDP connection
+     *
+     * @param port port for UPD connection
+     */
+    public RequestHandler(int port) throws InstantiationException, LifecycleException {
+        this.senderType = SenderType.UDP;
+        initHandler(port);
+    }
+
+    private void initHandler(int port) throws InstantiationException {
         try {
             socket = DatagramSocketUtils.getSocket(port);
         } catch (SocketException e) {
             throw new InstantiationException("Unable to create the socket. Try changing the IP:Port.");
         }
+
         this.udpReceiver = new UDPReceiver(socket);
         this.udpSender = new UDPSender(socket);
 
-        this.restReceiver = new RestReceiver(port);
-        this.restSender = new RestSender();
-
-        try {
-            restReceiver.startWebServices(handle);
-        } catch (LifecycleException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -79,9 +97,11 @@ public class RequestHandler extends Thread {
             }
         }
         LOGGER.trace("Finalizing request handler.");
-        this.restSender.setRunning(false);
-        this.udpReceiver.setRunning(false);
-        this.socket.close();
+        try {
+            stopServices(senderType);
+        } catch (LifecycleException e) {//TODO handle error
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -91,8 +111,8 @@ public class RequestHandler extends Thread {
      * @param port    port of the requested node
      * @param request request
      */
-    public void sendMessage(String ip, int port, IMessage request, SenderType senderType) {
-        if (SenderType.UDP.equals(senderType)) {
+    public void sendMessage(String ip, int port, IMessage request, boolean isBoostrap) {
+        if (SenderType.UDP.equals(senderType) || isBoostrap) {
             udpSender.send(ip, port, request);
         } else if (SenderType.REST.equals(senderType)) {
             restSender.send(ip, port, request);
@@ -169,5 +189,17 @@ public class RequestHandler extends Thread {
     public void setRunning(boolean running) {
         this.running = running;
         this.interrupt();
+    }
+
+    public void stopServices(SenderType senderType) throws LifecycleException {
+        if (SenderType.REST.equals(senderType)) {
+            restReceiver.stopWebService();
+            restSender.stopWebSender();
+        }
+
+        this.restSender.setRunning(false);
+        this.udpReceiver.setRunning(false);
+        this.socket.close();
+
     }
 }

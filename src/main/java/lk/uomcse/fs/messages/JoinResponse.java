@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length JOINOK value
-@JsonIgnoreProperties(value = {"sender", "receivedTime"}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"receivedTime"}, ignoreUnknown = true)
 public class JoinResponse extends Message implements IResponse {
     public static final String ID = "JOINOK";
 

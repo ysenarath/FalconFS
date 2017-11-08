@@ -5,7 +5,7 @@ import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length SER qid IP port file_name hops
-@JsonIgnoreProperties(value = { "sender", "receivedTime" }, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"receivedTime" }, ignoreUnknown = true)
 public class SearchRequest extends Message implements IRequest {
     public static final String ID = "SER";
 

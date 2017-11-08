@@ -6,6 +6,7 @@ import lk.uomcse.fs.utils.ListUtils;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.view.ConfigView;
 import lk.uomcse.fs.view.MainUI;
+import org.apache.catalina.LifecycleException;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -104,6 +105,8 @@ public class ConfigController {
                 JOptionPane.showMessageDialog(null, e.getMessage(), "Bootstrap Error", JOptionPane.ERROR_MESSAGE);
                 System.exit(0);
             }
+        } catch (LifecycleException e) { // TODO handle exception @yasas
+            e.printStackTrace();
         }
 
     }
