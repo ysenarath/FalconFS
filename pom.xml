@@ -19,7 +19,7 @@
                 <version>2.5.1</version>
                 <executions>
                     <execution>
-                        <errorCode>copy-dependencies</errorCode>
+                        <!--<errorCode>copy-dependencies</errorCode>-->
                         <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
@@ -87,11 +87,11 @@
 
         <!-- mvn install:install-file -Dfile=darcula.jar -DgroupId=com.github.bulenkov -DartifactId=darcula -Dversion=1.0 -Dpackaging=jar -->
         <!-- Darcula is in libs/ -->
-        <dependency>
-            <groupId>com.github.bulenkov</groupId>
-            <artifactId>darcula</artifactId>
-            <version>1.0</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.github.bulenkov</groupId>-->
+            <!--<artifactId>darcula</artifactId>-->
+            <!--<version>1.0</version>-->
+        <!--</dependency>-->
 
         <!--dependencies for webservices-->
         <dependency>
@@ -126,6 +126,11 @@
             <version>2.5</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>7.0.3</version>
+        </dependency>
     </dependencies>
 
     <properties>
