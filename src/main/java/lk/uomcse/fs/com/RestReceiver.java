@@ -16,7 +16,6 @@ import org.glassfish.jersey.servlet.ServletProperties;
 import javax.servlet.Filter;
 import java.io.File;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 
