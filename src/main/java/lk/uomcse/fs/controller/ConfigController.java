@@ -2,6 +2,7 @@ package lk.uomcse.fs.controller;
 
 import lk.uomcse.fs.FalconFS;
 import lk.uomcse.fs.model.Configuration;
+import lk.uomcse.fs.model.RequestHandler;
 import lk.uomcse.fs.utils.ListUtils;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.view.ConfigView;
@@ -84,6 +85,19 @@ public class ConfigController {
      */
     public void updateBootstrapServerPort(int port) {
         model.setBootstrapServerPort(port);
+    }
+
+
+    /**
+     * Updates sender type
+     *
+     * @param type update sender type to REST if this value is zero
+     */
+    public void updateSenderType(String type) {
+        if (type.toLowerCase().equals("rest"))
+            model.setSenderType(RequestHandler.SenderType.REST);
+        else
+            model.setSenderType(RequestHandler.SenderType.UDP);
     }
 
     /**

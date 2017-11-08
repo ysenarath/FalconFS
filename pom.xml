@@ -87,11 +87,11 @@
 
         <!-- mvn install:install-file -Dfile=darcula.jar -DgroupId=com.github.bulenkov -DartifactId=darcula -Dversion=1.0 -Dpackaging=jar -->
         <!-- Darcula is in libs/ -->
-        <dependency>
-            <groupId>com.github.bulenkov</groupId>
-            <artifactId>darcula</artifactId>
-            <version>1.0</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.github.bulenkov</groupId>-->
+            <!--<artifactId>darcula</artifactId>-->
+            <!--<version>1.0</version>-->
+        <!--</dependency>-->
 
         <!--dependencies for webservices-->
         <dependency>
@@ -120,7 +120,7 @@
             <version>${jersey.version}</version>
         </dependency>
 
-         <!--https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api-->
+        <!--https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -165,6 +165,11 @@
             <version>${tomcat.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>7.0.3</version>
+        </dependency>
     </dependencies>
 
     <properties>
