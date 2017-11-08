@@ -1,6 +1,9 @@
 package lk.uomcse.fs.model;
 
-import lk.uomcse.fs.com.*;
+import lk.uomcse.fs.com.RestReceiver;
+import lk.uomcse.fs.com.RestSender;
+import lk.uomcse.fs.com.UDPReceiver;
+import lk.uomcse.fs.com.UDPSender;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.utils.DatagramSocketUtils;
@@ -45,22 +48,20 @@ public class RequestHandler extends Thread {
         handle = new ConcurrentHashMap<>();
         this.restReceiver = new RestReceiver(self);
         this.restSender = new RestSender(self);
-
         initHandler(port);
-
         restReceiver.startWebServices(handle);
-
     }
 
     /**
      * Constructor {{{{@link lk.uomcse.fs.messages.RegisterResponse}}}}
      * Used for pure UDP connection
      *
-     * @param port port for UPD connection
+     * @param self self Node
      */
-    public RequestHandler(int port) throws InstantiationException, LifecycleException {
+    public RequestHandler(Node self) throws InstantiationException, LifecycleException {
         this.senderType = SenderType.UDP;
-        initHandler(port);
+        handle = new ConcurrentHashMap<>();
+        initHandler(self.getPort());
     }
 
     private void initHandler(int port) throws InstantiationException {
@@ -69,10 +70,8 @@ public class RequestHandler extends Thread {
         } catch (SocketException e) {
             throw new InstantiationException("Unable to create the socket. Try changing the IP:Port.");
         }
-
         this.udpReceiver = new UDPReceiver(socket);
         this.udpSender = new UDPSender(socket);
-
     }
 
     /**

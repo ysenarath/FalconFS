@@ -25,6 +25,7 @@ public class ConfigView {
     private JSpinner bsPortSpinner;
     private JPanel mainPanel;
     private JComboBox modeCombo;
+    private JSpinner bootstrapPortSpinner;
     private ConfigController controller;
 
     public ConfigView() {
@@ -69,6 +70,9 @@ public class ConfigView {
         modeCombo.removeAllItems();
         modeCombo.addItem("UDP");
         modeCombo.addItem("Rest");
+        modeCombo.setSelectedIndex(0);
+        bootstrapPortSpinner.setEnabled(false);
+        bootstrapPortSpinner.setValue(controller.getPort());
     }
 
     /**
@@ -108,11 +112,23 @@ public class ConfigView {
             }
         });
         selfAddressCombo.addActionListener(e -> controller.updateAddress((String) selfAddressCombo.getSelectedItem()));
-        selfPortSpinner.addChangeListener(e -> controller.updatePort((Integer) selfPortSpinner.getValue()));
+        selfPortSpinner.addChangeListener(e -> {
+            controller.updatePort((Integer) selfPortSpinner.getValue());
+            bootstrapPortSpinner.setValue(selfPortSpinner.getValue());
+        });
         bsPortSpinner.addChangeListener(e -> controller.updateBootstrapServerPort((Integer) bsPortSpinner.getValue()));
         connectButton.addActionListener(e -> controller.connect());
         saveButton.addActionListener(e -> controller.save());
-        modeCombo.addActionListener(e -> controller.updateSenderType((String) modeCombo.getSelectedItem()));
+        modeCombo.addActionListener(e -> {
+            String mode = (String) modeCombo.getSelectedItem();
+            controller.updateSenderType(mode);
+            if (mode != null && mode.toLowerCase().equals("rest")) {
+                bootstrapPortSpinner.setEnabled(true);
+            } else {
+                bootstrapPortSpinner.setEnabled(false);
+            }
+        });
+        bootstrapPortSpinner.addChangeListener(e -> controller.updateBootstrapPort((Integer) bootstrapPortSpinner.getValue()));
     }
 
     public void setController(ConfigController controller) {
@@ -134,6 +150,10 @@ public class ConfigView {
 
     public void setPort(int port) {
         selfPortSpinner.setValue(port);
+    }
+
+    public void setBootstrapPort(int port) {
+        bootstrapPortSpinner.setValue(port);
     }
 
     public void setBootstrapServerPort(int port) {

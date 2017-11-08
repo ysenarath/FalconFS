@@ -20,6 +20,7 @@ public class Configuration {
     private String configPath;
     private List<String> files;
     private RequestHandler.SenderType senderType;
+    private Integer bootstrapPort;
 
     public Configuration(String name, String address, int port, BootstrapServer bootstrapServer, String configPath, List<String> files) {
         this.name = name;
@@ -115,5 +116,13 @@ public class Configuration {
             }
 
         }
+    }
+
+    public Integer getBootstrapPort() {
+        return bootstrapPort;
+    }
+
+    public void setBootstrapPort(Integer bootstrapPort) {
+        this.bootstrapPort = bootstrapPort;
     }
 }

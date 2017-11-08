@@ -45,27 +45,22 @@ public class FalconFS {
     /**
      * Imports file system requirements
      */
-    public FalconFS(Configuration model) throws InstantiationException, LifecycleException {
-        //TODO sender type set this using GUI
-        this.senderType = RequestHandler.SenderType.REST;
-        int udpPort = 11233;////////////////////////////
-
-        this.name = model.getName();
-        this.self = new Node(model.getAddress(), model.getPort());
-
+    public FalconFS(Configuration configs) throws InstantiationException, LifecycleException {
+        this.name = configs.getName();
+        this.self = new Node(configs.getAddress(), configs.getPort());
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
-
-        if (RequestHandler.SenderType.REST.equals(senderType)){
-            this.handler = new RequestHandler(self,udpPort);
-        }else{
-            this.handler = new RequestHandler(self.getPort());
+        this.senderType = configs.getSenderType();
+        // Only needed if sender type is REST
+        if (senderType == RequestHandler.SenderType.REST) {
+            this.handler = new RequestHandler(self, configs.getBootstrapPort());
+        } else {
+            this.handler = new RequestHandler(self);
         }
-
         // Services
         this.leaveService = new LeaveService(handler, self, neighbours);
         this.joinService = new JoinService(handler, self, neighbours);
-        this.bootstrapService = new BootstrapService(handler, joinService, leaveService, model.getBootstrapServer(), name, self);
+        this.bootstrapService = new BootstrapService(handler, joinService, leaveService, configs.getBootstrapServer(), name, self);
         this.queryService = new QueryService(handler, self, filenames, neighbours);
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours);

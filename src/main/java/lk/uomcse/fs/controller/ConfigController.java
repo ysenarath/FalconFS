@@ -135,4 +135,12 @@ public class ConfigController {
             JOptionPane.showMessageDialog(null, e.getMessage(), "IO Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    public int getPort() {
+        return model.getPort();
+    }
+
+    public void updateBootstrapPort(Integer value) {
+        model.setBootstrapPort(value);
+    }
 }
