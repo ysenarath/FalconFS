@@ -61,13 +61,13 @@ public class HealthMonitorService extends Thread {
             }
             iterator.set(neighbor);
         }
-        if(hasNoActiveNeighbors) inactiveCounter++;
+        if (hasNoActiveNeighbors) inactiveCounter++;
 
         // If health of all neighbors become zero, bootstrapping is done
         if (hasNoActiveNeighbors && neighbors.size() > 0 && inactiveCounter > 5) {
             LOGGER.info("Bootstrapping since health of all the nodes are zero.");
             try {
-                this.bootstrapService.bootstrap();
+                this.bootstrapService.bootstrap(false);
             } catch (BootstrapException e) {
                 // ignore and may try in next iteration
             }
