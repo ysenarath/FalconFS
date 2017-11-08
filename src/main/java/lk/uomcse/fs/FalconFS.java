@@ -89,7 +89,7 @@ public class FalconFS {
      * Unregister from all nodes if possible (?)
      */
     public void stop() throws BootstrapException {
-        this.bootstrapService.unregister(true);
+        this.bootstrapService.unregister();
     }
 
     /**
