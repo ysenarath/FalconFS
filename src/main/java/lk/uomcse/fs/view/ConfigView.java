@@ -46,7 +46,7 @@ public class ConfigView {
         frame.setContentPane(this.mainPanel);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setSize(new Dimension(450, 350));
+        frame.setSize(new Dimension(600, 400));
         frame.setVisible(true);
         FrameUtils.centreWindow(frame);
     }
@@ -114,7 +114,12 @@ public class ConfigView {
         selfAddressCombo.addActionListener(e -> controller.updateAddress((String) selfAddressCombo.getSelectedItem()));
         selfPortSpinner.addChangeListener(e -> {
             controller.updatePort((Integer) selfPortSpinner.getValue());
-            bootstrapPortSpinner.setValue(selfPortSpinner.getValue());
+            // Update self port spinner value if mode is rest
+            String mode = (String) modeCombo.getSelectedItem();
+            controller.updateSenderType(mode);
+            if (mode != null && !mode.toLowerCase().equals("rest")) {
+                bootstrapPortSpinner.setValue(selfPortSpinner.getValue());
+            }
         });
         bsPortSpinner.addChangeListener(e -> controller.updateBootstrapServerPort((Integer) bsPortSpinner.getValue()));
         connectButton.addActionListener(e -> controller.connect());
@@ -124,6 +129,7 @@ public class ConfigView {
             controller.updateSenderType(mode);
             if (mode != null && mode.toLowerCase().equals("rest")) {
                 bootstrapPortSpinner.setEnabled(true);
+                bootstrapPortSpinner.setValue(8081);
             } else {
                 bootstrapPortSpinner.setEnabled(false);
             }
@@ -166,6 +172,10 @@ public class ConfigView {
 
     public void setVisible(boolean visible) {
         this.frame.setVisible(visible);
+    }
+
+    public JFrame getFrame() {
+        return frame;
     }
 
     {
@@ -219,7 +229,7 @@ public class ConfigView {
         selfPortSpinner = new JSpinner();
         panel2.add(selfPortSpinner, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
-        label6.setText("Mode");
+        label6.setText("Protocol");
         panel2.add(label6, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         modeCombo = new JComboBox();
         panel2.add(modeCombo, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

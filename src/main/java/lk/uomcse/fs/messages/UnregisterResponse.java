@@ -34,7 +34,7 @@ public class UnregisterResponse extends Message implements IResponse {
      * @param reply reply in string
      * @return Unregister response message
      */
-    public static UnregisterResponse parse(String reply) {
+    public static UnregisterResponse parse(String reply) throws InvalidFormatException {
         if (reply == null)
             throw new NullPointerException();
         String[] response = reply.split(" ");

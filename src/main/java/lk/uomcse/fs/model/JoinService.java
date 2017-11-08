@@ -3,7 +3,6 @@ package lk.uomcse.fs.model;
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.IMessage;
-import lk.uomcse.fs.messages.IRequest;
 import lk.uomcse.fs.messages.JoinRequest;
 import lk.uomcse.fs.messages.JoinResponse;
 import org.apache.log4j.Logger;
@@ -17,13 +16,13 @@ public class JoinService extends Thread {
 
     private static final int MAX_RETRIES = 3;
 
-    private boolean running;
-
     private final RequestHandler handler;
 
     private final Node current;
 
     private final List<Neighbour> neighbours;
+
+    private boolean running;
 
     /**
      * Allocates Join service object.
@@ -45,7 +44,7 @@ public class JoinService extends Thread {
     @Override
     public void run() {
         running = true;
-        LOGGER.trace(String.format("Starting join service for node at (%s:%d).", current.getIp(), current.getPort()));
+        LOGGER.trace("Starting join service");
         while (running) {
             // Get request
             JoinRequest request = (JoinRequest) this.handler.receiveMessage(JoinRequest.ID);
@@ -57,6 +56,7 @@ public class JoinService extends Thread {
             Neighbour n = new Neighbour(request.getNode());
             onNeighbourJoin(n);
         }
+        LOGGER.trace("Stopping join service");
     }
 
     /**
@@ -66,32 +66,28 @@ public class JoinService extends Thread {
      * @return whether join request is success or not
      */
     public boolean join(Neighbour n) {
-        IRequest jr = new JoinRequest(current);
-        JoinResponse reply = null;
+        JoinRequest request = new JoinRequest(current);
         int retries = 0;
+        JoinResponse reply = null;
         while (retries < MAX_RETRIES) {
-            LOGGER.info(String.format("Requesting node(%s:%d) to join: %s", n.getNode().getIp(), n.getNode().getPort(), jr.toString()));
-            handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), jr, false);
-            LOGGER.debug("Waiting for receive message.");
+            handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), request, false);
             try {
+                // NOTE: Join reply is always a success
                 reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 3);
                 break;
             } catch (TimeoutException e) {
                 retries++;
-                if (retries == MAX_RETRIES) {
-                    LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [CANCEL_JOIN]", n.toString()));
-                    LOGGER.info(String.format("Join request failed after attempting %d times", retries));
-                    return false;
-                } else
-                    LOGGER.debug(String.format("Timeout reached. Unable to connect to node: %s [RETRYING]", n.toString()));
             }
         }
-        if (reply == null) return false;
-        LOGGER.info(String.format("Replied to join request: %s", reply.toString()));
-        // Add neighbours if success or not.
-        // Not success implies it has already registered that node
+        if (reply == null) {
+            LOGGER.info(String.format("Failed joining with node %s", n.getNode()));
+            return false;
+        } else {
+            LOGGER.info(String.format("Successfully joined with node %s", n.getNode()));
+        }
+        // Add neighbours if success or not. Not success implies it has already registered that node.
         onNeighbourJoin(n);
-        return reply.isSuccess();
+        return true;
     }
 
     /**

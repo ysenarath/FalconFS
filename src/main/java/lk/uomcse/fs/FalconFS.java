@@ -3,8 +3,9 @@ package lk.uomcse.fs;
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.model.*;
+import lk.uomcse.fs.model.Protocol;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
-import org.apache.catalina.LifecycleException;
+import lk.uomcse.fs.utils.exceptions.InitializationException;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -40,22 +41,22 @@ public class FalconFS {
 
     private PulseReceiverService pulseReceiverService;
 
-    private RequestHandler.SenderType senderType;
+    private Protocol protocol;
 
     /**
      * Imports file system requirements
      */
-    public FalconFS(Configuration configs) throws InstantiationException, LifecycleException {
+    public FalconFS(Configuration configs) throws InitializationException {
         this.name = configs.getName();
         this.self = new Node(configs.getAddress(), configs.getPort());
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
-        this.senderType = configs.getSenderType();
+        this.protocol = configs.getProtocol();
         // Only needed if sender type is REST
-        if (senderType == RequestHandler.SenderType.REST) {
+        if (protocol == Protocol.REST) {
             this.handler = new RequestHandler(self, configs.getBootstrapPort());
         } else {
-            this.handler = new RequestHandler(self);
+            this.handler = new RequestHandler(configs.getPort());
         }
         // Services
         this.leaveService = new LeaveService(handler, self, neighbours);
@@ -135,6 +136,11 @@ public class FalconFS {
         return self;
     }
 
+    /**
+     * Returns name of this node
+     *
+     * @return name of self node
+     */
     public String getName() {
         return name;
     }

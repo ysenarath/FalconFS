@@ -32,7 +32,7 @@ public class UDPSender extends Sender {
      */
     @Override
     public void run() {
-        this.running = true;
+        running = true;
         int retries;
         while (running) {
             DatagramPacket packet;
@@ -63,6 +63,7 @@ public class UDPSender extends Sender {
      */
     @Override
     public void send(String ip, int port, IMessage request) {
+        System.out.println(String.format("Packet being sent to %s:%d - %s", ip, port, request.toString()));
         byte[] buf = request.toString().getBytes();
         InetAddress address;
         try {

@@ -5,7 +5,7 @@ import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length JOIN IP_address port_no
-@JsonIgnoreProperties(value = {"receivedTime" }, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"receivedTime"}, ignoreUnknown = true)
 public class JoinRequest extends Message implements IRequest {
     public static final String ID = "JOIN";
 
@@ -14,7 +14,8 @@ public class JoinRequest extends Message implements IRequest {
     /**
      * Used by Jakson
      */
-    public JoinRequest(){}
+    public JoinRequest() {
+    }
 
     public JoinRequest(Node node) {
         this.node = node;
@@ -40,7 +41,7 @@ public class JoinRequest extends Message implements IRequest {
      * @param msg message type
      * @return Join request message
      */
-    public static JoinRequest parse(String msg) {
+    public static JoinRequest parse(String msg) throws InvalidFormatException {
         if (msg == null)
             throw new NullPointerException();
         String[] response = msg.split(" ");

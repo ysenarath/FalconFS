@@ -4,10 +4,6 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import lk.uomcse.fs.controller.MainController;
-import lk.uomcse.fs.entity.Neighbour;
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.model.QueryService;
-import lk.uomcse.fs.utils.FrameUtils;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -68,7 +64,6 @@ public class MainUI {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
-        FrameUtils.centreWindow(frame);
         frame.addWindowListener(new WindowAdapter() {
             /**
              * Invoked when a window has been closed.

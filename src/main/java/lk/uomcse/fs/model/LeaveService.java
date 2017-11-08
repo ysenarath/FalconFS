@@ -1,6 +1,5 @@
 package lk.uomcse.fs.model;
 
-import lk.uomcse.fs.com.RestSender;
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.LeaveRequest;
@@ -42,7 +41,7 @@ public class LeaveService extends Thread {
     @Override
     public void run() {
         running = true;
-        LOGGER.trace(String.format("Starting leave service for node at (%s:%d)", self.getIp(), self.getPort()));
+        LOGGER.trace("Starting leave service");
         while (running) {
             LeaveRequest request = (LeaveRequest) this.handler.receiveMessage(LeaveRequest.ID);
             LOGGER.info(String.format("Processing leave request by %s", request.getNode()));
@@ -58,33 +57,53 @@ public class LeaveService extends Thread {
                 handler.sendMessage(n.getIp(), n.getPort(), response, false);
             }
         }
+        LOGGER.trace("Stopping leave service");
     }
 
     /**
      * Sends leave requests to neighbours and remove them from routing table if they are alive
      */
     public void leave() {
-        neighbours.forEach(neighbour -> {
-            LOGGER.info(String.format("Leaving neighbour %s", neighbour.getNode()));
-            if (neighbour.getHealth() > 0) {
+        neighbours.forEach(n -> {
+            if (n.getHealth() > 0) {
                 LeaveRequest request = new LeaveRequest(self);
-                handler.sendMessage(neighbour.getNode().getIp(), neighbour.getNode().getPort(), request, false);
-                int retry = 0;
-                LeaveResponse response;
-                while (retry < MAX_RETRIES) {
+                handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), request, false);
+                int retries = 0;
+                LeaveResponse response = null;
+                while (retries < MAX_RETRIES) {
                     try {
                         response = (LeaveResponse) handler.receiveMessage(LeaveResponse.ID, 1);
                         break;
                     } catch (TimeoutException e) {
-                        retry++;
+                        retries++;
                     }
                 }
-                // TODO: LOG info
-            } else {
-                // TODO: LOG info
+                if (response != null && response.isSuccess()) {
+                    LOGGER.info(String.format("Successfully left the node %s", n.getNode()));
+                } else {
+                    LOGGER.info(String.format("Failed leaving the node the node %s", n.getNode()));
+                }
             }
-            neighbour.setLeft(true);
+            n.setLeft(true);
         });
         // Assuming that all the nodes has received/ has already left the system
+    }
+
+    /**
+     * Gets whether the node is running
+     *
+     * @return whether the node is running
+     */
+    public boolean isRunning() {
+        return running;
+    }
+
+    /**
+     * Sets run status
+     *
+     * @param running update run status
+     */
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 }

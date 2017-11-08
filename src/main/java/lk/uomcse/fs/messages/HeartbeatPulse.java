@@ -27,7 +27,7 @@ public class HeartbeatPulse extends Message implements IMessage {
      * @param reply reply in string
      * @return Heartbeat pulse message
      */
-    public static HeartbeatPulse parse(String reply) {
+    public static HeartbeatPulse parse(String reply) throws InvalidFormatException {
         if (reply == null)
             throw new NullPointerException();
         String[] response = reply.split(" ");

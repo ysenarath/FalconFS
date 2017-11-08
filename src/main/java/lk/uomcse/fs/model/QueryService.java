@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 /**
  * Initiates search requests and listens for replies
@@ -48,7 +49,7 @@ public class QueryService {
 
     private final ConcurrentMap<String, Queue<String>> queryIdStore;
 
-    private final Thread handleRepliesThread;
+    private final Thread handleResponsesThread;
 
     private final Thread handleQueriesThread;
 
@@ -79,7 +80,7 @@ public class QueryService {
         this.cacheService = new CacheService(MAX_INDEX_SIZE, MAX_NODE_QUEUE_LENGTH);
         this.running = false;
         this.results = new ConcurrentHashMap<>();
-        this.handleRepliesThread = new Thread(this::runHandleReplies);
+        this.handleResponsesThread = new Thread(this::runHandleResponses);
         this.handleQueriesThread = new Thread(this::runHandleQueries);
         this.queryIdStore = CacheBuilder.newBuilder()
                 .maximumSize(ID_STORE_INDEX_SIZE)
@@ -93,45 +94,34 @@ public class QueryService {
     public void start() {
         running = true;
         this.handleQueriesThread.start();
-        this.handleRepliesThread.start();
+        this.handleResponsesThread.start();
     }
 
     /**
      * Thread to handle replies
      */
-    private void runHandleReplies() {
+    private void runHandleResponses() {
+        LOGGER.trace("Starting query response handling service.");
         while (running) {
             SearchResponse response = (SearchResponse) this.handler.receiveMessage(SearchResponse.ID);
-            if (response == null)
+            if (response == null) {
                 continue;
+            }
             if (Integer.parseInt(response.getQueryID()) == currentQueryID) {
-                this.updateResults(response.getNode(), response.getFilenames());
                 LOGGER.info(String.format("Response received matching current query: %s", response.toString()));
+                this.updateResults(response.getNode(), response.getFilenames());
             } else {
                 LOGGER.info(String.format("Response received matching old query: %s", response.toString()));
             }
         }
-    }
-
-    /**
-     * Sets current search query
-     *
-     * @param query query
-     */
-    public synchronized void search(String query) {
-        results.clear();
-        currentQuery = query;
-        currentQueryID += 1;
-        SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), current, query, 0);
-        List<String> matches = searchUtils(request, null);
-        if (matches.size() > 0)
-            this.updateResults(current, matches);
+        LOGGER.trace("Stopping query response handling service.");
     }
 
     /**
      * Thread to handle queries
      */
     private void runHandleQueries() {
+        LOGGER.trace("Starting query handling service.");
         while (running) {
             SearchRequest request = (SearchRequest) this.handler.receiveMessage(SearchRequest.ID);
             if (request == null)
@@ -148,6 +138,21 @@ public class QueryService {
                 LOGGER.info(String.format("Response sent %s", response.toString()));
             }
         }
+        LOGGER.trace("Stopping query handling service.");
+    }
+
+    /**
+     * Sets current search query
+     *
+     * @param query query
+     */
+    public synchronized void search(String query) {
+        clear(); // Clear current query
+        SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), current, query, 0);
+        List<String> matches = searchUtils(request, null);
+        if (matches.size() > 0) {
+            this.updateResults(current, matches);
+        }
     }
 
     /**
@@ -159,19 +164,21 @@ public class QueryService {
         String query = request.getFilename();
         List<String> matches = searchFiles(query);
         if (matches.size() > 0) {
+            LOGGER.info("Found searched file in this node. Terminating the search.");
             return matches;
         }
         if (request.getHops() < TTL) {
             List<Node> bestNodes = selectBestNodes(query);
-            // TODO: Do this in selectBestNodes section
             // Ignore nodes indicated by ignore args
             if (ignore != null)
                 bestNodes.remove(ignore);
             request.incrementHops();
             bestNodes.forEach(node -> {
-                this.handler.sendMessage(node.getIp(), node.getPort(), request, false);
                 LOGGER.info(String.format("Sending query %s to neighbour %s ", request.toString(), node.toString()));
+                this.handler.sendMessage(node.getIp(), node.getPort(), request, false);
             });
+        } else {
+            LOGGER.info("TTL reached. Terminating the search.");
         }
         return matches;
     }
@@ -183,11 +190,12 @@ public class QueryService {
      * @param filenames filenames matching the query
      */
     private void updateResults(Node node, List<String> filenames) {
+        List<String> temp = filenames.stream().map(s -> s.replace('_', ' ')).collect(Collectors.toList());
         synchronized (results) {
             if (!results.containsKey(node))
-                results.put(node, filenames);
+                results.put(node, temp);
         }
-        cacheService.update(node, filenames);
+        cacheService.update(node, temp);
     }
 
     /**
@@ -207,7 +215,7 @@ public class QueryService {
 
         synchronized (neighbours) {
             Collections.sort(neighbours);
-            for (int i = 0; i < (fromNeighbours > neighbours.size() ? neighbours.size() : fromNeighbours); i ++){
+            for (int i = 0; i < (fromNeighbours > neighbours.size() ? neighbours.size() : fromNeighbours); i++) {
                 bestNodes.add(neighbours.get(i).getNode());
             }
         }
@@ -216,7 +224,7 @@ public class QueryService {
     }
 
     /**
-     * For searching files in this node
+     * For searching local file names
      *
      * @param query a query to search files over
      * @return list of filenames matching (containing) query
@@ -238,7 +246,6 @@ public class QueryService {
                 LOGGER.debug(String.format("Found file with name %s for query %s", filename, query));
                 found.add(filename.replace(' ', '_'));
             }
-
         }
         return found;
     }
@@ -289,7 +296,7 @@ public class QueryService {
     public void setRunning(boolean running) {
         this.running = running;
         this.handleQueriesThread.interrupt();
-        this.handleRepliesThread.interrupt();
+        this.handleResponsesThread.interrupt();
     }
 
     /**
@@ -298,6 +305,6 @@ public class QueryService {
     public synchronized void clear() {
         this.results.clear();
         this.currentQuery = "";
-        this.currentQueryID ++;
+        this.currentQueryID++;
     }
 }

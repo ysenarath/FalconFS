@@ -5,7 +5,7 @@ import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length SER qid IP port file_name hops
-@JsonIgnoreProperties(value = {"receivedTime" }, ignoreUnknown = true)
+@JsonIgnoreProperties(value = {"receivedTime"}, ignoreUnknown = true)
 public class SearchRequest extends Message implements IRequest {
     public static final String ID = "SER";
 
@@ -20,7 +20,8 @@ public class SearchRequest extends Message implements IRequest {
     /**
      * Used by Jakson
      */
-    public SearchRequest(){}
+    public SearchRequest() {
+    }
 
     /**
      * Cstr of SearchRequest
@@ -67,7 +68,7 @@ public class SearchRequest extends Message implements IRequest {
     /**
      * Query Id. All queries must have unique query id.
      *
-     * @return
+     * @return Query ID
      */
     public String getQueryId() {
         return queryId;
@@ -86,7 +87,7 @@ public class SearchRequest extends Message implements IRequest {
      * @param reply reply in string
      * @return Search request message
      */
-    public static SearchRequest parse(String reply) {
+    public static SearchRequest parse(String reply) throws InvalidFormatException {
         if (reply == null)
             throw new NullPointerException();
         String[] response = reply.split(" ");

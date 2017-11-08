@@ -81,7 +81,7 @@ public class CacheService {
      * @param fileName the file name to search. Can be collection of several key words
      *                 Ex : "Windows 8", "Microsoft office"
      *                 the key word will be extracted by separating with spaces
-     * @return List of nodes containing file or null if no such nodes in cache tabel
+     * @return List of nodes containing file or null if no such nodes in cache table
      */
     public List<Node> search(String fileName) {
         // TODO in multi keyword filename, what if part of the keywords are expired from cache

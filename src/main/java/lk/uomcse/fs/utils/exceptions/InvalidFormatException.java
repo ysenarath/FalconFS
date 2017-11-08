@@ -1,6 +1,6 @@
 package lk.uomcse.fs.utils.exceptions;
 
-public class InvalidFormatException extends RuntimeException {
+public class InvalidFormatException extends Exception {
     /**
      * Constructs a new runtime exception with {@code null} as its
      * detail message.  The cause is not initialized, and may subsequently be

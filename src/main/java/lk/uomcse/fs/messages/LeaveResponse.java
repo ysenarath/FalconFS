@@ -14,6 +14,7 @@ public class LeaveResponse extends Message implements IResponse {
      * Used by Jakson
      */
     public LeaveResponse() {
+        success = false;
     }
 
     public LeaveResponse(boolean success) {
@@ -27,7 +28,7 @@ public class LeaveResponse extends Message implements IResponse {
      * @return Leave response message
      */
 
-    public static IMessage parse(String data) {
+    public static IMessage parse(String data) throws InvalidFormatException {
         if (data == null)
             throw new NullPointerException();
         String[] response = data.split(" ");
@@ -67,11 +68,21 @@ public class LeaveResponse extends Message implements IResponse {
         return sb.toString();
     }
 
+    /**
+     * Whether the reply state is success
+     *
+     * @return reply state
+     */
     @Override
     public boolean isSuccess() {
         return success;
     }
 
+    /**
+     * Sets success state
+     *
+     * @param success success state
+     */
     public void setSuccess(boolean success) {
         this.success = success;
     }

@@ -42,7 +42,7 @@ public class JoinResponse extends Message implements IResponse {
      * @param data reply in string form
      * @return Join response message
      */
-    public static JoinResponse parse(String data) {
+    public static JoinResponse parse(String data) throws InvalidFormatException {
         if (data == null)
             throw new NullPointerException();
         String[] response = data.split(" ");

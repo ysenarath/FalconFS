@@ -1,13 +1,10 @@
 package lk.uomcse.fs.controller;
 
-import lk.uomcse.fs.FalconFS;
 import lk.uomcse.fs.model.Configuration;
-import lk.uomcse.fs.model.RequestHandler;
-import lk.uomcse.fs.utils.ListUtils;
+import lk.uomcse.fs.model.Protocol;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
+import lk.uomcse.fs.utils.exceptions.InitializationException;
 import lk.uomcse.fs.view.ConfigView;
-import lk.uomcse.fs.view.MainUI;
-import org.apache.catalina.LifecycleException;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -16,57 +13,57 @@ public class ConfigController {
 
     private final ConfigView view;
 
-    private final Configuration model;
+    private final Configuration configs;
 
     /**
-     * Cstr
+     * Constructor
      *
-     * @param model Configuration model
-     * @param view  View
+     * @param configs Configuration configs
+     * @param view    View
      */
-    public ConfigController(Configuration model, ConfigView view) {
-        this.model = model;
+    public ConfigController(Configuration configs, ConfigView view) {
+        this.configs = configs;
         this.view = view;
         this.view.setController(this);
         this.view.initialize();
     }
 
     /**
-     * Updates view according to the current model
+     * Updates view according to the current configs
      */
     public void updateView() {
-        this.view.setName(model.getName());
-        this.view.setAddress(model.getAddress());
-        this.view.setPort(model.getPort());
-        this.view.setBootstrapServerAddress(model.getBootstrapServer().getAddress());
-        this.view.setBootstrapServerPort(model.getBootstrapServer().getPort());
+        this.view.setName(configs.getName());
+        this.view.setAddress(configs.getAddress());
+        this.view.setPort(configs.getPort());
+        this.view.setBootstrapServerAddress(configs.getBootstrapServer().getAddress());
+        this.view.setBootstrapServerPort(configs.getBootstrapServer().getPort());
     }
 
     /**
-     * Update model name
+     * Update configs name
      *
      * @param name new name
      */
     public void updateName(String name) {
-        model.setName(name);
+        configs.setName(name);
     }
 
     /**
-     * Update model address
+     * Update configs address
      *
      * @param address new address
      */
     public void updateAddress(String address) {
-        model.setAddress(address);
+        configs.setAddress(address);
     }
 
     /**
-     * Update model port
+     * Update configs port
      *
      * @param port new port
      */
     public void updatePort(int port) {
-        model.setPort(port);
+        configs.setPort(port);
     }
 
     /**
@@ -75,7 +72,7 @@ public class ConfigController {
      * @param address new bootstrap server address
      */
     public void updateBootstrapServerAddress(String address) {
-        model.setBootstrapServerAddress(address);
+        configs.setBootstrapServerAddress(address);
     }
 
     /**
@@ -84,7 +81,7 @@ public class ConfigController {
      * @param port new port
      */
     public void updateBootstrapServerPort(int port) {
-        model.setBootstrapServerPort(port);
+        configs.setBootstrapServerPort(port);
     }
 
 
@@ -95,34 +92,23 @@ public class ConfigController {
      */
     public void updateSenderType(String type) {
         if (type.toLowerCase().equals("rest"))
-            model.setSenderType(RequestHandler.SenderType.REST);
+            configs.setProtocol(Protocol.REST);
         else
-            model.setSenderType(RequestHandler.SenderType.UDP);
+            configs.setProtocol(Protocol.UDP);
     }
 
     /**
      * Connects to the new instance
      */
     public void connect() {
-        FalconFS fs = null;
         try {
-            fs = new FalconFS(this.model);
-            MainUI ui = new MainUI();
-            fs.getFilenames().addAll(ListUtils.randomSubList(model.getFiles(), 4, 2));
-            MainController controller = new MainController(fs, ui);
-            controller.updateView();
+            configs.connect();
             view.setVisible(false);
-        } catch (InstantiationException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Instantiation Error", JOptionPane.ERROR_MESSAGE);
         } catch (BootstrapException e) {
-            if (e.getErrorCode() != 9997) {
-                JOptionPane.showMessageDialog(null, e.getMessage(), "Bootstrap Error", JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
-            }
-        } catch (LifecycleException e) { // TODO handle exception @yasas
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(view.getFrame(), e.getMessage(), "Bootstrap Error", JOptionPane.ERROR_MESSAGE);
+        } catch (InitializationException e) {
+            JOptionPane.showMessageDialog(view.getFrame(), e.getMessage(), "Initialization Error", JOptionPane.ERROR_MESSAGE);
         }
-
     }
 
     /**
@@ -130,17 +116,17 @@ public class ConfigController {
      */
     public void save() {
         try {
-            model.save();
+            configs.save();
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "IO Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public int getPort() {
-        return model.getPort();
+        return configs.getPort();
     }
 
     public void updateBootstrapPort(Integer value) {
-        model.setBootstrapPort(value);
+        configs.setBootstrapPort(value);
     }
 }

@@ -31,7 +31,7 @@ public class LeaveRequest extends Message implements IRequest {
      * @param msg message to be parsed
      * @return Message type
      */
-    public static IMessage parse(String msg) {
+    public static IMessage parse(String msg) throws InvalidFormatException {
         if (msg == null)
             throw new NullPointerException();
         String[] response = msg.split(" ");

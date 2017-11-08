@@ -59,7 +59,7 @@ public class RegisterResponse extends Message implements IResponse {
      * @param reply a reply to parse
      * @return {{{@link RegisterResponse}}} of the message
      */
-    public static RegisterResponse parse(String reply) {
+    public static RegisterResponse parse(String reply) throws InvalidFormatException {
         if (reply == null)
             throw new NullPointerException();
         String[] response = reply.split(" ");

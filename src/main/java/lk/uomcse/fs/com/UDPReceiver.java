@@ -3,6 +3,7 @@ package lk.uomcse.fs.com;
 import com.google.common.collect.Queues;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.*;
+import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -42,7 +43,13 @@ public class UDPReceiver extends Receiver {
                 String ip = socketAddress.getAddress().getHostAddress();
                 int port = socketAddress.getPort();
                 Node sender = new Node(ip, port);
-                IMessage p = parseMessage(packet);
+                IMessage p = null;
+                try {
+                    p = parseMessage(packet);
+                } catch (InvalidFormatException ignore) {
+                    // Ignore error message and continue
+                    continue;
+                }
                 if (p == null) {
                     continue;
                 }
@@ -61,7 +68,7 @@ public class UDPReceiver extends Receiver {
      * @param packet packet to be parsed
      * @return Message object after parsing
      */
-    private IMessage parseMessage(DatagramPacket packet) {
+    private IMessage parseMessage(DatagramPacket packet) throws InvalidFormatException {
         String data = new String(packet.getData(), 0, packet.getLength());
         String[] args = data.split(" ");
         if (args.length < 2) return null;

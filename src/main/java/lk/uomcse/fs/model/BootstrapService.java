@@ -36,7 +36,6 @@ public class BootstrapService {
 
     private final Node self;
 
-
     /**
      * Constructs bootstrap service providing register and unregister functions
      *
