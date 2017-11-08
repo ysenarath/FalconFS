@@ -10,7 +10,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentMap;
@@ -48,7 +47,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response joinResponse(JoinResponse joinResponse, @Context HttpServletRequest req) {
         collectInfo(joinResponse, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
+        handle.putIfAbsent(JoinResponse.ID, new LinkedBlockingQueue<>());
         BlockingQueue<IMessage> messages = handle.get(JoinResponse.ID);
         messages.add(joinResponse);
         return Response.status(200).entity("join response received").build();
@@ -59,7 +58,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response searchRequest(SearchRequest searchRequest, @Context HttpServletRequest req) {
         collectInfo(searchRequest, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
+        handle.putIfAbsent(SearchRequest.ID, new LinkedBlockingQueue<>());
         BlockingQueue<IMessage> messages = handle.get(SearchRequest.ID);
         messages.add(searchRequest);
         return Response.status(200).entity("search request received").build();
@@ -77,7 +76,7 @@ public class RestService extends Receiver {
 
             collectInfo(searchResponse, req);
 
-            handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
+            handle.putIfAbsent(SearchResponse.ID, new LinkedBlockingQueue<>());
             BlockingQueue<IMessage> messages = handle.get(SearchResponse.ID);
             messages.add(searchResponse);
 
@@ -95,7 +94,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response leaveRequest(LeaveRequest leaveRequest, @Context HttpServletRequest req) {
         collectInfo(leaveRequest, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
+        handle.putIfAbsent(LeaveRequest.ID, new LinkedBlockingQueue<>());
         BlockingQueue<IMessage> messages = handle.get(LeaveRequest.ID);
         messages.add(leaveRequest);
         return Response.status(200).entity("leave request received").build();
@@ -107,7 +106,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response leaveResponse(LeaveResponse leaveResponse, @Context HttpServletRequest req) {
         collectInfo(leaveResponse, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
+        handle.putIfAbsent(LeaveResponse.ID, new LinkedBlockingQueue<>());
         BlockingQueue<IMessage> messages = handle.get(LeaveResponse.ID);
         messages.add(leaveResponse);
         return Response.status(200).entity("leave response received").build();
@@ -118,7 +117,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response heartbeatPulse(HeartbeatPulse heartbeatPulse, @Context HttpServletRequest req) {
         collectInfo(heartbeatPulse, req);
-        handle.putIfAbsent(JoinRequest.ID, new LinkedBlockingQueue<>());
+        handle.putIfAbsent(HeartbeatPulse.ID, new LinkedBlockingQueue<>());
         BlockingQueue<IMessage> messages = handle.get(HeartbeatPulse.ID);
         messages.add(heartbeatPulse);
         return Response.status(200).entity("heartbeat pulse received").build();

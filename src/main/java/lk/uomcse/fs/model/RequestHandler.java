@@ -1,6 +1,7 @@
 package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.com.*;
+import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.utils.DatagramSocketUtils;
 import org.apache.catalina.LifecycleException;
@@ -33,22 +34,21 @@ public class RequestHandler extends Thread {
     /**
      * Constructor {{{{@link lk.uomcse.fs.messages.RegisterResponse}}}}
      *
-     * @param port port of this node
      */
-    public RequestHandler(int port) throws InstantiationException {
+    public RequestHandler(Node node) throws InstantiationException {
 
         handle = new ConcurrentHashMap<>();
 
         try {
-            socket = DatagramSocketUtils.getSocket(port);
+            socket = DatagramSocketUtils.getSocket(node.getPort());
         } catch (SocketException e) {
             throw new InstantiationException("Unable to create the socket. Try changing the IP:Port.");
         }
         this.udpReceiver = new UDPReceiver(socket);
         this.udpSender = new UDPSender(socket);
 
-        this.restReceiver = new RestReceiver(port);
-        this.restSender = new RestSender();
+        this.restReceiver = new RestReceiver(node.getPort());
+        this.restSender = new RestSender(node);
 
         try {
             restReceiver.startWebServices(handle);

@@ -44,20 +44,20 @@ public class FalconFS {
     /**
      * Imports file system requirements
      */
-    public FalconFS(Configuration model) throws InstantiationException {
+    public FalconFS(Configuration configs) throws InstantiationException {
         //TODO sender type set this using GUI
-        this.senderType = RequestHandler.SenderType.REST;
+        this.senderType = configs.getSenderType();
 
-        this.name = model.getName();
-        this.self = new Node(model.getAddress(), model.getPort());
+        this.name = configs.getName();
+        this.self = new Node(configs.getAddress(), configs.getPort());
 
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
-        this.handler = new RequestHandler(model.getPort());
+        this.handler = new RequestHandler(self);
         // Services
         this.leaveService = new LeaveService(handler, self, neighbours, senderType);
         this.joinService = new JoinService(handler, self, neighbours, senderType);
-        this.bootstrapService = new BootstrapService(handler, joinService, leaveService, model.getBootstrapServer(), name, self);
+        this.bootstrapService = new BootstrapService(handler, joinService, leaveService, configs.getBootstrapServer(), name, self);
         this.queryService = new QueryService(handler, self, filenames, neighbours, senderType);
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours, senderType);
