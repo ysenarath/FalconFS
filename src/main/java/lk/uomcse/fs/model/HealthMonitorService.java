@@ -34,6 +34,8 @@ public class HealthMonitorService extends Thread {
      */
     private BootstrapService bootstrapService;
 
+    private int inactiveCounter = 0;
+
     /**
      * Creates ne heartbeat object
      *
@@ -55,12 +57,14 @@ public class HealthMonitorService extends Thread {
             LOGGER.debug(String.format("Neighbour %s health updated %d", neighbor.toString(), neighbor.getHealth()));
             if (neighbor.getHealth() != 0) {
                 hasNoActiveNeighbors = false;
+                inactiveCounter = 0;
             }
             iterator.set(neighbor);
         }
+        if(hasNoActiveNeighbors) inactiveCounter++;
 
         // If health of all neighbors become zero, bootstrapping is done
-        if (hasNoActiveNeighbors && neighbors.size() > 0) {
+        if (hasNoActiveNeighbors && neighbors.size() > 0 && inactiveCounter > 5) {
             LOGGER.info("Bootstrapping since health of all the nodes are zero.");
             try {
                 this.bootstrapService.bootstrap();

@@ -7,6 +7,7 @@ import lk.uomcse.fs.messages.RegisterRequest;
 import lk.uomcse.fs.messages.RegisterResponse;
 import lk.uomcse.fs.messages.UnregisterRequest;
 import lk.uomcse.fs.messages.UnregisterResponse;
+import lk.uomcse.fs.utils.ListUtils;
 import lk.uomcse.fs.utils.TextFormatUtils;
 import lk.uomcse.fs.utils.error.BootstrapError;
 import lk.uomcse.fs.utils.error.BootstrapFullError;
@@ -79,8 +80,8 @@ public class BootstrapService {
         LOGGER.info(String.format("Bootstrap server replied: %s", response.toString()));
         BootstrapError err;
         if (response.isSuccess()) {
-            // TODO: Select random 2 and return
-            return response.getNodes().stream().map(Neighbour::new).collect(Collectors.toList());
+            List<Node> subList = ListUtils.randomSubList(response.getNodes(), 2);
+            return subList.stream().map(Neighbour::new).collect(Collectors.toList());
         } else {
             switch (response.getNodeCount()) {
                 case (9998):

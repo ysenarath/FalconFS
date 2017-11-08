@@ -31,7 +31,7 @@ public class NeighborTableModel extends DefaultTableModel {
             case 1:
                 return "Port";
             case 2:
-                return "Health";
+                return "IsAlive";
             case 3:
                 return "Health";
             default:
@@ -47,7 +47,7 @@ public class NeighborTableModel extends DefaultTableModel {
             case 1:
                 return neighbors.get(row).getNode().getPort();
             case 2:
-                return neighbors.get(row).isLeft();
+                return neighbors.get(row).isLeft() ? "False" : "True";
             case 3:
                 return neighbors.get(row).getHealth();
             default:

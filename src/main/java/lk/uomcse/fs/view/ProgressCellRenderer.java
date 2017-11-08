@@ -22,7 +22,12 @@ public class ProgressCellRenderer extends DefaultTableCellRenderer {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        Integer i = (Integer) value;
+        Integer i = 0;
+        try {
+            i = (Integer) value;
+        } catch (ClassCastException e) {
+            // ignore
+        }
         String text = "Completed";
         if (i < 0) {
             text = "Error";

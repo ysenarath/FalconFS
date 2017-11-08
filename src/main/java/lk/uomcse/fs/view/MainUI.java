@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -107,6 +108,18 @@ public class MainUI {
 
         final NeighborTableModel neighborTableModel = new NeighborTableModel(controller.getNeighbours());
         tblNeighbors.setModel(neighborTableModel);
+
+        // center align values
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        tblNeighbors.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+        tblNeighbors.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+        tblNeighbors.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+
+        tblResults.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+        tblResults.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+
+        // adding progress bar
         tblNeighbors.getColumnModel().getColumn(3).setCellRenderer(new ProgressCellRenderer());
 
         new Thread(() -> {

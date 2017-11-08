@@ -23,7 +23,7 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
     public Neighbour(Node node) {
         this.node = node;
         this.left = false;
-        this.health = 0;
+        this.health = 10;
         this.pulseResponses = new ArrayList<>();
     }
 
