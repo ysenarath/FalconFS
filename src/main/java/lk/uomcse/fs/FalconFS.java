@@ -39,26 +39,30 @@ public class FalconFS {
 
     private PulseReceiverService pulseReceiverService;
 
+    private RequestHandler.SenderType senderType;
+
     /**
      * Imports file system requirements
      */
     public FalconFS(Configuration model) throws InstantiationException {
+        //TODO sender type set this using GUI
+        this.senderType = RequestHandler.SenderType.REST;
+
         this.name = model.getName();
         this.self = new Node(model.getAddress(), model.getPort());
 
         this.neighbours = new ArrayList<>();
         this.filenames = new ArrayList<>();
-        this.handler = new RequestHandler(model.getPort(), RequestHandler.CONNECTION_UDP);
+        this.handler = new RequestHandler(model.getPort());
         // Services
-        this.leaveService = new LeaveService(handler, self, neighbours);
-        this.joinService = new JoinService(handler, self, neighbours);
+        this.leaveService = new LeaveService(handler, self, neighbours, senderType);
+        this.joinService = new JoinService(handler, self, neighbours, senderType);
         this.bootstrapService = new BootstrapService(handler, joinService, leaveService, model.getBootstrapServer(), name, self);
-        this.queryService = new QueryService(handler, self, filenames, neighbours);
+        this.queryService = new QueryService(handler, self, filenames, neighbours, senderType);
         // Heartbeat services
-        this.heartbeatService = new HeartbeatService(handler, neighbours);
+        this.heartbeatService = new HeartbeatService(handler, neighbours, senderType);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
         this.healthMonitorService = new HealthMonitorService(neighbours, bootstrapService);
-        // }
     }
 
     /**

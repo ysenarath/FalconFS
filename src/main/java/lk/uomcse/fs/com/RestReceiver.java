@@ -1,113 +1,76 @@
 package lk.uomcse.fs.com;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.messages.*;
+import lk.uomcse.fs.messages.IMessage;
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.servlets.DefaultServlet;
+import org.apache.catalina.startup.Tomcat;
+import org.apache.log4j.Logger;
+import org.apache.tomcat.util.descriptor.web.FilterDef;
+import org.apache.tomcat.util.descriptor.web.FilterMap;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
+import org.glassfish.jersey.servlet.ServletProperties;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
+import javax.servlet.Filter;
+import java.io.File;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentMap;
 
-@Path("/")
+
 public class RestReceiver extends Receiver {
 
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getIt() {
-        return "Receiver activated!";
+    private final static Logger LOGGER = Logger.getLogger(RestReceiver.class.getName());
+
+    private Tomcat tomcat;
+
+    private int port;
+
+
+    public RestReceiver(int port) {
+        this.tomcat = new Tomcat();
+        this.port = port;
     }
 
-    @POST
-    @Path(JoinRequest.ID)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response joinRequest(JoinRequest joinRequest, @Context HttpServletRequest req) {
-        collectInfo(joinRequest, req);
-        messages.offer(joinRequest);
-        return Response.status(200).entity("join request received").build();
+    public void startWebServices(ConcurrentMap<String, BlockingQueue<IMessage>> handle) throws LifecycleException {
+
+//        TODO check if ip setting required
+        //set host ip and port
+//        tomcat.setHostname(this.self.getIp());
+        tomcat.setPort(this.port);
+        LOGGER.info(String.format("Tomcat servers started using address %s:%d", tomcat.getHost().getName(), tomcat.getConnector().getPort()));
+
+        File base = new File(".");
+        Context context = tomcat.addContext("", base.getAbsolutePath());
+
+        Tomcat.addServlet(context, "default", new DefaultServlet());
+        context.addServletMapping("/*", "default");
+
+        final FilterDef def = new FilterDef();
+        final FilterMap map = new FilterMap();
+
+        def.setFilterName("jerseyFilter");
+        def.addInitParameter("jersey.config.servlet.filter.contextPath", "/");
+        def.setFilter(getJerseyFilter(handle));
+        context.addFilterDef(def);
+
+        map.setFilterName("jerseyFilter");
+        map.addURLPattern("/*");
+        context.addFilterMap(map);
+
+        tomcat.start();
     }
 
-    @POST
-    @Path(JoinResponse.ID)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response joinResponse(JoinResponse joinResponse, @Context HttpServletRequest req) {
-        collectInfo(joinResponse, req);
-        messages.offer(joinResponse);
-        return Response.status(200).entity("join response received").build();
+    public void stopWebService() throws LifecycleException {
+        tomcat.stop();
     }
 
-    @POST
-    @Path(SearchRequest.ID)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response searchRequest(SearchRequest searchRequest, @Context HttpServletRequest req) {
-        collectInfo(searchRequest, req);
-        messages.offer(searchRequest);
-        return Response.status(200).entity("search request received").build();
-    }
+    private static Filter getJerseyFilter(ConcurrentMap<String, BlockingQueue<IMessage>> handle) {
+        final ResourceConfig config = new ResourceConfig()
+                .register(new RestService(handle))
+                .property(ServletProperties.FILTER_FORWARD_ON_404, true);
 
-    @POST
-    @Path(SearchResponse.ID)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response searchResponse(String response, @Context HttpServletRequest req) {
-        ObjectMapper ob = new ObjectMapper();
-        SearchResponse searchResponse;
-        try {
-            searchResponse = ob.readValue(response, SearchResponse.class);
-            System.out.println(searchResponse.getFilenames());
-
-            collectInfo(searchResponse, req);
-            messages.offer(searchResponse);
-            return Response.status(200).entity("search response received").build();
-
-        } catch (IOException e) {
-//            TODO handle error
-            e.printStackTrace();
-            return Response.status(400).entity("Can not parse response").build();
-        }
-    }
-
-    @POST
-    @Path(LeaveRequest.ID)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response leaveRequest(LeaveRequest leaveRequest, @Context HttpServletRequest req) {
-        collectInfo(leaveRequest, req);
-        messages.offer(leaveRequest);
-        return Response.status(200).entity("leave request received").build();
-    }
-
-//    TODO Test Leave request/response
-    @POST
-    @Path(LeaveResponse.ID)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response leaveResponse(LeaveResponse leaveResponse, @Context HttpServletRequest req) {
-        collectInfo(leaveResponse, req);
-        messages.offer(leaveResponse);
-        return Response.status(200).entity("leave response received").build();
-    }
-
-    @POST
-    @Path(HeartbeatPulse.ID)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response heartbeatPulse(HeartbeatPulse heartbeatPulse, @Context HttpServletRequest req) {
-        collectInfo(heartbeatPulse, req);
-        messages.offer(heartbeatPulse);
-        return Response.status(200).entity("heartbeat pulse received").build();
-    }
-
-
-    private void collectInfo(IMessage message, HttpServletRequest req) {
-        message.setReceivedTime(System.currentTimeMillis());
-        message.setSender(new Node(req.getRemoteAddr(), req.getRemotePort()));
-        ObjectMapper ob = new ObjectMapper();
-        try {
-            System.out.println(ob.writeValueAsString(message));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        return new ServletContainer(config);
     }
 
 }

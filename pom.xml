@@ -19,7 +19,7 @@
                 <version>2.5.1</version>
                 <executions>
                     <execution>
-                        <errorCode>copy-dependencies</errorCode>
+                        <!--<errorCode>copy-dependencies</errorCode>-->
                         <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
@@ -120,16 +120,56 @@
             <version>${jersey.version}</version>
         </dependency>
 
+         <!--https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api-->
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <!--<scope>provided</scope>-->
+        </dependency>
+
+
+        <!--for tomcat server instance-->
+        <dependency>
+            <groupId>org.glassfish.jersey.ext</groupId>
+            <artifactId>jersey-mvc-jsp</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+            <version>${jersey.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-servlet-api -->
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>${tomcat.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>${tomcat.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-logging-juli</artifactId>
+            <version>${tomcat.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <version>${tomcat.version}</version>
         </dependency>
 
     </dependencies>
 
     <properties>
         <jersey.version>2.25.1</jersey.version>
+        <tomcat.version>8.0.28</tomcat.version>
     </properties>
 
 </project>

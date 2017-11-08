@@ -1,5 +1,6 @@
 package lk.uomcse.fs.model;
 
+import lk.uomcse.fs.com.RestSender;
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.LeaveRequest;
@@ -23,14 +24,17 @@ public class LeaveService extends Thread {
 
     private List<Neighbour> neighbours;
 
+    private RequestHandler.SenderType senderType;
+
     /**
      * Constructor
      */
-    public LeaveService(RequestHandler handler, Node self, List<Neighbour> neighbours) {
+    public LeaveService(RequestHandler handler, Node self, List<Neighbour> neighbours, RequestHandler.SenderType senderType) {
         this.self = self;
         this.handler = handler;
         this.neighbours = neighbours;
         this.running = false;
+        this.senderType = senderType;
     }
 
     /**
@@ -49,11 +53,11 @@ public class LeaveService extends Thread {
                 Neighbour n = optionalNode.get();
                 n.setLeft(true);
                 LeaveResponse response = new LeaveResponse(true);
-                handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), response);
+                handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), response, senderType);
             } else {
                 Node n = request.getNode();
                 LeaveResponse response = new LeaveResponse(false);
-                handler.sendMessage(n.getIp(), n.getPort(), response);
+                handler.sendMessage(n.getIp(), n.getPort(), response, senderType);
             }
         }
     }
@@ -66,7 +70,7 @@ public class LeaveService extends Thread {
             LOGGER.info(String.format("Leaving neighbour %s", neighbour.getNode()));
             if (neighbour.getHealth() > 0) {
                 LeaveRequest request = new LeaveRequest(self);
-                handler.sendMessage(neighbour.getNode().getIp(), neighbour.getNode().getPort(), request);
+                handler.sendMessage(neighbour.getNode().getIp(), neighbour.getNode().getPort(), request, senderType);
                 int retry = 0;
                 LeaveResponse response;
                 while (retry < MAX_RETRIES) {

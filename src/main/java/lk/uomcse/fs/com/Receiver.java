@@ -8,14 +8,11 @@ import java.util.concurrent.BlockingQueue;
 public abstract class Receiver extends Thread {
     boolean running;
 
-    final BlockingQueue<IMessage> messages;
-
     /**
      * Constructor
      */
     Receiver() {
         this.running = false;
-        this.messages = Queues.newLinkedBlockingDeque();
     }
 
     /**
@@ -37,13 +34,4 @@ public abstract class Receiver extends Thread {
         this.interrupt();
     }
 
-    /**
-     * Takes messages received from the queue
-     *
-     * @return received message
-     * @throws InterruptedException Whether receive was interrupted
-     */
-    public IMessage receive() throws InterruptedException {
-        return messages.take();
-    }
 }
