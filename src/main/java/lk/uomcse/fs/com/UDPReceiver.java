@@ -1,5 +1,6 @@
 package lk.uomcse.fs.com;
 
+import com.google.common.collect.Queues;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.*;
 
@@ -7,9 +8,12 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.util.concurrent.BlockingQueue;
 
 public class UDPReceiver extends Receiver {
     private DatagramSocket socket;
+
+    final BlockingQueue<IMessage> messages;
 
 
     /**
@@ -20,6 +24,7 @@ public class UDPReceiver extends Receiver {
     public UDPReceiver(DatagramSocket socket) {
         super();
         this.socket = socket;
+        this.messages = Queues.newLinkedBlockingDeque();
     }
 
     /**
@@ -92,6 +97,16 @@ public class UDPReceiver extends Receiver {
                 break;
         }
         return message;
+    }
+
+    /**
+     * Takes messages received from the queue
+     *
+     * @return received message
+     * @throws InterruptedException Whether receive was interrupted
+     */
+    public IMessage receive() throws InterruptedException {
+        return messages.take();
     }
 
 

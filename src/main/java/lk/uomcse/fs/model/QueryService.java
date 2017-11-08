@@ -62,6 +62,8 @@ public class QueryService {
 
     private boolean running;
 
+    private RequestHandler.SenderType senderType;
+
     /**
      * Query service
      *
@@ -70,7 +72,7 @@ public class QueryService {
      * @param filenames  reference to list of filenames in this node
      * @param neighbours reference to list of neighbours
      */
-    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Neighbour> neighbours) {
+    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Neighbour> neighbours, RequestHandler.SenderType senderType) {
         this.handler = handler;
         this.current = current;
         this.filenames = filenames;
@@ -84,6 +86,9 @@ public class QueryService {
         this.queryIdStore = CacheBuilder.newBuilder()
                 .maximumSize(ID_STORE_INDEX_SIZE)
                 .<String, Queue<String>>build().asMap();
+
+        this.senderType = senderType;
+
     }
 
     /**
@@ -143,7 +148,7 @@ public class QueryService {
             List<String> matches = searchUtils(request, request.getSender());
             if (matches.size() > 0) {
                 SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.current, request.getHops() + 1, matches);
-                this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response);
+                this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response, senderType);
                 LOGGER.info(String.format("Response sent %s", response.toString()));
             }
         }
@@ -168,7 +173,7 @@ public class QueryService {
                 bestNodes.remove(ignore);
             request.incrementHops();
             bestNodes.forEach(node -> {
-                this.handler.sendMessage(node.getIp(), node.getPort(), request);
+                this.handler.sendMessage(node.getIp(), node.getPort(), request, senderType);
                 LOGGER.info(String.format("Sending query %s to neighbour %s ", request.toString(), node.toString()));
             });
         }

@@ -24,6 +24,7 @@ public class ConfigView {
     private JSpinner selfPortSpinner;
     private JSpinner bsPortSpinner;
     private JPanel mainPanel;
+    private JComboBox modeCombo;
     private ConfigController controller;
 
     public ConfigView() {
@@ -32,7 +33,8 @@ public class ConfigView {
 
     public void initialize() {
         initFrame();
-        initComponents();
+        initAddressCombo();
+        initModeCombo();
         initListeners();
     }
 
@@ -48,7 +50,7 @@ public class ConfigView {
         FrameUtils.centreWindow(frame);
     }
 
-    private void initComponents() {
+    private void initAddressCombo() {
         // Init self address combo boxes
         selfAddressCombo.removeAllItems();
         IPUtils.getPublicIpAddress().forEach(selfAddressCombo::addItem);
@@ -58,6 +60,15 @@ public class ConfigView {
             DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
             formatter.setCommitsOnValidEdit(true);
         }
+    }
+
+    /**
+     * Initializes mode
+     */
+    private void initModeCombo() {
+        modeCombo.removeAllItems();
+        modeCombo.addItem("UDP");
+        modeCombo.addItem("Rest");
     }
 
     /**
@@ -101,6 +112,7 @@ public class ConfigView {
         bsPortSpinner.addChangeListener(e -> controller.updateBootstrapServerPort((Integer) bsPortSpinner.getValue()));
         connectButton.addActionListener(e -> controller.connect());
         saveButton.addActionListener(e -> controller.save());
+        modeCombo.addActionListener(e -> controller.updateSenderType((String) modeCombo.getSelectedItem()));
     }
 
     public void setController(ConfigController controller) {

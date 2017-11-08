@@ -1,8 +1,10 @@
 package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.com.*;
+import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.utils.DatagramSocketUtils;
+import org.apache.catalina.LifecycleException;
 import org.apache.log4j.Logger;
 
 import java.net.DatagramSocket;
@@ -11,9 +13,7 @@ import java.util.concurrent.*;
 
 public class RequestHandler extends Thread {
 
-    public static final String CONNECTION_UDP = "udp";
-
-    public static final String CONNECTION_REST = "rest";
+    public enum SenderType {UDP, REST}
 
     private final static Logger LOGGER = Logger.getLogger(RequestHandler.class.getName());
 
@@ -21,34 +21,40 @@ public class RequestHandler extends Thread {
 
     private boolean running;
 
-    private final Receiver receiver;
+    private final UDPSender udpSender;
 
-    private final Sender sender;
+    private final UDPReceiver udpReceiver;
+
+    private final RestSender restSender;
+
+    private final RestReceiver restReceiver;
 
     private final ConcurrentMap<String, BlockingQueue<IMessage>> handle;
 
     /**
      * Constructor {{{{@link lk.uomcse.fs.messages.RegisterResponse}}}}
      *
-     * @param port port of this node
      */
-    public RequestHandler(int port, String connectionType) throws InstantiationException {
-        if (CONNECTION_UDP.equals(connectionType)) {
-            try {
-                socket = DatagramSocketUtils.getSocket(port);
-            } catch (SocketException e) {
-                throw new InstantiationException("Unable to create the socket. Try changing the IP:Port.");
-            }
-            this.receiver = new UDPReceiver(socket);
-            this.sender = new UDPSender(socket);
-        } else if (CONNECTION_REST.equals(connectionType)) {
-            this.receiver = new RestReceiver();
-            this.sender = new RestSender();
-        } else {
-            throw new InstantiationException(String.format("Provide connection type either %s or %s",
-                    CONNECTION_REST, CONNECTION_UDP));
-        }
+    public RequestHandler(Node node) throws InstantiationException {
+
         handle = new ConcurrentHashMap<>();
+
+        try {
+            socket = DatagramSocketUtils.getSocket(node.getPort());
+        } catch (SocketException e) {
+            throw new InstantiationException("Unable to create the socket. Try changing the IP:Port.");
+        }
+        this.udpReceiver = new UDPReceiver(socket);
+        this.udpSender = new UDPSender(socket);
+
+        this.restReceiver = new RestReceiver(node.getPort());
+        this.restSender = new RestSender(node);
+
+        try {
+            restReceiver.startWebServices(handle);
+        } catch (LifecycleException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -58,11 +64,11 @@ public class RequestHandler extends Thread {
     public void run() {
         running = true;
         LOGGER.trace("Initializing request handler.");
-        receiver.start();
-        sender.start();
+        udpReceiver.start();
+        udpSender.start();
         while (running) {
             try {
-                IMessage message = receiver.receive();
+                IMessage message = udpReceiver.receive();
                 LOGGER.debug(String.format("Received message: %s", message.getID()));
                 String id = message.getID();
                 handle.putIfAbsent(id, new LinkedBlockingQueue<>());
@@ -73,8 +79,8 @@ public class RequestHandler extends Thread {
             }
         }
         LOGGER.trace("Finalizing request handler.");
-        this.sender.setRunning(false);
-        this.receiver.setRunning(false);
+        this.restSender.setRunning(false);
+        this.udpReceiver.setRunning(false);
         this.socket.close();
     }
 
@@ -85,8 +91,25 @@ public class RequestHandler extends Thread {
      * @param port    port of the requested node
      * @param request request
      */
-    public void sendMessage(String ip, int port, IMessage request) {
-        sender.send(ip, port, request);
+    public void sendMessage(String ip, int port, IMessage request, SenderType senderType) {
+        if (SenderType.UDP.equals(senderType)) {
+            udpSender.send(ip, port, request);
+        } else if (SenderType.REST.equals(senderType)) {
+            restSender.send(ip, port, request);
+        } else {
+            LOGGER.error(String.format("Try connection type %s or %s", SenderType.UDP, SenderType.REST));
+        }
+    }
+
+    /**
+     * Requests given node
+     *
+     * @param ip      ip of the requested node
+     * @param port    port of the requested node
+     * @param request request
+     */
+    public void sendOnlyUDP(String ip, int port, IMessage request) {
+        udpSender.send(ip, port, request);
     }
 
     /**

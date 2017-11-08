@@ -19,6 +19,7 @@ public class Configuration {
     private BootstrapServer bootstrapServer;
     private String configPath;
     private List<String> files;
+    private RequestHandler.SenderType senderType;
 
     public Configuration(String name, String address, int port, BootstrapServer bootstrapServer, String configPath, List<String> files) {
         this.name = name;
@@ -27,6 +28,7 @@ public class Configuration {
         this.bootstrapServer = bootstrapServer;
         this.configPath = configPath;
         this.files = files;
+        this.senderType = RequestHandler.SenderType.UDP;
     }
 
     public String getName() {
@@ -71,6 +73,14 @@ public class Configuration {
 
     public void setBootstrapServerAddress(String address) {
         this.bootstrapServer.setAddress(address);
+    }
+
+    public RequestHandler.SenderType getSenderType() {
+        return senderType;
+    }
+
+    public void setSenderType(RequestHandler.SenderType senderType) {
+        this.senderType = senderType;
     }
 
     public void save() throws IOException {
