@@ -58,7 +58,7 @@ public class BootstrapService {
      *
      * @return List of nodes if the request is successful
      */
-    public List<Neighbour> register() throws BootstrapException {
+    public List<Neighbour> register(boolean leaveNodes) throws BootstrapException {
         RegisterRequest msg = new RegisterRequest(name, self);
         LOGGER.info(String.format("Requesting bootstrap server: %s", msg.toString()));
         RegisterResponse response = null;
@@ -85,9 +85,9 @@ public class BootstrapService {
         } else {
             switch (response.getNodeCount()) {
                 case (9998):
-                    boolean status = this.unregister();
+                    boolean status = this.unregister(leaveNodes);
                     if (!status) throw new BootstrapException(9998, "Un-registration failed. Unable to bootstrap.");
-                    return this.register();
+                    return this.register(leaveNodes);
                 case (9999):
                     err = new CommandError.Builder(9999)
                             .setError("Failed, there is some error in the command")
@@ -113,9 +113,11 @@ public class BootstrapService {
     /**
      * Unregisters the node bootstrap from server
      *
-     * @return whether the response is success
+     * @param leaveNodes whether to leave nodes or not
+     * @return whether its complete or not
+     * @throws BootstrapException Bootstrap exception
      */
-    public boolean unregister() throws BootstrapException {
+    public boolean unregister(Boolean leaveNodes) throws BootstrapException {
         UnregisterRequest msg = new UnregisterRequest(name, self);
         LOGGER.info(String.format("Requesting Bootstrap Server: %s", msg.toString()));
         UnregisterResponse response;
@@ -127,7 +129,8 @@ public class BootstrapService {
                 this.handler.sendMessage(this.server.getAddress(), this.server.getPort(), msg);
                 response = (UnregisterResponse) this.handler.receiveMessage(UnregisterResponse.ID, 1);
                 LOGGER.info(String.format("Bootstrap Server replied: %s", response.toString()));
-                leaveService.leave();
+                if (leaveNodes)
+                    leaveService.leave();
                 return response.isSuccess();
             } catch (TimeoutException e) {
                 count += 1;
@@ -137,13 +140,12 @@ public class BootstrapService {
         throw new BootstrapException(0, "Failed to unregister node. No response received from bootstrap server.");
     }
 
-
     /**
      * Connects with bootstrap server and joins to nodes provided
      */
-    public void bootstrap() throws BootstrapException {
+    public void bootstrap(Boolean leaveNodes) throws BootstrapException {
         try {
-            List<Neighbour> nodes = this.register();
+            List<Neighbour> nodes = this.register(leaveNodes);
             nodes.forEach(joinService::join);
             for (Neighbour n : nodes) {
                 boolean status = joinService.join(n);
@@ -155,5 +157,30 @@ public class BootstrapService {
         } catch (BootstrapException ex) {
             throw new BootstrapException(ex.getErrorCode(), ex.getMessage());
         }
+    }
+
+    /**
+     * Connects with bootstrap server and joins to nodes provided
+     */
+    public void bootstrap() throws BootstrapException {
+        bootstrap(true);
+    }
+
+    /**
+     * Registers the node bootstrap from server
+     *
+     * @return List of nodes if the request is successful
+     */
+    public List<Neighbour> register() throws BootstrapException {
+        return register(true);
+    }
+
+    /**
+     * Unregisters the node bootstrap from server
+     *
+     * @return whether the response is success
+     */
+    public boolean unregister() throws BootstrapException {
+        return unregister(true);
     }
 }
