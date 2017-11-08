@@ -1,0 +1,1 @@
+mvn install:install-file -Dfile=darcula.jar -DgroupId=com.github.bulenkov -DartifactId=darcula -Dversion=1.0 -Dpackaging=jar
