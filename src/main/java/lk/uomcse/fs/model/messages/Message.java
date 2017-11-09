@@ -9,7 +9,7 @@ public abstract class Message implements IMessage {
 
     public Message() {
         sender = null;
-        receivedTime = 0;
+        receivedTime = System.currentTimeMillis();
     }
 
     /**
