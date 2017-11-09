@@ -101,13 +101,20 @@ public class ConfigController {
      * Connects to the new instance
      */
     public void connect() {
-        try {
-            configs.connect();
-            view.setVisible(false);
-        } catch (BootstrapException e) {
-            JOptionPane.showMessageDialog(view.getFrame(), e.getMessage(), "Bootstrap Error", JOptionPane.ERROR_MESSAGE);
-        } catch (InitializationException e) {
-            JOptionPane.showMessageDialog(view.getFrame(), e.getMessage(), "Initialization Error", JOptionPane.ERROR_MESSAGE);
+        if (configs.getProtocol().equals(Protocol.REST)) {
+            if (configs.getBootstrapPort() == configs.getPort()) {
+                String msg = "Invalid port combination. Please use different ports for primary and bootstrapping ports.";
+                JOptionPane.showMessageDialog(view.getFrame(), msg, "Configuration Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            try {
+                configs.connect();
+                view.setVisible(false);
+            } catch (BootstrapException e) {
+                JOptionPane.showMessageDialog(view.getFrame(), e.getMessage(), "Bootstrap Error", JOptionPane.ERROR_MESSAGE);
+            } catch (InitializationException e) {
+                JOptionPane.showMessageDialog(view.getFrame(), e.getMessage(), "Initialization Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
