@@ -83,6 +83,7 @@ public class HeartbeatService extends Thread {
     private void sendPulses() {
         try {
             for (Neighbour neighbor : neighbors) {
+                if(neighbor.isLeft()) continue;
                 LOGGER.debug(String.format("Sending Heartbeat Message to %s", neighbor.getNode()));
                 this.requestHandler.sendMessage(neighbor.getNode().getIp(), neighbor.getNode().getPort(), this.pulse, false);
             }
