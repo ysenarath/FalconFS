@@ -1,9 +1,9 @@
 package lk.uomcse.fs.controller;
 
-import lk.uomcse.fs.FalconFS;
-import lk.uomcse.fs.entity.Neighbour;
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.model.QueryService;
+import lk.uomcse.fs.model.FalconFS;
+import lk.uomcse.fs.model.entity.Neighbour;
+import lk.uomcse.fs.model.entity.Node;
+import lk.uomcse.fs.model.service.QueryService;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.view.MainUI;
 
@@ -14,11 +14,19 @@ public class MainController {
     private final MainUI view;
     private final FalconFS model;
 
-    public MainController(FalconFS model, MainUI view) throws BootstrapException {
+    public MainController(FalconFS model, MainUI view) {
         this.model = model;
         this.view = view;
-        this.model.start();
         this.view.setController(this);
+    }
+
+    /**
+     * Starts the FalconFS services
+     *
+     * @throws BootstrapException when there is a problem in bootstrapping
+     */
+    public void start() throws BootstrapException {
+        this.model.start();
         this.view.initialize();
     }
 
@@ -36,9 +44,6 @@ public class MainController {
 
     public Node getSelf() {
         return model.getSelf();
-    }
-
-    public void updateView() {
     }
 
     public void stop() {

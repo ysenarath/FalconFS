@@ -1,47 +1,33 @@
 package lk.uomcse.fs.utils.exceptions;
 
-public class RequestFailedException extends Exception {
-    private int id;
+import java.security.PrivilegedActionException;
 
+public class ServiceStopException extends Exception {
     /**
-     * Constructs a new runtime exception with {@code null} as its
-     * detail message.  The cause is not initialized, and may subsequently be
-     * initialized by a call to {@link #initCause}.
+     * Constructs a new exception with {@code null} as its detail message.
+     * The cause is not initialized, and may subsequently be initialized by a
+     * call to {@link #initCause}.
      */
-    public RequestFailedException() {
+    public ServiceStopException() {
     }
 
     /**
-     * Constructs a new runtime exception with the specified detail message.
-     * The cause is not initialized, and may subsequently be initialized by a
-     * call to {@link #initCause}.
+     * Constructs a new exception with the specified detail message.  The
+     * cause is not initialized, and may subsequently be initialized by
+     * a call to {@link #initCause}.
      *
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public RequestFailedException(String message, int id) {
-        super(message);
-        this.id = id;
-    }
-
-
-    /**
-     * Constructs a new runtime exception with the specified detail message.
-     * The cause is not initialized, and may subsequently be initialized by a
-     * call to {@link #initCause}.
-     *
-     * @param message the detail message. The detail message is saved for
-     *                later retrieval by the {@link #getMessage()} method.
-     */
-    public RequestFailedException(String message) {
+    public ServiceStopException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a new runtime exception with the specified detail message and
+     * Constructs a new exception with the specified detail message and
      * cause.  <p>Note that the detail message associated with
      * {@code cause} is <i>not</i> automatically incorporated in
-     * this runtime exception's detail message.
+     * this exception's detail message.
      *
      * @param message the detail message (which is saved for later retrieval
      *                by the {@link #getMessage()} method).
@@ -51,16 +37,17 @@ public class RequestFailedException extends Exception {
      *                unknown.)
      * @since 1.4
      */
-    public RequestFailedException(String message, Throwable cause) {
+    public ServiceStopException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * Constructs a new runtime exception with the specified cause and a
-     * detail message of <tt>(cause==null ? null : cause.toString())</tt>
-     * (which typically contains the class and detail message of
-     * <tt>cause</tt>).  This constructor is useful for runtime exceptions
-     * that are little more than wrappers for other throwables.
+     * Constructs a new exception with the specified cause and a detail
+     * message of <tt>(cause==null ? null : cause.toString())</tt> (which
+     * typically contains the class and detail message of <tt>cause</tt>).
+     * This constructor is useful for exceptions that are little more than
+     * wrappers for other throwables (for example, {@link
+     * PrivilegedActionException}).
      *
      * @param cause the cause (which is saved for later retrieval by the
      *              {@link #getCause()} method).  (A <tt>null</tt> value is
@@ -68,14 +55,14 @@ public class RequestFailedException extends Exception {
      *              unknown.)
      * @since 1.4
      */
-    public RequestFailedException(Throwable cause) {
+    public ServiceStopException(Throwable cause) {
         super(cause);
     }
 
     /**
-     * Constructs a new runtime exception with the specified detail
-     * message, cause, suppression enabled or disabled, and writable
-     * stack trace enabled or disabled.
+     * Constructs a new exception with the specified detail message,
+     * cause, suppression enabled or disabled, and writable stack
+     * trace enabled or disabled.
      *
      * @param message            the detail message.
      * @param cause              the cause.  (A {@code null} value is permitted,
@@ -86,11 +73,7 @@ public class RequestFailedException extends Exception {
      *                           be writable
      * @since 1.7
      */
-    public RequestFailedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public ServiceStopException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
-    }
-
-    public int getId() {
-        return id;
     }
 }

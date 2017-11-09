@@ -1,6 +1,11 @@
 package lk.uomcse.fs.model;
 
-import lk.uomcse.fs.entity.BootstrapServer;
+import lk.uomcse.fs.controller.MainController;
+import lk.uomcse.fs.model.entity.BootstrapServer;
+import lk.uomcse.fs.utils.ListUtils;
+import lk.uomcse.fs.utils.exceptions.BootstrapException;
+import lk.uomcse.fs.utils.exceptions.InitializationException;
+import lk.uomcse.fs.view.MainUI;
 import org.apache.log4j.Logger;
 
 import java.io.FileOutputStream;
@@ -10,16 +15,23 @@ import java.util.List;
 import java.util.Properties;
 
 public class Configuration {
-
     private static final Logger LOGGER = Logger.getLogger(Configuration.class.getName());
 
-    private String name;
-    private String address;
-    private int port;
-    private BootstrapServer bootstrapServer;
     private String configPath;
+
+    private String name;
+
+    private String address;
+
+    private int port;
+
+    private BootstrapServer bootstrapServer;
+
     private List<String> files;
-    private RequestHandler.SenderType senderType;
+
+    private Protocol protocol;
+
+    private Integer bootstrapPort;
 
     public Configuration(String name, String address, int port, BootstrapServer bootstrapServer, String configPath, List<String> files) {
         this.name = name;
@@ -28,7 +40,7 @@ public class Configuration {
         this.bootstrapServer = bootstrapServer;
         this.configPath = configPath;
         this.files = files;
-        this.senderType = RequestHandler.SenderType.UDP;
+        this.protocol = Protocol.UDP;
     }
 
     public String getName() {
@@ -55,6 +67,10 @@ public class Configuration {
         return files;
     }
 
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
     public void setPort(int port) {
         this.port = port;
     }
@@ -75,19 +91,15 @@ public class Configuration {
         this.bootstrapServer.setAddress(address);
     }
 
-    public RequestHandler.SenderType getSenderType() {
-        return senderType;
-    }
-
-    public void setSenderType(RequestHandler.SenderType senderType) {
-        this.senderType = senderType;
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
     }
 
     public void save() throws IOException {
         Properties prop = new Properties();
         OutputStream output = null;
         if (configPath == null) {
-            LOGGER.info("Unable to save configurations");
+            LOGGER.error("Unable to save configurations");
             throw new IOException("Unable to save configurations. Please try different config location.");
         }
         try {
@@ -109,11 +121,27 @@ public class Configuration {
                 try {
                     output.close();
                 } catch (IOException e) {
-                    // e.printStackTrace();
-                    LOGGER.debug("Unable to close the stream due to an IO Error.");
+                    LOGGER.error("Unable to close the stream due to an IO Error.");
+                    // Ignore
                 }
             }
 
         }
+    }
+
+    public Integer getBootstrapPort() {
+        return bootstrapPort;
+    }
+
+    public void setBootstrapPort(Integer bootstrapPort) {
+        this.bootstrapPort = bootstrapPort;
+    }
+
+    public void connect() throws InitializationException, BootstrapException {
+        FalconFS fs = new FalconFS(this);
+        fs.getFilenames().addAll(ListUtils.randomSubList(files, 4, 2));
+        MainUI ui = new MainUI();
+        MainController controller = new MainController(fs, ui);
+        controller.start();
     }
 }

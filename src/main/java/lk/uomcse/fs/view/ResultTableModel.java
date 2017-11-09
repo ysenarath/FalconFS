@@ -1,14 +1,12 @@
 package lk.uomcse.fs.view;
 
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.model.QueryService;
+import lk.uomcse.fs.model.entity.Node;
+import lk.uomcse.fs.model.service.QueryService;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Dulanjaya

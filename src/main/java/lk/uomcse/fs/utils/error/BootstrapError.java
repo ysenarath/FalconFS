@@ -1,7 +1,5 @@
 package lk.uomcse.fs.utils.error;
 
-import lk.uomcse.fs.messages.IResponse;
-
 public abstract class BootstrapError extends java.lang.Error {
 
     protected int ErrorCode;

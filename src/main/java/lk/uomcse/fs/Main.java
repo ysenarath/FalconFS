@@ -1,8 +1,9 @@
 package lk.uomcse.fs;
 
 import lk.uomcse.fs.controller.ConfigController;
-import lk.uomcse.fs.entity.BootstrapServer;
+import lk.uomcse.fs.model.entity.BootstrapServer;
 import lk.uomcse.fs.model.Configuration;
+import lk.uomcse.fs.model.FalconFS;
 import lk.uomcse.fs.utils.FrameUtils;
 import lk.uomcse.fs.view.ConfigView;
 
@@ -49,6 +50,7 @@ public class Main {
         BootstrapServer bc = new BootstrapServer(props.getProperty("bs.ip"), Integer.parseInt(props.getProperty("bs.port")));
         String filesStr = props.getProperty("files");
         List<String> files = Arrays.asList(filesStr.trim().toLowerCase().split(","));
+        // Handing application control to UI
         Configuration configuration = new Configuration(props.getProperty("fs.name"), props.getProperty("fs.ip"), Integer.parseInt(props.getProperty("fs.port")), bc, configPath, files);
         ConfigView configView = new ConfigView();
         ConfigController configController = new ConfigController(configuration, configView);
