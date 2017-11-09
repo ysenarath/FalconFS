@@ -1,13 +1,17 @@
 package lk.uomcse.fs.model.com;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lk.uomcse.fs.model.entity.Node;
 import lk.uomcse.fs.model.messages.IMessage;
+import org.apache.log4j.Logger;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public class RestSender extends Sender {
+    private final static Logger LOGGER = Logger.getLogger(RestSender.class.getName());
 
     private Client client;
 
@@ -37,7 +41,12 @@ public class RestSender extends Sender {
             }
         } catch (Exception e) {
             // TODO: Is this way of handling ok @Nadheesh
-            // Ignore
+            ObjectMapper ob = new ObjectMapper();
+            try {
+                LOGGER.error(String.format("Sending failed to %s message %s", webTarget.getUri().getPath(), ob.writeValueAsString(request)));
+            } catch (JsonProcessingException e1) {
+                e1.printStackTrace();
+            }
         }
 
     }
