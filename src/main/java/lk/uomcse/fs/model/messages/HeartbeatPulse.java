@@ -11,11 +11,11 @@ import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
  */
 @JsonIgnoreProperties(value = {"receivedTime"}, ignoreUnknown = true)
 public class HeartbeatPulse extends Message implements IMessage {
-    public static final String ID = "HBPULSE";
+    public static final String ID = "HP";
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(" HBPULSE");
+        StringBuilder sb = new StringBuilder(String.format(" %s", ID));
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();
