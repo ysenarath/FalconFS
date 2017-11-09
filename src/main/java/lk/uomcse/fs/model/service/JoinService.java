@@ -73,7 +73,7 @@ public class JoinService extends Thread {
             handler.sendMessage(n.getNode().getIp(), n.getNode().getPort(), request, false);
             try {
                 // NOTE: Join reply is always a success
-                reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 3);
+                reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 5);
                 break;
             } catch (TimeoutException e) {
                 retries++;
