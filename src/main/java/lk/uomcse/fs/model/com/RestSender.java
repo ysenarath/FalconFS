@@ -32,6 +32,7 @@ public class RestSender extends Sender {
         WebTarget webTarget;
         RestMessage restRequest;
         IMessage request;
+        Invocation.Builder builder;
 
         running = true;
         while (running) {
@@ -42,26 +43,18 @@ public class RestSender extends Sender {
             } catch (InterruptedException e) {
                 continue;
             }
-
-            webTarget = client.target(String.format("http://%s:%d", restRequest.ip, restRequest.port))
-                    .path(String.format("/%s", request.getID()));
-
-            Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON);
-            Response response;
             try {
+                webTarget = client.target(String.format("http://%s:%d", restRequest.ip, restRequest.port))
+                        .path(String.format("/%s", request.getID()));
+                builder = webTarget.request(MediaType.APPLICATION_JSON);
+                Response response;
                 response = builder.post(Entity.entity(request, MediaType.APPLICATION_JSON));
+                LOGGER.info(String.format("Sending message %s to %s:%d", request.toString(), restRequest.ip, restRequest.port));
                 if (response.getStatus() != 200) {
-                    throw new RuntimeException(String.format("The request sending failed with status %s.", response.getStatusInfo()));
+                    LOGGER.error(String.format("Sending to %s:%d failed :: msg %s", restRequest.ip, restRequest.port, request.toString()));
                 }
             } catch (Exception ex) {
-                // TODO: Is this way of handling ok @Nadheesh
-                ObjectMapper ob = new ObjectMapper();
-                try {
-                    LOGGER.error(String.format("Sending failed to %s message %s", webTarget.getUri().getHost(), ob.writeValueAsString(request)));
-                    LOGGER.error(ex.getMessage());
-                } catch (JsonProcessingException e1) {
-                    LOGGER.error(e1.getMessage());
-                }
+                LOGGER.error(String.format("Sending to %s:%d failed :: msg %s", restRequest.ip, restRequest.port, request.toString()));
             }
         }
     }

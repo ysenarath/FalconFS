@@ -39,7 +39,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response joinRequest(JoinRequest joinRequest, @Context HttpServletRequest req) {
         collectInfo(joinRequest);
-        return Response.status(200).entity("join request received").build();
+        return Response.status(200).build();
     }
 
     @POST
@@ -47,7 +47,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response joinResponse(JoinResponse joinResponse) {
         collectInfo(joinResponse);
-        return Response.status(200).entity("join response received").build();
+        return Response.status(200).build();
     }
 
     @POST
@@ -55,7 +55,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response searchRequest(SearchRequest searchRequest) {
         collectInfo(searchRequest);
-        return Response.status(200).entity("search request received").build();
+        return Response.status(200).build();
     }
 
     @POST
@@ -67,12 +67,12 @@ public class RestService extends Receiver {
         try {
             searchResponse = ob.readValue(response, SearchResponse.class);
             collectInfo(searchResponse);
-            return Response.status(200).entity("search response received").build();
+            return Response.status(200).build();
 
         } catch (IOException e) {
 //            TODO handle error
-            e.printStackTrace();
-            return Response.status(400).entity("Can not parse response").build();
+            LOGGER.info("Failed to read search response");
+            return Response.status(400).build();
         }
     }
 
@@ -81,7 +81,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response leaveRequest(LeaveRequest leaveRequest) {
         collectInfo(leaveRequest);
-        return Response.status(200).entity("leave request received").build();
+        return Response.status(200).build();
     }
 
     //    TODO Test Leave request/response
@@ -90,7 +90,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response leaveResponse(LeaveResponse leaveResponse) {
         collectInfo(leaveResponse);
-        return Response.status(200).entity("leave response received").build();
+        return Response.status(200).build();
     }
 
     @POST
@@ -98,7 +98,7 @@ public class RestService extends Receiver {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response heartbeatPulse(HeartbeatPulse heartbeatPulse) {
         collectInfo(heartbeatPulse);
-        return Response.status(200).entity("heartbeat pulse received").build();
+        return Response.status(200).build();
     }
 
 
