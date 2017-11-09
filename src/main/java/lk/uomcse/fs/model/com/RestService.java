@@ -99,8 +99,6 @@ public class RestService extends Receiver {
 
 
     private void collectInfo(IMessage message, HttpServletRequest req) {
-        message.setReceivedTime(System.currentTimeMillis());
-
         handle.putIfAbsent(message.getID(), new LinkedBlockingQueue<>());
         BlockingQueue<IMessage> messages = handle.get(message.getID());
         messages.add(message);
