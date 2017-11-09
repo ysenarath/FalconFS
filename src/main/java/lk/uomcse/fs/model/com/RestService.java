@@ -104,20 +104,13 @@ public class RestService extends Receiver {
 
     private void collectInfo(IMessage message) {
 
-        ObjectMapper ob = new ObjectMapper();
-
-        try {
-            LOGGER.info(ob.writeValueAsString(message));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
         handle.putIfAbsent(message.getID(), new LinkedBlockingQueue<>());
         BlockingQueue<IMessage> messages = handle.get(message.getID());
         messages.add(message);
 
 
         try {
+            ObjectMapper ob = new ObjectMapper();
             LOGGER.info(ob.writeValueAsString(message));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
