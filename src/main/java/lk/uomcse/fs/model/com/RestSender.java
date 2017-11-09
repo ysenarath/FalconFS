@@ -1,7 +1,7 @@
 package lk.uomcse.fs.model.com;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import com.google.common.collect.Queues;
 import lk.uomcse.fs.model.entity.Node;
 import lk.uomcse.fs.model.messages.IMessage;
@@ -23,7 +23,13 @@ public class RestSender extends Sender {
 
     public RestSender(Node self) {
         this.self = self;
-        this.client = ClientBuilder.newClient();
+        ClientConfig configuration = new ClientConfig();
+        configuration.property(ClientProperties.CONNECT_TIMEOUT, 1000);
+        configuration.property(ClientProperties.READ_TIMEOUT, 1000);
+
+        this.client = ClientBuilder.newClient(configuration);
+
+
         messages = Queues.newLinkedBlockingDeque();
     }
 
