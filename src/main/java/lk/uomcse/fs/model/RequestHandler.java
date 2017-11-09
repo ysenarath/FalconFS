@@ -206,7 +206,7 @@ public class RequestHandler extends Thread {
             } catch (LifecycleException e) {
                 LOGGER.debug("Failed to stop web services. Ignoring and stopping other services.");
             }
-            restSender.setRunning(false);
+            restSender.stopWebClient();
         }
         this.udpSender.setRunning(false);
         this.udpReceiver.setRunning(false);
