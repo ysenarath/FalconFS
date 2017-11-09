@@ -1,8 +1,9 @@
-package lk.uomcse.fs.model;
+package lk.uomcse.fs.model.service;
 
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.HeartbeatPulse;
+import lk.uomcse.fs.model.RequestHandler;
 import org.apache.log4j.Logger;
 
 import java.util.List;

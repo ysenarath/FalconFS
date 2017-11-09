@@ -1,4 +1,4 @@
-package lk.uomcse.fs.model;
+package lk.uomcse.fs.model.service;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;

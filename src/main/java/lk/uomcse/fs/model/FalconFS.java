@@ -1,8 +1,8 @@
-package lk.uomcse.fs;
+package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.model.*;
+import lk.uomcse.fs.model.service.*;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.utils.exceptions.InitializationException;
 import org.apache.log4j.Logger;

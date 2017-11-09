@@ -2,12 +2,10 @@ package lk.uomcse.fs.view;
 
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.model.QueryService;
+import lk.uomcse.fs.model.service.QueryService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**

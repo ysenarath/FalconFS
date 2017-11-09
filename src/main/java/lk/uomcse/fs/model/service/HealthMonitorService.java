@@ -1,4 +1,4 @@
-package lk.uomcse.fs.model;
+package lk.uomcse.fs.model.service;
 
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;

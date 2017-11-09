@@ -1,4 +1,4 @@
-package lk.uomcse.fs.model;
+package lk.uomcse.fs.model.service;
 
 import lk.uomcse.fs.entity.BootstrapServer;
 import lk.uomcse.fs.entity.Neighbour;
@@ -7,6 +7,7 @@ import lk.uomcse.fs.messages.RegisterRequest;
 import lk.uomcse.fs.messages.RegisterResponse;
 import lk.uomcse.fs.messages.UnregisterRequest;
 import lk.uomcse.fs.messages.UnregisterResponse;
+import lk.uomcse.fs.model.RequestHandler;
 import lk.uomcse.fs.utils.ListUtils;
 import lk.uomcse.fs.utils.TextFormatUtils;
 import lk.uomcse.fs.utils.error.BootstrapError;
