@@ -1,11 +1,11 @@
 package lk.uomcse.fs.model;
 
-import lk.uomcse.fs.com.RestReceiver;
-import lk.uomcse.fs.com.RestSender;
-import lk.uomcse.fs.com.UDPReceiver;
-import lk.uomcse.fs.com.UDPSender;
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.messages.IMessage;
+import lk.uomcse.fs.model.com.RestReceiver;
+import lk.uomcse.fs.model.com.RestSender;
+import lk.uomcse.fs.model.com.UDPReceiver;
+import lk.uomcse.fs.model.com.UDPSender;
+import lk.uomcse.fs.model.entity.Node;
+import lk.uomcse.fs.model.messages.IMessage;
 import lk.uomcse.fs.utils.DatagramSocketUtils;
 import lk.uomcse.fs.utils.exceptions.InitializationException;
 import org.apache.catalina.LifecycleException;

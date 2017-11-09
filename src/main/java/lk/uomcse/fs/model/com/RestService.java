@@ -1,16 +1,14 @@
-package lk.uomcse.fs.com;
+package lk.uomcse.fs.model.com;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.messages.*;
+import lk.uomcse.fs.model.messages.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentMap;

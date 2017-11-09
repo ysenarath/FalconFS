@@ -1,6 +1,6 @@
-package lk.uomcse.fs.com;
+package lk.uomcse.fs.model.com;
 
-import lk.uomcse.fs.messages.IMessage;
+import lk.uomcse.fs.model.messages.IMessage;
 
 public abstract class Sender extends Thread {
     protected boolean running;

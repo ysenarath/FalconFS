@@ -1,7 +1,7 @@
-package lk.uomcse.fs.messages;
+package lk.uomcse.fs.model.messages;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.model.entity.Node;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 // length SER qid IP port file_name hops

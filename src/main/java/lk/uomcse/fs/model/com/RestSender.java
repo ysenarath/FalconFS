@@ -1,7 +1,7 @@
-package lk.uomcse.fs.com;
+package lk.uomcse.fs.model.com;
 
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.messages.IMessage;
+import lk.uomcse.fs.model.entity.Node;
+import lk.uomcse.fs.model.messages.IMessage;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;

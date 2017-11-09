@@ -1,7 +1,7 @@
-package lk.uomcse.fs.com;
+package lk.uomcse.fs.model.com;
 
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.messages.IMessage;
+import lk.uomcse.fs.model.entity.Node;
+import lk.uomcse.fs.model.messages.IMessage;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.servlets.DefaultServlet;

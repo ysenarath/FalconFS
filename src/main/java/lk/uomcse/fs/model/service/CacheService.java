@@ -3,7 +3,7 @@ package lk.uomcse.fs.model.service;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Queues;
-import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.model.entity.Node;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;

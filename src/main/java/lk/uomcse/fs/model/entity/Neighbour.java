@@ -1,9 +1,8 @@
-package lk.uomcse.fs.entity;
+package lk.uomcse.fs.model.entity;
 
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Random;
 
 public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
 

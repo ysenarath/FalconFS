@@ -1,9 +1,9 @@
 package lk.uomcse.fs.model.service;
 
-import lk.uomcse.fs.entity.Neighbour;
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.messages.JoinRequest;
-import lk.uomcse.fs.messages.JoinResponse;
+import lk.uomcse.fs.model.entity.Neighbour;
+import lk.uomcse.fs.model.entity.Node;
+import lk.uomcse.fs.model.messages.JoinRequest;
+import lk.uomcse.fs.model.messages.JoinResponse;
 import lk.uomcse.fs.model.RequestHandler;
 import org.apache.log4j.Logger;
 

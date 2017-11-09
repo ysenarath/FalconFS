@@ -1,7 +1,7 @@
 package lk.uomcse.fs;
 
 import lk.uomcse.fs.controller.ConfigController;
-import lk.uomcse.fs.entity.BootstrapServer;
+import lk.uomcse.fs.model.entity.BootstrapServer;
 import lk.uomcse.fs.model.Configuration;
 import lk.uomcse.fs.model.FalconFS;
 import lk.uomcse.fs.utils.FrameUtils;

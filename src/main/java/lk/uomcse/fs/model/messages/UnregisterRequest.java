@@ -1,6 +1,6 @@
-package lk.uomcse.fs.messages;
+package lk.uomcse.fs.model.messages;
 
-import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.model.entity.Node;
 
 // length UNREG IP_address port_no username
 public class UnregisterRequest extends Message implements IRequest {

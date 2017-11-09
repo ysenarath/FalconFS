@@ -1,8 +1,8 @@
-package lk.uomcse.fs.com;
+package lk.uomcse.fs.model.com;
 
 import com.google.common.collect.Queues;
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.messages.*;
+import lk.uomcse.fs.model.entity.Node;
+import lk.uomcse.fs.model.messages.*;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 import java.io.IOException;

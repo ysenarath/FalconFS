@@ -1,4 +1,4 @@
-package lk.uomcse.fs.messages;
+package lk.uomcse.fs.model.messages;
 
 public interface IResponse extends IMessage {
     /**

@@ -1,7 +1,7 @@
 package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.controller.MainController;
-import lk.uomcse.fs.entity.BootstrapServer;
+import lk.uomcse.fs.model.entity.BootstrapServer;
 import lk.uomcse.fs.utils.ListUtils;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.utils.exceptions.InitializationException;

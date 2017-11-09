@@ -1,4 +1,4 @@
-package lk.uomcse.fs.messages;
+package lk.uomcse.fs.model.messages;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lk.uomcse.fs.utils.exceptions.InvalidFormatException;

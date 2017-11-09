@@ -1,9 +1,4 @@
-package lk.uomcse.fs.com;
-
-import com.google.common.collect.Queues;
-import lk.uomcse.fs.messages.IMessage;
-
-import java.util.concurrent.BlockingQueue;
+package lk.uomcse.fs.model.com;
 
 public abstract class Receiver extends Thread {
     boolean running;

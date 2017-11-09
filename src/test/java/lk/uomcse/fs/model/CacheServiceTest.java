@@ -1,6 +1,6 @@
 package lk.uomcse.fs.model;
 
-import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.model.entity.Node;
 import lk.uomcse.fs.model.service.CacheService;
 import org.junit.Test;
 

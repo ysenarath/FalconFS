@@ -1,6 +1,6 @@
-package lk.uomcse.fs.com;
+package lk.uomcse.fs.model.com;
 
-import lk.uomcse.fs.messages.IMessage;
+import lk.uomcse.fs.model.messages.IMessage;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

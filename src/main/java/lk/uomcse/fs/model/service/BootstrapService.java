@@ -1,12 +1,12 @@
 package lk.uomcse.fs.model.service;
 
-import lk.uomcse.fs.entity.BootstrapServer;
-import lk.uomcse.fs.entity.Neighbour;
-import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.messages.RegisterRequest;
-import lk.uomcse.fs.messages.RegisterResponse;
-import lk.uomcse.fs.messages.UnregisterRequest;
-import lk.uomcse.fs.messages.UnregisterResponse;
+import lk.uomcse.fs.model.entity.BootstrapServer;
+import lk.uomcse.fs.model.entity.Neighbour;
+import lk.uomcse.fs.model.entity.Node;
+import lk.uomcse.fs.model.messages.RegisterRequest;
+import lk.uomcse.fs.model.messages.RegisterResponse;
+import lk.uomcse.fs.model.messages.UnregisterRequest;
+import lk.uomcse.fs.model.messages.UnregisterResponse;
 import lk.uomcse.fs.model.RequestHandler;
 import lk.uomcse.fs.utils.ListUtils;
 import lk.uomcse.fs.utils.TextFormatUtils;

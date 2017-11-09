@@ -1,10 +1,8 @@
 package lk.uomcse.fs.view;
 
-import lk.uomcse.fs.entity.Neighbour;
-import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.model.entity.Neighbour;
 
 import javax.swing.table.DefaultTableModel;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

@@ -1,8 +1,8 @@
 package lk.uomcse.fs.controller;
 
 import lk.uomcse.fs.model.FalconFS;
-import lk.uomcse.fs.entity.Neighbour;
-import lk.uomcse.fs.entity.Node;
+import lk.uomcse.fs.model.entity.Neighbour;
+import lk.uomcse.fs.model.entity.Node;
 import lk.uomcse.fs.model.service.QueryService;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.view.MainUI;

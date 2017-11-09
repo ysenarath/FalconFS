@@ -1,4 +1,4 @@
-package lk.uomcse.fs.entity;
+package lk.uomcse.fs.model.entity;
 
 import org.apache.log4j.Logger;
 
