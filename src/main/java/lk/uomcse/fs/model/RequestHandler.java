@@ -75,8 +75,10 @@ public class RequestHandler extends Thread {
                 restReceiver.startWebServices(handle);
             } catch (Exception e) {
                 try {
-                    restReceiver.stopWebService();
+                    if (restReceiver != null)
+                        restReceiver.stopWebService();
                 } catch (LifecycleException ignore) {
+                    LOGGER.debug("Ignoring lifecycle error when trying to stop the web server");
                     // Ignore
                 }
                 throw new InitializationException("Unable to start web services. Tomcat may need different port.");
@@ -87,6 +89,13 @@ public class RequestHandler extends Thread {
         } catch (SocketException e) {
             if (socket != null)
                 socket.close();
+            if (restReceiver != null)
+                try {
+                    restReceiver.stopWebService();
+                } catch (LifecycleException ignore) {
+                    LOGGER.debug("Ignoring lifecycle error when trying to stop the web server");
+                    // Ignore
+                }
             throw new InitializationException("Unable to create the socket. Try changing the port for this application.");
         }
         udpReceiver = new UDPReceiver(socket);
