@@ -73,6 +73,7 @@ public class RequestHandler extends Thread {
         if (protocol == Protocol.REST) {
             try {
                 restReceiver.startWebServices(handle);
+                restSender.start();
             } catch (Exception e) {
                 try {
                     if (restReceiver != null)
@@ -205,7 +206,6 @@ public class RequestHandler extends Thread {
             } catch (LifecycleException e) {
                 LOGGER.debug("Failed to stop web services. Ignoring and stopping other services.");
             }
-            restSender.stopWebSender();
             restSender.setRunning(false);
         }
         this.udpSender.setRunning(false);
