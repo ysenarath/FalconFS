@@ -67,6 +67,7 @@ public class PulseReceiverService extends Thread {
      */
     private void receivePulses() {
         IMessage message = this.requestHandler.receiveMessage(HeartbeatPulse.ID);
+        LOGGER.debug(String.format("Heartbeat received from %S", message.getSender()));
         try {
             InetAddress packetAddress = InetAddress.getByName(message.getSender().getIp());
             for (final ListIterator<Neighbour> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
