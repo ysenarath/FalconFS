@@ -38,6 +38,7 @@ public class RestSender extends Sender {
             try {
                 restRequest = messages.take();
                 request = restRequest.request;
+                request.setSender(self); //set my address
             } catch (InterruptedException e) {
                 continue;
             }
@@ -56,7 +57,7 @@ public class RestSender extends Sender {
                 // TODO: Is this way of handling ok @Nadheesh
                 ObjectMapper ob = new ObjectMapper();
                 try {
-                    LOGGER.error(String.format("Sending failed to %s message %s", webTarget.getUri().getPath(), ob.writeValueAsString(request)));
+                    LOGGER.error(String.format("Sending failed to %s message %s", webTarget.getUri().getHost(), ob.writeValueAsString(request)));
                     LOGGER.error(ex.getMessage());
                 } catch (JsonProcessingException e1) {
                     LOGGER.error(e1.getMessage());
@@ -67,8 +68,6 @@ public class RestSender extends Sender {
 
     @Override
     public void send(String ip, int port, IMessage request) {
-        //set my address
-        request.setSender(self);
         messages.add(new RestMessage(ip, port, request));
     }
 
