@@ -2,8 +2,6 @@ package lk.uomcse.fs.com;
 
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.messages.IMessage;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
