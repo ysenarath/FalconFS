@@ -1,10 +1,10 @@
 package lk.uomcse.fs.model.service;
 
+import lk.uomcse.fs.model.RequestHandler;
 import lk.uomcse.fs.model.entity.Neighbour;
 import lk.uomcse.fs.model.entity.Node;
 import lk.uomcse.fs.model.messages.JoinRequest;
 import lk.uomcse.fs.model.messages.JoinResponse;
-import lk.uomcse.fs.model.RequestHandler;
 import org.apache.log4j.Logger;
 
 import java.util.List;
@@ -79,10 +79,12 @@ public class JoinService extends Thread {
                 retries++;
             }
         }
+        // TODO: Test this
         if (reply == null) {
+            n.setLeft(true);
             LOGGER.info(String.format("Failed joining with node %s", n.getNode()));
-            return false;
         } else {
+            n.setLeft(false);
             LOGGER.info(String.format("Successfully joined with node %s", n.getNode()));
         }
         // Add neighbours if success or not. Not success implies it has already registered that node.
