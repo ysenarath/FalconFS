@@ -3,12 +3,12 @@ package lk.uomcse.fs;
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
 import lk.uomcse.fs.model.*;
-import lk.uomcse.fs.model.Protocol;
 import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.utils.exceptions.InitializationException;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -49,7 +49,7 @@ public class FalconFS {
     public FalconFS(Configuration configs) throws InitializationException {
         this.name = configs.getName();
         this.self = new Node(configs.getAddress(), configs.getPort());
-        this.neighbours = new ArrayList<>();
+        this.neighbours = Collections.synchronizedList(new ArrayList<>());
         this.filenames = new ArrayList<>();
         this.protocol = configs.getProtocol();
         // Only needed if sender type is REST

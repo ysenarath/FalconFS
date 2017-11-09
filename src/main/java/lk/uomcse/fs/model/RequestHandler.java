@@ -73,7 +73,7 @@ public class RequestHandler extends Thread {
         if (protocol == Protocol.REST) {
             try {
                 restReceiver.startWebServices(handle);
-            } catch (LifecycleException e) {
+            } catch (Exception e) {
                 try {
                     restReceiver.stopWebService();
                 } catch (LifecycleException ignore) {

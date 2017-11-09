@@ -96,7 +96,7 @@ public class RegisterResponse extends Message implements IResponse {
     public String toString() {
         StringBuilder sb = new StringBuilder(" ");
         sb.append(ID).append(" ").append(nodeCount);
-        nodes.forEach(node -> sb.append(" ").append(node.getIp()).append(node.getPort()));
+        nodes.forEach(node -> sb.append(" ").append(node.getIp()).append(" ").append(node.getPort()));
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);
         return sb.toString();

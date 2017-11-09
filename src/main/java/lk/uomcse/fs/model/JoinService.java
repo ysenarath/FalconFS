@@ -2,7 +2,6 @@ package lk.uomcse.fs.model;
 
 import lk.uomcse.fs.entity.Neighbour;
 import lk.uomcse.fs.entity.Node;
-import lk.uomcse.fs.messages.IMessage;
 import lk.uomcse.fs.messages.JoinRequest;
 import lk.uomcse.fs.messages.JoinResponse;
 import org.apache.log4j.Logger;
@@ -49,8 +48,8 @@ public class JoinService extends Thread {
             // Get request
             JoinRequest request = (JoinRequest) this.handler.receiveMessage(JoinRequest.ID);
             // Send reply
-            IMessage reply = new JoinResponse(true);
-            LOGGER.info(String.format("Replying to join request: %s", reply.toString()));
+            JoinResponse reply = new JoinResponse(true);
+            LOGGER.info(String.format("Replying to join request %s", request.getNode()));
             this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), reply, false);
             // Add joined neighbours
             Neighbour n = new Neighbour(request.getNode());
