@@ -19,6 +19,11 @@ public class HealthMonitorService extends Thread {
     private final static Logger LOGGER = Logger.getLogger(HealthMonitorService.class.getName());
 
     /**
+     * Time between two heartbeats in seconds
+     */
+    private int frequency;
+
+    /**
      * Neighbors are the neighbor-nodes of the self-node.
      */
     private List<Neighbour> neighbors;
@@ -41,9 +46,10 @@ public class HealthMonitorService extends Thread {
      *
      * @param neighbors
      */
-    public HealthMonitorService(List<Neighbour> neighbors, BootstrapService bootstrapService) {
+    public HealthMonitorService(List<Neighbour> neighbors, BootstrapService bootstrapService, int frequency) {
         this.neighbors = neighbors;
         this.bootstrapService = bootstrapService;
+        this.frequency = frequency;
     }
 
     /**
@@ -53,7 +59,7 @@ public class HealthMonitorService extends Thread {
         boolean hasNoActiveNeighbors = true;
         for (final ListIterator<Neighbour> iterator = this.neighbors.listIterator(); iterator.hasNext(); ) {
             final Neighbour neighbor = iterator.next();
-            neighbor.setHealth(neighbor.getPulseCount() * 10 / 5);
+            neighbor.setHealth(neighbor.getPulseCount(frequency) * 2);
             LOGGER.debug(String.format("Neighbour %s health updated %d", neighbor.toString(), neighbor.getHealth()));
             if (neighbor.getHealth() != 0) {
                 hasNoActiveNeighbors = false;
@@ -67,6 +73,7 @@ public class HealthMonitorService extends Thread {
         if (hasNoActiveNeighbors && neighbors.size() > 0 && inactiveCounter > 5) {
             LOGGER.info("Bootstrapping since health of all the nodes are zero.");
             try {
+                inactiveCounter = 0;
                 this.bootstrapService.bootstrap(false);
             } catch (BootstrapException e) {
                 // ignore and may try in next iteration

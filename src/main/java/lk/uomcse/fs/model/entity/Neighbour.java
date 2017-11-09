@@ -46,8 +46,8 @@ public class Neighbour implements Comparator<Neighbour>, Comparable<Neighbour> {
      *
      * @return {@code count}
      */
-    public synchronized int getPulseCount() {
-        long currentTime = System.currentTimeMillis() - 5000;
+    public synchronized int getPulseCount(int frequency) {
+        long currentTime = System.currentTimeMillis() - 5000 * frequency;
         int size = pulseResponses.size();
         int count = 0;
         for (int i = size - 1; i >= 0; i--) {

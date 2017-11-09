@@ -43,6 +43,8 @@ public class FalconFS {
 
     private Protocol protocol;
 
+    private int hb_frequency;
+
     /**
      * Imports file system requirements
      */
@@ -55,8 +57,10 @@ public class FalconFS {
         // Only needed if sender type is REST
         if (protocol == Protocol.REST) {
             this.handler = new RequestHandler(self, configs.getBootstrapPort());
+            this.hb_frequency = 2;
         } else {
             this.handler = new RequestHandler(configs.getPort());
+            this.hb_frequency = 1;
         }
         // Services
         this.leaveService = new LeaveService(handler, self, neighbours);
@@ -64,9 +68,9 @@ public class FalconFS {
         this.bootstrapService = new BootstrapService(handler, joinService, leaveService, configs.getBootstrapServer(), name, self);
         this.queryService = new QueryService(handler, self, filenames, neighbours);
         // Heartbeat services
-        this.heartbeatService = new HeartbeatService(handler, neighbours);
+        this.heartbeatService = new HeartbeatService(handler, neighbours, hb_frequency);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
-        this.healthMonitorService = new HealthMonitorService(neighbours, bootstrapService);
+        this.healthMonitorService = new HealthMonitorService(neighbours, bootstrapService, hb_frequency);
     }
 
     /**
