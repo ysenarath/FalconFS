@@ -76,13 +76,14 @@ public class JoinService extends Thread {
                 reply = (JoinResponse) handler.receiveMessage(JoinResponse.ID, 5);
                 break;
             } catch (TimeoutException e) {
+                LOGGER.error(String.format("Join request to %s has timed out", n.getNode()));
                 retries++;
             }
         }
         // TODO: Test this
         if (reply == null) {
             n.setLeft(true);
-            LOGGER.info(String.format("Failed joining with node %s", n.getNode()));
+            LOGGER.error(String.format("Failed joining with node %s", n.getNode()));
         } else {
             n.setLeft(false);
             LOGGER.info(String.format("Successfully joined with node %s", n.getNode()));
