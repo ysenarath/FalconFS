@@ -41,15 +41,18 @@ public class PulseReceiverService extends Thread {
      */
     private boolean isActive = true;
 
+    private final JoinService joinService;
+
     /**
      * Constructor of {@code PulseReceiverService}.
-     *
-     * @param requestHandler RequestHandler of the self-node.
+     *  @param requestHandler RequestHandler of the self-node.
      * @param neighbors      List of neighbors of the self-node.
+     * @param joinService
      */
-    public PulseReceiverService(RequestHandler requestHandler, List<Neighbour> neighbors) {
+    public PulseReceiverService(RequestHandler requestHandler, List<Neighbour> neighbors, JoinService joinService) {
         this.neighbors = neighbors;
         this.requestHandler = requestHandler;
+        this.joinService = joinService;
     }
 
     /**
@@ -67,6 +70,7 @@ public class PulseReceiverService extends Thread {
      */
     private void receivePulses() {
         IMessage message = this.requestHandler.receiveMessage(HeartbeatPulse.ID);
+        boolean isKnownNeighbor = false;
         LOGGER.debug(String.format("Heartbeat received from %S", message.getSender()));
         try {
             InetAddress packetAddress = InetAddress.getByName(message.getSender().getIp());
@@ -74,9 +78,13 @@ public class PulseReceiverService extends Thread {
                 final Neighbour neighbor = iterator.next();
                 InetAddress addressNeighbor = InetAddress.getByName(neighbor.getNode().getIp());
                 if (addressNeighbor.equals(packetAddress) && neighbor.getNode().getPort() == message.getSender().getPort()) {
+                    isKnownNeighbor = true;
                     neighbor.addPulseResponse(message.getReceivedTime());
                     iterator.set(neighbor);
                 }
+            }
+            if(!isKnownNeighbor) {
+                joinService.join(new Neighbour(message.getSender()));
             }
         } catch (UnknownHostException e) {
             LOGGER.error(e);

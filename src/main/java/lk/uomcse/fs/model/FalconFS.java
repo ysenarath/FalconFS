@@ -69,7 +69,7 @@ public class FalconFS {
         this.queryService = new QueryService(handler, self, filenames, neighbours);
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours, hb_frequency);
-        this.pulseReceiverService = new PulseReceiverService(handler, neighbours);
+        this.pulseReceiverService = new PulseReceiverService(handler, neighbours, joinService);
         this.healthMonitorService = new HealthMonitorService(neighbours, bootstrapService, hb_frequency);
     }
 

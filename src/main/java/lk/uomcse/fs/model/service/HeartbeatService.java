@@ -88,7 +88,7 @@ public class HeartbeatService extends Thread {
                 this.requestHandler.sendMessage(neighbor.getNode().getIp(), neighbor.getNode().getPort(), this.pulse, false);
             }
             Thread.sleep(frequency * 1000);
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             LOGGER.error(e);
         }
 
