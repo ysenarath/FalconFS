@@ -14,7 +14,15 @@ public class FrameUtils {
             if (className.equals("Darcula")) {
                 Class<?> clazz = Class.forName("com.bulenkov.darcula.DarculaLaf");
                 LookAndFeel laf = (LookAndFeel) clazz.newInstance();
-                UIManager.setLookAndFeel(laf);
+                try {
+                    UIManager.setLookAndFeel(laf);
+                } catch (ExceptionInInitializerError e) {
+                    try {
+                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e2) {
+                        // ignore
+                    }
+                }
             } else {
                 UIManager.setLookAndFeel(className);
             }
