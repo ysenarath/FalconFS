@@ -191,12 +191,11 @@ public class QueryService {
      * @param filenames filenames matching the query
      */
     private void updateResults(Node node, List<String> filenames) {
-        List<String> temp = filenames.stream().map(s -> s.replace('_', ' ')).collect(Collectors.toList());
         synchronized (results) {
             if (!results.containsKey(node))
-                results.put(node, temp);
+                results.put(node, filenames);
         }
-        cacheService.update(node, temp);
+        cacheService.update(node, filenames);
     }
 
     /**

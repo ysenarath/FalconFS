@@ -48,7 +48,7 @@ public class ResultTableModel extends DefaultTableModel {
             case 1:
                 return keys.get(row).getPort();
             case 2:
-                return String.join(",", map.get(keys.get(row)));
+                return String.join(",", map.get(keys.get(row))).replace('_', ' ');
             default:
                 return null;
         }
@@ -57,10 +57,14 @@ public class ResultTableModel extends DefaultTableModel {
     @Override
     public String getColumnName(int column) {
         switch (column) {
-            case 0: return "IP";
-            case 1: return "Port";
-            case 2: return "File Names";
-            default: return null;
+            case 0:
+                return "IP";
+            case 1:
+                return "Port";
+            case 2:
+                return "File Names";
+            default:
+                return null;
         }
     }
 }

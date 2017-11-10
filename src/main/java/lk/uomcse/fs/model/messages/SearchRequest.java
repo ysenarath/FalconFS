@@ -98,7 +98,7 @@ public class SearchRequest extends Message implements IRequest {
         String qid = response[2];
         String ip = response[3];
         int port = Integer.parseInt(response[4]);
-        String filename = response[5];
+        String filename = response[5].replace('_', ' ');
         int hops = Integer.parseInt(response[6]);
         return new SearchRequest(qid, new Node(ip, port), filename, hops);
     }
@@ -115,7 +115,7 @@ public class SearchRequest extends Message implements IRequest {
                 .append(this.queryId).append(" ")
                 .append(node.getIp()).append(" ")
                 .append(node.getPort()).append(" ")
-                .append(this.filename).append(" ")
+                .append(this.filename.replace(' ', '_')).append(" ")
                 .append(this.hops);
         String length = String.format("%04d", sb.length() + 4);
         sb.insert(0, length);

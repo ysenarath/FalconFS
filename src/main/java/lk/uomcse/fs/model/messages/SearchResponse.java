@@ -113,7 +113,8 @@ public class SearchResponse extends Message implements IResponse {
         int port = Integer.parseInt(response[5]);
         int hops = Integer.parseInt(response[6]);
         // TODO: Handle Errors
-        List<String> filenames = Arrays.asList(response).subList(7, response.length);
+        List<String> filenames ;
+        filenames = Arrays.asList(response).subList(7, response.length);
         return new SearchResponse(qid, n, new Node(ip, port), hops, filenames);
     }
 
