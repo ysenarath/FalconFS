@@ -150,7 +150,7 @@ public class MainUI {
             } else if (filenames.contains(newFilename)) {
                 JOptionPane.showMessageDialog(frame, "Filename is already added!", "FalconFS", JOptionPane.ERROR_MESSAGE);
             } else {
-                filenames.add(newFilename);
+                filenames.add(newFilename.toLowerCase());
                 filenameModel.fireTableDataChanged();
             }
         });
