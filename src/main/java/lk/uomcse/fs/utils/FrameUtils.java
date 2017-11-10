@@ -12,9 +12,9 @@ public class FrameUtils {
     public static void setLookAndFeel(String className) {
         try {
             if (className.equals("Darcula")) {
-                Class<?> clazz = Class.forName("com.bulenkov.darcula.DarculaLaf");
-                LookAndFeel laf = (LookAndFeel) clazz.newInstance();
                 try {
+                    Class<?> clazz = Class.forName("com.bulenkov.darcula.DarculaLaf");
+                    LookAndFeel laf = (LookAndFeel) clazz.newInstance();
                     UIManager.setLookAndFeel(laf);
                 } catch (ExceptionInInitializerError e) {
                     try {
