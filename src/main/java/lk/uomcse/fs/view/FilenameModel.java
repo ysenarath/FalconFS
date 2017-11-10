@@ -1,9 +1,6 @@
 package lk.uomcse.fs.view;
 
-import javax.swing.*;
-import javax.swing.event.ListDataListener;
 import javax.swing.table.DefaultTableModel;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,5 +33,18 @@ public class FilenameModel extends DefaultTableModel {
     @Override
     public String getColumnName(int column) {
         return "File Names";
+    }
+
+    /**
+     * Sets the object value for the cell at <code>column</code> and
+     * <code>row</code>.
+     */
+    @Override
+    public void setValueAt(Object aValue, int row, int column) {
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false;
     }
 }

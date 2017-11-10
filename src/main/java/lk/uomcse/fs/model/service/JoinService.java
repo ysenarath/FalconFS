@@ -101,9 +101,9 @@ public class JoinService extends Thread {
         synchronized (neighbours) {
             // Do not add duplicates (behave like a set)
             Optional<Neighbour> neighbour = neighbours.stream().filter(t -> t.equals(n)).findAny();
-            if (neighbour.isPresent())
-                neighbour.get().setLeft(false);
-            else
+            if (neighbour.isPresent()) {
+                neighbour.get().setLeft(n.isLeft());
+            } else
                 neighbours.add(n);
             LOGGER.info(String.format("Joined to nodes: %s", neighbours.toString()));
         }
