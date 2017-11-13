@@ -3,17 +3,16 @@ package lk.uomcse.fs.model.service;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Queues;
+import lk.uomcse.fs.model.RequestHandler;
 import lk.uomcse.fs.model.entity.Neighbour;
 import lk.uomcse.fs.model.entity.Node;
 import lk.uomcse.fs.model.messages.SearchRequest;
 import lk.uomcse.fs.model.messages.SearchResponse;
-import lk.uomcse.fs.model.RequestHandler;
 import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
 /**
  * Initiates search requests and listens for replies
@@ -56,6 +55,8 @@ public class QueryService {
 
     private final ConcurrentHashMap<Node, List<String>> results;
 
+    private final ConcurrentHashMap<Node, Long> delays;
+
     // -----------------------------------------------------------------------------------------------------------------
 
     private String currentQuery;
@@ -63,6 +64,8 @@ public class QueryService {
     private int currentQueryID;
 
     private boolean running;
+
+    private long sentTime;
 
     /**
      * Query service
@@ -81,6 +84,7 @@ public class QueryService {
         this.cacheService = new CacheService(MAX_INDEX_SIZE, MAX_NODE_QUEUE_LENGTH);
         this.running = false;
         this.results = new ConcurrentHashMap<>();
+        this.delays = new ConcurrentHashMap<>();
         this.handleResponsesThread = new Thread(this::runHandleResponses);
         this.handleQueriesThread = new Thread(this::runHandleQueries);
         this.queryIdStore = CacheBuilder.newBuilder()
@@ -149,6 +153,7 @@ public class QueryService {
      */
     public synchronized void search(String query) {
         clear(); // Clear current query
+        sentTime = System.currentTimeMillis();
         SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), current, query, 0);
         List<String> matches = searchUtils(request, null);
         if (matches.size() > 0) {
@@ -192,8 +197,11 @@ public class QueryService {
      */
     private void updateResults(Node node, List<String> filenames) {
         synchronized (results) {
-            if (!results.containsKey(node))
+            if (!results.containsKey(node)) {
                 results.put(node, filenames);
+                Long delay = System.currentTimeMillis() - sentTime;
+                delays.putIfAbsent(node, delay);
+            }
         }
         cacheService.update(node, filenames);
     }
@@ -306,5 +314,9 @@ public class QueryService {
         this.results.clear();
         this.currentQuery = "";
         this.currentQueryID++;
+    }
+
+    public ConcurrentHashMap<Node, Long> getSearchDelays() {
+        return delays;
     }
 }

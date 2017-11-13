@@ -26,7 +26,7 @@ public class ResultTableModel extends DefaultTableModel {
 
     @Override
     public int getColumnCount() {
-        return 3;
+        return 4;
     }
 
     @Override
@@ -48,7 +48,9 @@ public class ResultTableModel extends DefaultTableModel {
             case 1:
                 return keys.get(row).getPort();
             case 2:
-                return String.join(",", map.get(keys.get(row))).replace('_', ' ');
+                return String.join(", ", map.get(keys.get(row))).replace('_', ' ');
+            case 3:
+                return queryService.getSearchDelays().get(keys.get(row));
             default:
                 return null;
         }
@@ -63,6 +65,8 @@ public class ResultTableModel extends DefaultTableModel {
                 return "Port";
             case 2:
                 return "File Names";
+            case 3:
+                return "Delay(Milliseconds)";
             default:
                 return null;
         }
