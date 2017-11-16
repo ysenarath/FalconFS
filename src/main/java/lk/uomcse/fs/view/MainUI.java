@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import lk.uomcse.fs.controller.MainController;
+import lk.uomcse.fs.model.FalconFS;
 import lk.uomcse.fs.model.Statistics;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -13,6 +14,8 @@ import org.apache.log4j.spi.LoggingEvent;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -49,6 +52,7 @@ public class MainUI {
     private JLabel lblRecieved;
     private JLabel lblResolved;
     private JLabel lblForwarded;
+    private JCheckBox Cache;
     private MainController controller;
 
     public MainUI() {
@@ -105,6 +109,7 @@ public class MainUI {
         this.setupConsoleComponent();
         this.setupSelfNodeInfo();
         this.setupStatistics();
+        Cache.addActionListener(e -> controller.getQueryService().setUseCache(Cache.isSelected()) );
     }
 
     private void setupStatistics() {
