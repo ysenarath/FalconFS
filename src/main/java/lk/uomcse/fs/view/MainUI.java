@@ -4,6 +4,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import lk.uomcse.fs.controller.MainController;
+import lk.uomcse.fs.model.Statistics;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -43,6 +44,11 @@ public class MainUI {
     private JLabel lblName;
     private JLabel lblIP;
     private JLabel lblPort;
+    private JPanel pnlStatistics;
+    private JButton updateButton;
+    private JLabel lblRecieved;
+    private JLabel lblResolved;
+    private JLabel lblForwarded;
     private MainController controller;
 
     public MainUI() {
@@ -98,6 +104,16 @@ public class MainUI {
         this.setupFileComponents();
         this.setupConsoleComponent();
         this.setupSelfNodeInfo();
+        this.setupStatistics();
+    }
+
+    private void setupStatistics() {
+        updateButton.addActionListener(e -> {
+            Statistics stat = controller.getQueryService().getStatistics();
+            lblForwarded.setText(String.valueOf(stat.getForwarded()));
+            lblRecieved.setText(String.valueOf(stat.getReceived()));
+            lblResolved.setText(String.valueOf(stat.getResolved()));
+        });
     }
 
     private void setupThreadComponents() {

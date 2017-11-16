@@ -1,11 +1,11 @@
 package lk.uomcse.fs.view;
 
+import lk.uomcse.fs.model.ResultList;
 import lk.uomcse.fs.model.entity.Node;
 import lk.uomcse.fs.model.service.QueryService;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,31 +26,33 @@ public class ResultTableModel extends DefaultTableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 5;
     }
 
     @Override
     public int getRowCount() {
         int length = 0;
         if (queryService != null) {
-            length = queryService.getSearchResults().size();
+            length = queryService.getResults().size();
         }
         return length;
     }
 
     @Override
     public Object getValueAt(int row, int column) {
-        ArrayList<Node> keys = new ArrayList<>(queryService.getSearchResults().keySet());
-        Map<Node, List<String>> map = queryService.getSearchResults();
+        ArrayList<Node> keys = new ArrayList<>(queryService.getResults().keySet());
+        Map<Node, ResultList> resultMap = queryService.getResults();
         switch (column) {
             case 0:
                 return keys.get(row).getIp();
             case 1:
                 return keys.get(row).getPort();
             case 2:
-                return String.join(", ", map.get(keys.get(row))).replace('_', ' ');
+                return String.join(", ", resultMap.get(keys.get(row))).replace('_', ' ');
             case 3:
-                return queryService.getSearchDelays().get(keys.get(row));
+                return resultMap.get(keys.get(row)).getLatency();
+            case 4:
+                return resultMap.get(keys.get(row)).getHops();
             default:
                 return null;
         }
@@ -66,7 +68,9 @@ public class ResultTableModel extends DefaultTableModel {
             case 2:
                 return "File Names";
             case 3:
-                return "Delay(Milliseconds)";
+                return "Latency(Milliseconds)";
+            case 4:
+                return "Hops";
             default:
                 return null;
         }

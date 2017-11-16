@@ -4,6 +4,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Queues;
 import lk.uomcse.fs.model.RequestHandler;
+import lk.uomcse.fs.model.ResultList;
+import lk.uomcse.fs.model.Statistics;
 import lk.uomcse.fs.model.entity.Neighbour;
 import lk.uomcse.fs.model.entity.Node;
 import lk.uomcse.fs.model.messages.SearchRequest;
@@ -53,19 +55,19 @@ public class QueryService {
 
     private final Thread handleQueriesThread;
 
-    private final ConcurrentHashMap<Node, List<String>> results;
+    private final ConcurrentHashMap<Node, ResultList> results;
 
-    private final ConcurrentHashMap<Node, Long> delays;
+    private final Statistics statistics;
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    private String currentQuery;
-
     private int currentQueryID;
 
-    private boolean running;
+    private String currentQuery;
 
     private long sentTime;
+
+    private boolean running;
 
     /**
      * Query service
@@ -84,7 +86,7 @@ public class QueryService {
         this.cacheService = new CacheService(MAX_INDEX_SIZE, MAX_NODE_QUEUE_LENGTH);
         this.running = false;
         this.results = new ConcurrentHashMap<>();
-        this.delays = new ConcurrentHashMap<>();
+        statistics = new Statistics();
         this.handleResponsesThread = new Thread(this::runHandleResponses);
         this.handleQueriesThread = new Thread(this::runHandleQueries);
         this.queryIdStore = CacheBuilder.newBuilder()
@@ -114,7 +116,7 @@ public class QueryService {
             }
             if (Integer.parseInt(response.getQueryID()) == currentQueryID) {
                 LOGGER.info(String.format("Response received matching current query: %s", response.toString()));
-                this.updateResults(response.getNode(), response.getFilenames());
+                this.updateResults(response.getNode(), response.getFilenames(), response.getHops());
             } else {
                 LOGGER.info(String.format("Response received matching old query: %s", response.toString()));
             }
@@ -136,8 +138,10 @@ public class QueryService {
             if (!isNewQuery(request)) {
                 continue;
             }
+            statistics.addReceived(1);
             List<String> matches = searchUtils(request, request.getSender());
             if (matches.size() > 0) {
+                statistics.addResolved(1);
                 SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.current, request.getHops() + 1, matches);
                 this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response, false);
                 LOGGER.info(String.format("Response sent %s", response.toString()));
@@ -157,7 +161,7 @@ public class QueryService {
         SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), current, query, 0);
         List<String> matches = searchUtils(request, null);
         if (matches.size() > 0) {
-            this.updateResults(current, matches);
+            this.updateResults(current, matches, 0);
         }
     }
 
@@ -195,12 +199,14 @@ public class QueryService {
      * @param node      Node containing the files
      * @param filenames filenames matching the query
      */
-    private void updateResults(Node node, List<String> filenames) {
+    private void updateResults(Node node, List<String> filenames, int hops) {
         synchronized (results) {
             if (!results.containsKey(node)) {
-                results.put(node, filenames);
-                Long delay = System.currentTimeMillis() - sentTime;
-                delays.putIfAbsent(node, delay);
+                Long latency = System.currentTimeMillis() - sentTime;
+                ResultList temp = new ResultList(filenames);
+                temp.setHops(hops);
+                temp.setLatency(latency);
+                results.put(node, temp);
             }
         }
         cacheService.update(node, filenames);
@@ -263,7 +269,7 @@ public class QueryService {
      *
      * @return current query in progress
      */
-    public String getCurrentQuery() {
+    public String getQuery() {
         return currentQuery;
     }
 
@@ -272,7 +278,7 @@ public class QueryService {
      *
      * @return map of nodes with respective files files
      */
-    public Map<Node, List<String>> getSearchResults() {
+    public Map<Node, ResultList> getResults() {
         return results;
     }
 
@@ -296,6 +302,10 @@ public class QueryService {
         return true;
     }
 
+    public Statistics getStatistics() {
+        return statistics;
+    }
+
     /**
      * Sets running status
      *
@@ -316,7 +326,7 @@ public class QueryService {
         this.currentQueryID++;
     }
 
-    public ConcurrentHashMap<Node, Long> getSearchDelays() {
-        return delays;
+    public synchronized void reset() {
+        statistics.reset();
     }
 }
