@@ -12,6 +12,9 @@ import lk.uomcse.fs.model.messages.SearchRequest;
 import lk.uomcse.fs.model.messages.SearchResponse;
 import org.apache.log4j.Logger;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,7 +32,7 @@ public class QueryService {
 
     private static final int ID_STORE_INDEX_SIZE = 10;
 
-    private static final int MAX_NODES = 5;
+    private static final int MAX_NODES = 4;
 
     private static final int MIN_REQ_HEALTH = 50;
 
@@ -235,7 +238,8 @@ public class QueryService {
         synchronized (neighbours) {
             Collections.sort(neighbours);
             for (int i = 0; i < (fromNeighbours > neighbours.size() ? neighbours.size() : fromNeighbours); i++) {
-                bestNodes.add(neighbours.get(i).getNode());
+                if (!neighbours.get(i).isLeft())
+                    bestNodes.add(neighbours.get(i).getNode());
             }
         }
 
@@ -249,11 +253,12 @@ public class QueryService {
      * @return list of filenames matching (containing) query
      */
     private List<String> searchFiles(String query) {
+        query = query.toLowerCase();
         List<String> found = new ArrayList<>();
         boolean isMatch;
         String[] fNameArry;
         for (String filename : filenames) {
-            fNameArry = filename.split(" +");
+            fNameArry = filename.toLowerCase().split(" +");
             isMatch = true;
             for (String keyword : query.split(" +")) {
                 if (!Arrays.asList(fNameArry).contains(keyword)) {
@@ -337,5 +342,44 @@ public class QueryService {
 
     public synchronized void reset() {
         statistics.reset();
+    }
+
+    /**
+     * Evaluation
+     */
+    public void autoSearch() {
+        String[] queries = {"Twilight", "Jack", "American Idol", "Happy Feet", "Twilight saga", "Happy Feet", "Happy Feet", "Feet", "Happy Feet", "Twilight", "Windows", "Happy Feet", "Mission Impossible", "Twilight", "Windows 8", "The", "Happy", "Windows 8", "Happy Feet", "Super Mario", "Jack and Jill", "Happy Feet", "Impossible", "Happy Feet", "Turn Up The Music", "Adventures of Tintin", "Twilight saga", "Happy Feet", "Super Mario", "American Pickers", "Microsoft Office 2010", "Twilight", "Modern Family", "Jack and Jill", "Jill", "Glee", "The Vampire Diarie", "King Arthur", "Jack and Jill", "King Arthur", "Windows XP", "Harry Potter", "Feet", "Kung Fu Panda", "Lady Gaga", "Gaga", "Happy Feet", "Twilight", "Hacking", "King"};
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter("output1.txt", "UTF-8");
+            for (String q : queries) {
+                System.out.println("Searching " + q);
+                search(q);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    System.err.println("Cannot wait :(");
+                }
+                Map<Node, ResultList> results = getResults();
+                for (Node n : results.keySet()) {
+                    System.out.println("Node responded " + n);
+                    ResultList rs = results.get(n);
+                    Long latency = rs.getLatency();
+                    int hops = rs.getHops();
+                    String filenames = String.valueOf(rs.getFilenames());
+                    StringBuilder line = new StringBuilder();
+                    line.append(q).append(" ");
+                    line.append(n).append(" ");
+                    line.append(latency).append(" ");
+                    line.append(hops).append(" ");
+                    line.append(filenames);
+                    writer.println(line.toString());
+                }
+            }
+        } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } finally {
+            writer.close();
+        }
     }
 }
