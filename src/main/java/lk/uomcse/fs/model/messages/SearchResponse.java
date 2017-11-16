@@ -6,6 +6,7 @@ import lk.uomcse.fs.utils.exceptions.InvalidFormatException;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // length SEROK qid no_files IP port hops filename1 filename2 ... ...
 @JsonIgnoreProperties(value = {"receivedTime"}, ignoreUnknown = true)
@@ -115,6 +116,8 @@ public class SearchResponse extends Message implements IResponse {
         // TODO: Handle Errors
         List<String> filenames ;
         filenames = Arrays.asList(response).subList(7, response.length);
+        // NEW**
+        filenames = filenames.stream().map(s -> s.replace('_', ' ')).collect(Collectors.toList());
         return new SearchResponse(qid, n, new Node(ip, port), hops, filenames);
     }
 
