@@ -37,6 +37,7 @@ public class QueryService {
 
     private static final int MAX_NODE_QUEUE_LENGTH = 10;
 
+    private boolean useCache;
     // -----------------------------------------------------------------------------------------------------------------
 
     private final CacheService cacheService;
@@ -92,6 +93,8 @@ public class QueryService {
         this.queryIdStore = CacheBuilder.newBuilder()
                 .maximumSize(ID_STORE_INDEX_SIZE)
                 .<String, Queue<String>>build().asMap();
+
+        this.useCache = true;
 
     }
 
@@ -219,8 +222,10 @@ public class QueryService {
      * @return a list of nodes possibly containing the file
      */
     private List<Node> selectBestNodes(String filename) {
-        List<Node> bestNodes = cacheService.search(filename);
-
+        List<Node> bestNodes = null;
+        if (useCache) {
+            bestNodes = cacheService.search(filename);
+        }
         if (bestNodes == null)
             bestNodes = new ArrayList<>();
 
@@ -324,6 +329,10 @@ public class QueryService {
         this.results.clear();
         this.currentQuery = "";
         this.currentQueryID++;
+    }
+
+    public void setUseCache(boolean useCache) {
+        this.useCache = useCache;
     }
 
     public synchronized void reset() {
