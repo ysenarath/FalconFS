@@ -30,4 +30,8 @@ public class ResultList extends ArrayList<String> implements List<String> {
     public void setHops(int hops) {
         this.hops = hops;
     }
+
+    public List<String> getFilenames() {
+        return filenames;
+    }
 }

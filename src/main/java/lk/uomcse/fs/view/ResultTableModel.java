@@ -48,7 +48,7 @@ public class ResultTableModel extends DefaultTableModel {
             case 1:
                 return keys.get(row).getPort();
             case 2:
-                return String.join(", ", resultMap.get(keys.get(row))).replace('_', ' ');
+                return String.join(", ", resultMap.get(keys.get(row)).getFilenames()).replace('_', ' ');
             case 3:
                 return resultMap.get(keys.get(row)).getLatency();
             case 4:
