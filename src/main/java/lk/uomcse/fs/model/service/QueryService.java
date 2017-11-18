@@ -32,7 +32,7 @@ public class QueryService {
 
     private static final int ID_STORE_INDEX_SIZE = 10;
 
-    private static final int MAX_NODES = 4;
+    private static final int MAX_NODES = 3;
 
     private static final int MIN_REQ_HEALTH = 50;
 
@@ -73,15 +73,18 @@ public class QueryService {
 
     private boolean running;
 
+    private String name;
+
     /**
      * Query service
      *
      * @param handler    a request handler
      * @param current    current node (me)
+     * @param name       name of app - used for auto search filename
      * @param filenames  reference to list of filenames in this node
      * @param neighbours reference to list of neighbours
      */
-    public QueryService(RequestHandler handler, Node current, List<String> filenames, List<Neighbour> neighbours) {
+    public QueryService(RequestHandler handler, Node current, String name, List<String> filenames, List<Neighbour> neighbours) {
         this.handler = handler;
         this.current = current;
         this.filenames = filenames;
@@ -96,7 +99,7 @@ public class QueryService {
         this.queryIdStore = CacheBuilder.newBuilder()
                 .maximumSize(ID_STORE_INDEX_SIZE)
                 .<String, Queue<String>>build().asMap();
-
+        this.name = name;
         this.useCache = true;
 
     }
@@ -148,7 +151,7 @@ public class QueryService {
             List<String> matches = searchUtils(request, request.getSender());
             if (matches.size() > 0) {
                 statistics.addResolved(1);
-                SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.current, request.getHops() + 1, matches);
+                SearchResponse response = new SearchResponse(request.getQueryId(), matches.size(), this.current, request.getHops(), matches);
                 this.handler.sendMessage(request.getNode().getIp(), request.getNode().getPort(), response, false);
                 LOGGER.info(String.format("Response sent %s", response.toString()));
             }
@@ -163,7 +166,7 @@ public class QueryService {
      */
     public synchronized void search(String query) {
         clear(); // Clear current query
-        sentTime = System.currentTimeMillis();
+        sentTime = System.nanoTime();
         SearchRequest request = new SearchRequest(String.valueOf(currentQueryID), current, query, 0);
         List<String> matches = searchUtils(request, null);
         if (matches.size() > 0) {
@@ -208,7 +211,7 @@ public class QueryService {
     private void updateResults(Node node, List<String> filenames, int hops) {
         synchronized (results) {
             if (!results.containsKey(node)) {
-                Long latency = System.currentTimeMillis() - sentTime;
+                Long latency = System.nanoTime() - sentTime;
                 ResultList temp = new ResultList(filenames);
                 temp.setHops(hops);
                 temp.setLatency(latency);
@@ -232,7 +235,7 @@ public class QueryService {
         if (bestNodes == null)
             bestNodes = new ArrayList<>();
 
-        int nodeGap = MAX_NODES - bestNodes.size();
+        int nodeGap = bestNodes.size() > 0 ? MAX_NODES - bestNodes.size() : neighbours.size();
         int fromNeighbours = nodeGap > 0 ? nodeGap + 2 : 2;
 
         synchronized (neighbours) {
@@ -348,10 +351,17 @@ public class QueryService {
      * Evaluation
      */
     public void autoSearch() {
-        String[] queries = {"Twilight", "Jack", "American Idol", "Happy Feet", "Twilight saga", "Happy Feet", "Happy Feet", "Feet", "Happy Feet", "Twilight", "Windows", "Happy Feet", "Mission Impossible", "Twilight", "Windows 8", "The", "Happy", "Windows 8", "Happy Feet", "Super Mario", "Jack and Jill", "Happy Feet", "Impossible", "Happy Feet", "Turn Up The Music", "Adventures of Tintin", "Twilight saga", "Happy Feet", "Super Mario", "American Pickers", "Microsoft Office 2010", "Twilight", "Modern Family", "Jack and Jill", "Jill", "Glee", "The Vampire Diarie", "King Arthur", "Jack and Jill", "King Arthur", "Windows XP", "Harry Potter", "Feet", "Kung Fu Panda", "Lady Gaga", "Gaga", "Happy Feet", "Twilight", "Hacking", "King"};
+        String[] queries = {"Twilight", "Jack", "American Idol", "Happy Feet", "Twilight saga", "Happy Feet",
+                "Happy Feet", "Feet", "Happy Feet", "Twilight", "Windows", "Happy Feet", "Mission Impossible",
+                "Twilight", "Windows 8", "The", "Happy", "Windows 8", "Happy Feet", "Super Mario", "Jack and Jill",
+                "Happy Feet", "Impossible", "Happy Feet", "Turn Up The Music", "Adventures of Tintin", "Twilight saga",
+                "Happy Feet", "Super Mario", "American Pickers", "Microsoft Office 2010", "Twilight", "Modern Family",
+                "Jack and Jill", "Jill", "Glee", "The Vampire Diarie", "King Arthur", "Jack and Jill", "King Arthur",
+                "Windows XP", "Harry Potter", "Feet", "Kung Fu Panda", "Lady Gaga", "Gaga", "Happy Feet", "Twilight",
+                "Hacking", "King"};
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter("output1.txt", "UTF-8");
+            writer = new PrintWriter("output_" + name + ".txt", "UTF-8");
             for (String q : queries) {
                 System.out.println("Searching " + q);
                 search(q);
@@ -361,19 +371,22 @@ public class QueryService {
                     System.err.println("Cannot wait :(");
                 }
                 Map<Node, ResultList> results = getResults();
+                if (results.keySet().size() == 0) {
+                    writer.println(q);
+                }
                 for (Node n : results.keySet()) {
                     System.out.println("Node responded " + n);
                     ResultList rs = results.get(n);
                     Long latency = rs.getLatency();
                     int hops = rs.getHops();
                     String filenames = String.valueOf(rs.getFilenames());
-                    StringBuilder line = new StringBuilder();
-                    line.append(q).append(" ");
-                    line.append(n).append(" ");
-                    line.append(latency).append(" ");
-                    line.append(hops).append(" ");
-                    line.append(filenames);
-                    writer.println(line.toString());
+                    String line = q + "\t" +
+                            n + "\t" +
+                            latency + "\t" +
+                            hops + "\t" +
+                            filenames;
+                    writer.println(line);
+                    writer.flush();
                 }
             }
         } catch (FileNotFoundException | UnsupportedEncodingException e) {

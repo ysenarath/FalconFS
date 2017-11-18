@@ -7,9 +7,13 @@ import lk.uomcse.fs.utils.exceptions.BootstrapException;
 import lk.uomcse.fs.utils.exceptions.InitializationException;
 import org.apache.log4j.Logger;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Falcon File System
@@ -66,7 +70,7 @@ public class FalconFS {
         this.leaveService = new LeaveService(handler, self, neighbours);
         this.joinService = new JoinService(handler, self, neighbours);
         this.bootstrapService = new BootstrapService(handler, joinService, leaveService, configs.getBootstrapServer(), name, self);
-        this.queryService = new QueryService(handler, self, filenames, neighbours);
+        this.queryService = new QueryService(handler, self, name, filenames, neighbours);
         // Heartbeat services
         this.heartbeatService = new HeartbeatService(handler, neighbours, hb_frequency);
         this.pulseReceiverService = new PulseReceiverService(handler, neighbours, joinService);

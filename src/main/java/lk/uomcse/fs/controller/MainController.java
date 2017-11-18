@@ -13,11 +13,13 @@ import java.util.List;
 public class MainController {
     private final MainUI view;
     private final FalconFS model;
+    private boolean autoSearch;
 
     public MainController(FalconFS model, MainUI view) {
         this.model = model;
         this.view = view;
         this.view.setController(this);
+        autoSearch = false;
     }
 
     /**
@@ -57,5 +59,13 @@ public class MainController {
 
     public String getName() {
         return model.getName();
+    }
+
+    public void setAutoSearch(boolean value) {
+        autoSearch = value;
+    }
+
+    public boolean getAutoSearch() {
+        return autoSearch;
     }
 }

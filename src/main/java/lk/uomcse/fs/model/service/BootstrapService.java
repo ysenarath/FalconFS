@@ -80,7 +80,7 @@ public class BootstrapService {
         LOGGER.info(String.format("Bootstrap server replied: %s", response.toString()));
         BootstrapError err;
         if (response.isSuccess()) {
-            List<Node> subList = ListUtils.randomSubList(response.getNodes(), 1);
+            List<Node> subList = ListUtils.randomSubList(response.getNodes(), 2);
             return subList.stream().map(Neighbour::new).collect(Collectors.toList());
         } else {
             switch (response.getNodeCount()) {
